@@ -53,10 +53,10 @@ function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurv
     if(dragonsCurve && !realityBending) str += "only Dragon's Curve on the dragon, ";
     if(!dragonsCurve && !realityBending) str += "neither Dragon's Curve nor Reality Bending on the dragon, ";
 
-    if(rigidelSlot == 0) str += "and Rigidel unslotted, ";
-    if(rigidelSlot == 1) str += "and Rigidel on Jade slot, ";
-    if(rigidelSlot == 2) str += "and Rigidel on Ruby slot, ";
-    if(rigidelSlot == 3) str += "and Rigidel on Diamond slot, ";
+    if(rigidelSlot == 0) str += "and Rigidel unslotted.";
+    if(rigidelSlot == 1) str += "and Rigidel on Jade slot.";
+    if(rigidelSlot == 2) str += "and Rigidel on Ruby slot.";
+    if(rigidelSlot == 3) str += "and Rigidel on Diamond slot.";
 
     console.log(str);
 }
