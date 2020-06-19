@@ -23,15 +23,16 @@ function predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending
     return lumpType;
 }
 
-function allPredictions(dragonsCurveAvailable, realityBendingAvailable, maxGrandmas) {
+function allPredictions(targetTypes, ignoreSugarAgingProcess) {
+    let maxGrandmas = ignoreSugarAgingProcess ? 0 : 600;
     for(let grandmapocalypseStage = 0; grandmapocalypseStage <= 3; grandmapocalypseStage++) {
-        for(let dragonsCurve = 0; dragonsCurve <= dragonsCurveAvailable; dragonsCurve++) {
-            for(let realityBending = 0; realityBending <= realityBendingAvailable; realityBending++) {
+        for(let dragonsCurve = 0; dragonsCurve <= 1; dragonsCurve++) {
+            for(let realityBending = 0; realityBending <= 1; realityBending++) {
                 for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
                     for(let grandmaCount = 0; grandmaCount <= maxGrandmas; grandmaCount ++) {
                         let lumpType = predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount);
-                        if(lumpType !== 'normal') {
-                            prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount);
+                        if(targetTypes.includes(lumpType)) {
+                            prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, ignoreSugarAgingProcess ? -1 : grandmaCount);
                         }
                     }
                 }
@@ -42,7 +43,7 @@ function allPredictions(dragonsCurveAvailable, realityBendingAvailable, maxGrand
 
 function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount) {
     let str = "Lump type: " + lumpType + ", with ";
-    if(Game.Has('Sugar aging process')) str += grandmaCount + " ";
+    if(grandmaCount !== -1) str += grandmaCount + " ";
     if(grandmapocalypseStage == 0) str += "appeased grandmas, ";
     if(grandmapocalypseStage == 1) str += "awoken grandmas, ";
     if(grandmapocalypseStage == 2) str += "displeased grandmas, ";
