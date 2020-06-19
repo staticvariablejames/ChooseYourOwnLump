@@ -57,4 +57,6 @@ function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurv
     if(rigidelSlot == 1) str += "and Rigidel on Jade slot, ";
     if(rigidelSlot == 2) str += "and Rigidel on Ruby slot, ";
     if(rigidelSlot == 3) str += "and Rigidel on Diamond slot, ";
+
+    console.log(str);
 }
