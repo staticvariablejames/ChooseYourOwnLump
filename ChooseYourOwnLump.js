@@ -46,7 +46,7 @@ function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurv
     if(grandmapocalypseStage == 0) str += "appeased grandmas, ";
     if(grandmapocalypseStage == 1) str += "awoken grandmas, ";
     if(grandmapocalypseStage == 2) str += "displeased grandmas, ";
-    if(grandmapocalypseStage == 2) str += "angered grandmas, ";
+    if(grandmapocalypseStage == 3) str += "angered grandmas, ";
 
     if(dragonsCurve && realityBending) str += "both Dragon's Curve and Reality Bending on the dragon, ";
     if(!dragonsCurve && realityBending) str += "only Reality Bending on the dragon, ";
