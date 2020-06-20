@@ -6,7 +6,13 @@ function predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending
     ripeAge -= 6*1000 * grandmaCount;
     ripeAge -= 20*60*1000 * rigidelSlot;
     ripeAge /= 1 + 0.05*dragonAura;
-    let autoharvestTime = Game.lumpT + ripeAge + 60*60*1000;
+    let autoharvestTime = Math.floor(Game.lumpT) + ripeAge + 60*60*1000;
+    /* This technique for choosing the lump type
+     * only really works if we save the game and load it _after_ the autoharvest time.
+     * However, although the game works just fine using fractional Game.lumpT values,
+     * the game truncates the number when saving.
+     * Thus we must assume that we have the truncated number here.
+     */
 
     Math.seedrandom(Game.seed+'/'+autoharvestTime);
 
