@@ -1,5 +1,5 @@
 function predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount) {
-    let dragonAura = 1 + (dragonsCurve? 1 : 0) + (realityBending? 0.1 : 0);
+    let dragonAura = 1 + (dragonsCurve? 0.05 : 0) + (realityBending? 0.005 : 0);
 
     let ripeAge = 23 * 60*60*1000; // 23 hours
     if (Game.Has('Stevia Caelestis')) ripeAge -= 60*1000;
