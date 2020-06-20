@@ -67,3 +67,11 @@ function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurv
 
     console.log(str);
 }
+
+function earlyGamePredictions() {
+    allPredictions(['bifurcated', 'golden', 'meaty', 'caramelized'], false);
+}
+
+function lateGamePredictions() {
+    allPredictions(['golden'], true);
+}
