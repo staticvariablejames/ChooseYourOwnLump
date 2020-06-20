@@ -1,4 +1,4 @@
-function predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount) {
+function predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, verbose) {
     let dragonAura = (dragonsCurve? 1 : 0) + (realityBending? 0.1 : 0);
 
     let ripeAge = 23 * 60*60*1000; // 23 hours
@@ -26,6 +26,8 @@ function predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending
     }
     let lumpType = choose(types);
     Math.seedrandom();
+
+    if(verbose) console.log("Predicted type: " + lumpType + ", ripe age: " + ripeAge + ", autoharvest time: " + autoharvestTime);
     return lumpType;
 }
 
