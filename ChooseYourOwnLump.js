@@ -106,3 +106,18 @@ function earlyGamePredictions() {
 function lateGamePredictions() {
     allPredictions(['golden'], true);
 }
+
+function predictNextLumpType(verbose) {
+    let grandmapocalypseStage = Game.elderWrath;
+    let dragonsCurve = Game.hasAura("Dragon's Curve");
+    let realityBending = Game.hasAura("Reality Bending");
+    let rigidelSlot = 0;
+    if (Game.hasGod && Game.BuildingsOwned%10==0 && Game.hasGod('order'))
+        rigidelSlot = 4 - Game.hasGod('order');
+
+    let effectiveGrandmas = Math.min(600,Game.Objects['Grandma'].amount);
+    if (!Game.Has('Sugar aging process'))
+        effectiveGrandmas = 0;
+
+    return predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, effectiveGrandmas, verbose);
+}
