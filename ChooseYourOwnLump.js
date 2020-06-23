@@ -1,4 +1,4 @@
-function predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, verbose) {
+function predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, verbose) {
     let dragonAura = (dragonsCurve? 1 : 0) + (realityBending? 0.1 : 0);
 
     let ripeAge = 23 * 60*60*1000; // 23 hours
@@ -38,7 +38,7 @@ function allPredictions(targetTypes, hasSugarAgingProcess) {
             for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
                 for(let grandmaCount = 0; grandmaCount <= maxGrandmas; grandmaCount ++) {
                     for(let grandmapocalypseStage = 0; grandmapocalypseStage <= 3; grandmapocalypseStage++) {
-                        let lumpType = predictNextLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount);
+                        let lumpType = predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount);
                         if(targetTypes.includes(lumpType)) {
                             prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, hasSugarAgingProcess ? grandmaCount : -1);
                         }
