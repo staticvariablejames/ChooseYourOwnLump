@@ -1,4 +1,4 @@
-function predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, verbose) {
+function predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, discrepancy, verbose) {
     let dragonAura = (dragonsCurve? 1 : 0) + (realityBending? 0.1 : 0);
 
     let ripeAge = 23 * 60*60*1000; // 23 hours
@@ -6,7 +6,7 @@ function predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, ri
     ripeAge -= 6*1000 * grandmaCount;
     ripeAge -= 20*60*1000 * rigidelSlot;
     ripeAge /= 1 + 0.05*dragonAura;
-    let autoharvestTime = Math.floor(Game.lumpT) + ripeAge + 60*60*1000;
+    let autoharvestTime = Math.floor(Game.lumpT) + ripeAge + 60*60*1000 + discrepancy;
     /* This technique for choosing the lump type
      * only really works if we save the game and load it _after_ the autoharvest time.
      * However, although the game works just fine using fractional Game.lumpT values,
@@ -31,16 +31,16 @@ function predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, ri
     return lumpType;
 }
 
-function allPredictions(targetTypes, hasSugarAgingProcess) {
+function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
     let maxGrandmas = hasSugarAgingProcess ? 600 : 0;
     for(let dragonsCurve = 0; dragonsCurve <= 1; dragonsCurve++) {
         for(let realityBending = 0; realityBending <= 1; realityBending++) {
             for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
                 for(let grandmaCount = 0; grandmaCount <= maxGrandmas; grandmaCount ++) {
                     for(let grandmapocalypseStage = 0; grandmapocalypseStage <= 3; grandmapocalypseStage++) {
-                        let lumpType = predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount);
+                        let lumpType = predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, discrepancy);
                         if(targetTypes.includes(lumpType)) {
-                            prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, hasSugarAgingProcess ? grandmaCount : -1);
+                            prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, hasSugarAgingProcess ? grandmaCount : -1, discrepancy);
                         }
                     }
                 }
@@ -49,7 +49,7 @@ function allPredictions(targetTypes, hasSugarAgingProcess) {
     }
 }
 
-function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount) {
+function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, discrepancy) {
     let str = "Lump type: " + lumpType + ", with ";
     if(grandmaCount !== -1) str += grandmaCount + " ";
     if(grandmapocalypseStage == 0) str += "appeased grandmas, ";
@@ -62,10 +62,12 @@ function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurv
     if(dragonsCurve && !realityBending) str += "only Dragon's Curve on the dragon, ";
     if(!dragonsCurve && !realityBending) str += "neither Dragon's Curve nor Reality Bending on the dragon, ";
 
-    if(rigidelSlot == 0) str += "and Rigidel unslotted.";
-    if(rigidelSlot == 1) str += "and Rigidel on Jade slot.";
-    if(rigidelSlot == 2) str += "and Rigidel on Ruby slot.";
-    if(rigidelSlot == 3) str += "and Rigidel on Diamond slot.";
+    if(rigidelSlot == 0) str += "Rigidel unslotted,";
+    if(rigidelSlot == 1) str += "Rigidel on Jade slot,";
+    if(rigidelSlot == 2) str += "Rigidel on Ruby slot,";
+    if(rigidelSlot == 3) str += "Rigidel on Diamond slot,";
+
+    str += " and " + discrepancy + " of discrepancy.";
 
     console.log(str);
 }
@@ -99,15 +101,15 @@ Game.loadLumps=function(time)
     }
 }
 
-function earlyGamePredictions() {
-    allPredictions(['bifurcated', 'golden', 'meaty', 'caramelized'], false);
+function earlyGamePredictions(discrepancy) {
+    allPredictions(['bifurcated', 'golden', 'meaty', 'caramelized'], false, discrepancy);
 }
 
-function lateGamePredictions() {
-    allPredictions(['golden'], true);
+function lateGamePredictions(discrepancy) {
+    allPredictions(['golden'], true, discrepancy);
 }
 
-function predictNextLumpType(verbose) {
+function predictNextLumpType(discrepancy, verbose) {
     let grandmapocalypseStage = Game.elderWrath;
     let dragonsCurve = Game.hasAura("Dragon's Curve");
     let realityBending = Game.hasAura("Reality Bending");
@@ -119,5 +121,5 @@ function predictNextLumpType(verbose) {
     if (!Game.Has('Sugar aging process'))
         effectiveGrandmas = 0;
 
-    return predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, effectiveGrandmas, verbose);
+    return predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, effectiveGrandmas, discrepancy, verbose);
 }
