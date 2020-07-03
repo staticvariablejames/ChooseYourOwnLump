@@ -102,14 +102,24 @@ Game.loadLumps=function(time)
 }
 
 function earlyGamePredictions(discrepancy) {
+    if(discrepancy === undefined) {
+        throw new Error("Missing discrepancy parameter");
+    }
     allPredictions(['bifurcated', 'golden', 'meaty', 'caramelized'], false, discrepancy);
 }
 
 function lateGamePredictions(discrepancy) {
+    if(discrepancy === undefined) {
+        throw new Error("Missing discrepancy parameter");
+    }
     allPredictions(['golden'], true, discrepancy);
 }
 
 function predictNextLumpType(discrepancy, verbose) {
+    if(discrepancy === undefined) {
+        throw new Error("Missing discrepancy parameter");
+    }
+
     let grandmapocalypseStage = Game.elderWrath;
     let dragonsCurve = Game.hasAura("Dragon's Curve");
     let realityBending = Game.hasAura("Reality Bending");
