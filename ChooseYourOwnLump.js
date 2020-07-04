@@ -72,35 +72,6 @@ function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragonsCurv
     console.log(str);
 }
 
-/* Patches Game.loadLumps function so that it is deterministic.
- * The code below is essentially Game.loadLumps,
- * but with a single call to Date.now() instead of three.
- * This makes so that the exploit above works every time.
- */
-Game.loadLumps=function(time)
-{
-    Game.computeLumpTimes();
-    if (!Game.canLumps()) Game.removeClass('lumpsOn');
-    else
-    {
-        if (Game.ascensionMode!=1) Game.addClass('lumpsOn');
-        let now = Date.now();
-        Game.lumpT=Math.min(now,Game.lumpT);
-        var age=Math.max(now-Game.lumpT,0);
-        var amount=Math.floor(age/Game.lumpOverripeAge);
-        if (amount>=1)
-        {
-            Game.harvestLumps(1,true);
-            Game.lumpCurrentType=0;
-            if (amount>1) Game.harvestLumps(amount-1,true);
-            if (Game.prefs.popups) Game.Popup('Harvested '+Beautify(amount)+' sugar lump'+(amount==1?'':'s')+' while you were away');
-            else Game.Notify('','You harvested <b>'+Beautify(amount)+'</b> sugar lump'+(amount==1?'':'s')+' while you were away.',[29,14]);
-            Game.lumpT=now-(age-amount*Game.lumpOverripeAge);
-            Game.computeLumpType();
-        }
-    }
-}
-
 function earlyGamePredictions(discrepancy) {
     if(discrepancy === undefined) {
         throw new Error("Missing discrepancy parameter");
