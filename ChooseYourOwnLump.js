@@ -1,3 +1,51 @@
+class DragonAuras {
+    /* This class accounts for how the game handles the dragon's auras.
+     *
+     * In the end,
+     * it is just a fancy way of enumerating the numbers 0, 0.1, 1, 1.1,
+     * but with some fancy pretty-printing :)
+     */
+    constructor(hasDragonsCurve, hasRealityBending) {
+        this.hasDragonsCurve = hasDragonsCurve;
+        this.hasRealityBending = hasRealityBending;
+    }
+    toString() {
+        if(this.hasDragonsCurve && this.hasRealityBending)
+            return "both Dragon's Curve and Reality Bending on the dragon";
+        else if(this.hasDragonsCurve)
+            return "only Dragon's Curve on the dragon";
+        else if(this.hasRealityBending)
+            return "only Reality Bending on the dragon";
+        else
+            return "neither Dragon's Curve nor Reality Bending on the dragon";
+    }
+    auraValue() {
+        return (this.hasDragonsCurve? 1 : 0) + (this.hasRealityBending? 0.1 : 0);
+    }
+    static fromGame() {
+        // Return the DragonAuras corresponding to the current in-game state.
+        return new DragonAuras(Game.hasAura("Dragon's Curve"), Game.hasAura("Reality Bending"));
+    }
+
+    /* Makeshift enum!
+     * All kinds of auras will be iterable via
+     *  for(dragon of DragonAuras.all) {...}
+     */
+    static bothAuras = undefined;
+    static onlyDragonsCurve = undefined;
+    static onlyRealityBending = undefined;
+    static neitherAuras = undefined;
+    static all = undefined;
+    static init() {
+        this.bothAuras = new DragonAuras(true, true);
+        this.onlyDragonsCurve = new DragonAuras(true, false);
+        this.onlyRealityBending = new DragonAuras(false, true);
+        this.neitherAuras = new DragonAuras(false, false);
+        this.all = [this.neitherAuras, this.onlyRealityBending, this.onlyDragonsCurve, this.bothAuras];
+    }
+}
+DragonAuras.init();
+
 function predictLumpType(grandmapocalypseStage, dragonsCurve, realityBending, rigidelSlot, grandmaCount, discrepancy, verbose) {
     let dragonAura = (dragonsCurve? 1 : 0) + (realityBending? 0.1 : 0);
 
