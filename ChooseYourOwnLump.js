@@ -46,12 +46,64 @@ class DragonAuras {
 }
 DragonAuras.init();
 
-function predictLumpType(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount, discrepancy, verbose) {
+/* Atttributes from the game that affect lump maturation time
+ * which can be modified by the player.
+ */
+class ModifiableState {
+    constructor(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount) {
+        this.grandmapocalypseStage = grandmapocalypseStage;
+        this.dragon = dragon;
+        this.rigidelSlot = rigidelSlot;
+        this.grandmaCount = grandmaCount;
+    }
+
+    // Returns the current state of the game.
+    static current() {
+        let dragon = DragonAuras.fromGame();
+        let grandmapocalypseStage = Game.elderWrath;
+        let rigidelSlot = 0;
+        if (Game.hasGod && Game.BuildingsOwned%10==0 && Game.hasGod('order'))
+            rigidelSlot = 4 - Game.hasGod('order');
+
+        let effectiveGrandmas = Math.min(600,Game.Objects['Grandma'].amount);
+        if (!Game.Has('Sugar aging process'))
+            effectiveGrandmas = undefined;
+
+        return new ModifiableState(
+            grandmapocalypseStage, dragon, rigidelSlot, effectiveGrandmas
+        );
+    }
+
+    static grandmalessStates = undefined; // All possible states without grandmas
+    static grandmafulStates = undefined; // All possible states with grandmas
+    static init() {
+        this.grandmalessStates = [];
+        this.grandmafulStates = [];
+
+        for(let grandmapocalypseStage = 0; grandmapocalypseStage <= 3; grandmapocalypseStage++) {
+            for(let dragon of DragonAuras.all) {
+                for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
+                    this.grandmalessStates.push(new ModifiableState(
+                        grandmapocalypseStage, dragon, rigidelSlot
+                    ));
+                    for(let grandmaCount = 0; grandmaCount <= 600; grandmaCount++) {
+                        this.grandmafulStates.push(new ModifiableState(
+                            grandmapocalypseStage, dragon, rigidelSlot, grandmaCount
+                        ));
+                    }
+                }
+            }
+        }
+    }
+}
+ModifiableState.init();
+
+function predictLumpType(state, discrepancy, verbose) {
     let ripeAge = 23 * 60*60*1000; // 23 hours
     if (Game.Has('Stevia Caelestis')) ripeAge -= 60*60*1000;
-    ripeAge -= 6*1000 * grandmaCount;
-    ripeAge -= 20*60*1000 * rigidelSlot;
-    ripeAge /= 1 + 0.05*dragon.auraValue();
+    if(state.grandmaCount) ripeAge -= 6*1000 * state.grandmaCount;
+    ripeAge -= 20*60*1000 * state.rigidelSlot;
+    ripeAge /= 1 + 0.05*state.dragon.auraValue();
     let autoharvestTime = Math.floor(Game.lumpT) + ripeAge + 60*60*1000 + discrepancy;
     /* This technique for choosing the lump type
      * only really works if we save the game and load it _after_ the autoharvest time.
@@ -63,11 +115,11 @@ function predictLumpType(grandmapocalypseStage, dragon, rigidelSlot, grandmaCoun
     Math.seedrandom(Game.seed+'/'+autoharvestTime);
 
     let types=['normal'];
-    let loop = 1 + randomFloor(dragon.auraValue());
+    let loop = 1 + randomFloor(state.dragon.auraValue());
     for (let i=0; i<loop; i++) {
         if (Math.random()<(Game.Has('Sucralosia Inutilis')?0.15:0.1)) types.push('bifurcated');
         if (Math.random()<3/1000) types.push('golden');
-        if (Math.random()<0.1*grandmapocalypseStage) types.push('meaty');
+        if (Math.random()<0.1*state.grandmapocalypseStage) types.push('meaty');
         if (Math.random()<1/50) types.push('caramelized');
     }
     let lumpType = choose(types);
@@ -78,35 +130,29 @@ function predictLumpType(grandmapocalypseStage, dragon, rigidelSlot, grandmaCoun
 }
 
 function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
-    let maxGrandmas = hasSugarAgingProcess ? 600 : 0;
-    for(let dragon of DragonAuras.all) {
-        for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
-            for(let grandmaCount = 0; grandmaCount <= maxGrandmas; grandmaCount ++) {
-                for(let grandmapocalypseStage = 0; grandmapocalypseStage <= 3; grandmapocalypseStage++) {
-                    let lumpType = predictLumpType(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount, discrepancy);
-                    if(targetTypes.includes(lumpType)) {
-                        prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragon, rigidelSlot, hasSugarAgingProcess ? grandmaCount : -1, discrepancy);
-                    }
-                }
-            }
+    let stateList = hasSugarAgingProcess ? ModifiableState.grandmafulStates : ModifiableState.grandmalessStates;
+    for(let state of stateList) {
+        let lumpType = predictLumpType(state, discrepancy);
+        if(targetTypes.includes(lumpType)) {
+            prettyPrintPredictionState(lumpType, state, discrepancy);
         }
     }
 }
 
-function prettyPrintPredictionState(lumpType, grandmapocalypseStage, dragon, rigidelSlot, grandmaCount, discrepancy) {
+function prettyPrintPredictionState(lumpType, state, discrepancy) {
     let str = "Lump type: " + lumpType + ", with ";
-    if(grandmaCount !== -1) str += grandmaCount + " ";
-    if(grandmapocalypseStage == 0) str += "appeased grandmas, ";
-    if(grandmapocalypseStage == 1) str += "awoken grandmas, ";
-    if(grandmapocalypseStage == 2) str += "displeased grandmas, ";
-    if(grandmapocalypseStage == 3) str += "angered grandmas, ";
+    if(state.grandmaCount !== -1) str += state.grandmaCount + " ";
+    if(state.grandmapocalypseStage == 0) str += "appeased grandmas, ";
+    if(state.grandmapocalypseStage == 1) str += "awoken grandmas, ";
+    if(state.grandmapocalypseStage == 2) str += "displeased grandmas, ";
+    if(state.grandmapocalypseStage == 3) str += "angered grandmas, ";
 
-    str += dragon + ", ";
+    str += state.dragon + ", ";
 
-    if(rigidelSlot == 0) str += "Rigidel unslotted,";
-    if(rigidelSlot == 1) str += "Rigidel on Jade slot,";
-    if(rigidelSlot == 2) str += "Rigidel on Ruby slot,";
-    if(rigidelSlot == 3) str += "Rigidel on Diamond slot,";
+    if(state.rigidelSlot == 0) str += "Rigidel unslotted,";
+    if(state.rigidelSlot == 1) str += "Rigidel on Jade slot,";
+    if(state.rigidelSlot == 2) str += "Rigidel on Ruby slot,";
+    if(state.rigidelSlot == 3) str += "Rigidel on Diamond slot,";
 
     str += " and " + discrepancy + " of discrepancy.";
 
@@ -132,15 +178,6 @@ function predictNextLumpType(discrepancy, verbose) {
         throw new Error("Missing discrepancy parameter");
     }
 
-    let dragon = DragonAuras.fromGame();
-    let grandmapocalypseStage = Game.elderWrath;
-    let rigidelSlot = 0;
-    if (Game.hasGod && Game.BuildingsOwned%10==0 && Game.hasGod('order'))
-        rigidelSlot = 4 - Game.hasGod('order');
-
-    let effectiveGrandmas = Math.min(600,Game.Objects['Grandma'].amount);
-    if (!Game.Has('Sugar aging process'))
-        effectiveGrandmas = 0;
-
-    return predictLumpType(grandmapocalypseStage, dragon, rigidelSlot, effectiveGrandmas, discrepancy, verbose);
+    let state = ModifiableState.current();
+    return predictLumpType(state, discrepancy, verbose);
 }
