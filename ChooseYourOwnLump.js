@@ -109,7 +109,10 @@ class PersistentState {
         this.hasSucralosiaInutilis = hasSucralosiaInutilis;
     }
 
-    // Computes the lump type for the given transient state
+    /* Computes the lump type for the given transient state.
+     * The lump type and autoharvest times are stored in the transient state
+     * as the attributes lumpType and autoharvestTime, respectively.
+     */
     predictLumpType(transientState, discrepancy, verbose) {
         let ripeAge = 23 * 60*60*1000; // 23 hours
         if (this.hasSteviaCaelestis) ripeAge -= 60*60*1000;
@@ -138,6 +141,9 @@ class PersistentState {
         Math.seedrandom();
 
         if(verbose) console.log("Predicted type: " + lumpType + ", ripe age: " + ripeAge + ", autoharvest time: " + autoharvestTime);
+        transientState.lumpType = lumpType;
+        transientState.autoharvestTime = autoharvestTime;
+
         return lumpType;
     }
 
@@ -156,16 +162,21 @@ class PersistentState {
 function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
     let transientStates = hasSugarAgingProcess ? TransientState.grandmafulStates : TransientState.grandmalessStates;
     let persistentState = PersistentState.current();
+    let goodStates = [];
     for(let state of transientStates) {
         let lumpType = persistentState.predictLumpType(state, discrepancy);
         if(targetTypes.includes(lumpType)) {
-            prettyPrintPredictionState(lumpType, state, discrepancy);
+            goodStates.push(state);
         }
+    }
+    goodStates.sort((state1, state2) => state1.autoharvestTime - state2.autoharvestTime);
+    for(let state of goodStates) {
+        prettyPrintPredictionState(state, discrepancy);
     }
 }
 
-function prettyPrintPredictionState(lumpType, transientState, discrepancy) {
-    let str = "Lump type: " + lumpType + ", with ";
+function prettyPrintPredictionState(transientState, discrepancy) {
+    let str = "Lump type: " + transientState.lumpType + ", with ";
     if(transientState.grandmaCount !== -1) str += transientState.grandmaCount + " ";
     if(transientState.grandmapocalypseStage == 0) str += "appeased grandmas, ";
     if(transientState.grandmapocalypseStage == 1) str += "awoken grandmas, ";
