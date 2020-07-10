@@ -47,9 +47,9 @@ class DragonAuras {
 DragonAuras.init();
 
 /* Atttributes from the game that affect lump maturation time
- * which can be modified by the player.
+ * which can be easily modified by the player.
  */
-class ModifiableState {
+class TransientState {
     constructor(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount) {
         this.grandmapocalypseStage = grandmapocalypseStage;
         this.dragon = dragon;
@@ -69,7 +69,7 @@ class ModifiableState {
         if (!Game.Has('Sugar aging process'))
             effectiveGrandmas = undefined;
 
-        return new ModifiableState(
+        return new TransientState(
             grandmapocalypseStage, dragon, rigidelSlot, effectiveGrandmas
         );
     }
@@ -83,11 +83,11 @@ class ModifiableState {
         for(let grandmapocalypseStage = 0; grandmapocalypseStage <= 3; grandmapocalypseStage++) {
             for(let dragon of DragonAuras.all) {
                 for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
-                    this.grandmalessStates.push(new ModifiableState(
+                    this.grandmalessStates.push(new TransientState(
                         grandmapocalypseStage, dragon, rigidelSlot
                     ));
                     for(let grandmaCount = 0; grandmaCount <= 600; grandmaCount++) {
-                        this.grandmafulStates.push(new ModifiableState(
+                        this.grandmafulStates.push(new TransientState(
                             grandmapocalypseStage, dragon, rigidelSlot, grandmaCount
                         ));
                     }
@@ -96,7 +96,7 @@ class ModifiableState {
         }
     }
 }
-ModifiableState.init();
+TransientState.init();
 
 function predictLumpType(state, discrepancy, verbose) {
     let ripeAge = 23 * 60*60*1000; // 23 hours
@@ -130,7 +130,7 @@ function predictLumpType(state, discrepancy, verbose) {
 }
 
 function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
-    let stateList = hasSugarAgingProcess ? ModifiableState.grandmafulStates : ModifiableState.grandmalessStates;
+    let stateList = hasSugarAgingProcess ? TransientState.grandmafulStates : TransientState.grandmalessStates;
     for(let state of stateList) {
         let lumpType = predictLumpType(state, discrepancy);
         if(targetTypes.includes(lumpType)) {
@@ -178,6 +178,6 @@ function predictNextLumpType(discrepancy, verbose) {
         throw new Error("Missing discrepancy parameter");
     }
 
-    let state = ModifiableState.current();
+    let state = TransientState.current();
     return predictLumpType(state, discrepancy, verbose);
 }
