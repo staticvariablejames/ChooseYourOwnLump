@@ -98,61 +98,86 @@ class TransientState {
 }
 TransientState.init();
 
-function predictLumpType(state, discrepancy, verbose) {
-    let ripeAge = 23 * 60*60*1000; // 23 hours
-    if (Game.Has('Stevia Caelestis')) ripeAge -= 60*60*1000;
-    if(state.grandmaCount) ripeAge -= 6*1000 * state.grandmaCount;
-    ripeAge -= 20*60*1000 * state.rigidelSlot;
-    ripeAge /= 1 + 0.05*state.dragon.auraValue();
-    let autoharvestTime = Math.floor(Game.lumpT) + ripeAge + 60*60*1000 + discrepancy;
-    /* This technique for choosing the lump type
-     * only really works if we save the game and load it _after_ the autoharvest time.
-     * However, although the game works just fine using fractional Game.lumpT values,
-     * the game truncates the number when saving.
-     * Thus we must assume that we have the truncated number here.
-     */
-
-    Math.seedrandom(Game.seed+'/'+autoharvestTime);
-
-    let types=['normal'];
-    let loop = 1 + randomFloor(state.dragon.auraValue());
-    for (let i=0; i<loop; i++) {
-        if (Math.random()<(Game.Has('Sucralosia Inutilis')?0.15:0.1)) types.push('bifurcated');
-        if (Math.random()<3/1000) types.push('golden');
-        if (Math.random()<0.1*state.grandmapocalypseStage) types.push('meaty');
-        if (Math.random()<1/50) types.push('caramelized');
+/* Attributes from the game that are not easily modifiable by the player,
+ * like having certain upgrades.
+ */
+class PersistentState {
+    constructor(seed, lumpT, hasSteviaCaelestis, hasSucralosiaInutilis) {
+        this.seed = seed; // Corresponds to Game.seed
+        this.lumpT = lumpT; // Time that the current lump type started coalescing
+        this.hasSteviaCaelestis = hasSteviaCaelestis;
+        this.hasSucralosiaInutilis = hasSucralosiaInutilis;
     }
-    let lumpType = choose(types);
-    Math.seedrandom();
 
-    if(verbose) console.log("Predicted type: " + lumpType + ", ripe age: " + ripeAge + ", autoharvest time: " + autoharvestTime);
-    return lumpType;
+    // Computes the lump type for the given transient state
+    predictLumpType(transientState, discrepancy, verbose) {
+        let ripeAge = 23 * 60*60*1000; // 23 hours
+        if (this.hasSteviaCaelestis) ripeAge -= 60*60*1000;
+        if (transientState.grandmaCount) ripeAge -= 6*1000 * transientState.grandmaCount;
+        ripeAge -= 20*60*1000 * transientState.rigidelSlot;
+        ripeAge /= 1 + 0.05*transientState.dragon.auraValue();
+        let autoharvestTime = Math.floor(this.lumpT) + ripeAge + 60*60*1000 + discrepancy;
+        /* This technique for choosing the lump type
+         * only really works if we save the game and load it _after_ the autoharvest time.
+         * However, although the game works just fine using fractional Game.lumpT values,
+         * the game truncates the number when saving.
+         * Thus we must assume that we have the truncated number here.
+         */
+
+        Math.seedrandom(this.seed+'/'+autoharvestTime);
+
+        let types=['normal'];
+        let loop = 1 + randomFloor(transientState.dragon.auraValue());
+        for (let i=0; i<loop; i++) {
+            if (Math.random()<(this.hasSucralosiaInutilis?0.15:0.1)) types.push('bifurcated');
+            if (Math.random()<3/1000) types.push('golden');
+            if (Math.random()<0.1*transientState.grandmapocalypseStage) types.push('meaty');
+            if (Math.random()<1/50) types.push('caramelized');
+        }
+        let lumpType = choose(types);
+        Math.seedrandom();
+
+        if(verbose) console.log("Predicted type: " + lumpType + ", ripe age: " + ripeAge + ", autoharvest time: " + autoharvestTime);
+        return lumpType;
+    }
+
+    // The current state of the game
+    static current() {
+        let seed = Game.seed;
+        let lumpT = Game.lumpT;
+        let hasSteviaCaelestis = Game.Has('Stevia Caelestis');
+        let hasSucralosiaInutilis = Game.Has('Sucralosia Inutilis');
+        return new PersistentState(
+            seed, lumpT, hasSteviaCaelestis, hasSucralosiaInutilis
+        );
+    }
 }
 
 function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
-    let stateList = hasSugarAgingProcess ? TransientState.grandmafulStates : TransientState.grandmalessStates;
-    for(let state of stateList) {
-        let lumpType = predictLumpType(state, discrepancy);
+    let transientStates = hasSugarAgingProcess ? TransientState.grandmafulStates : TransientState.grandmalessStates;
+    let persistentState = PersistentState.current();
+    for(let state of transientStates) {
+        let lumpType = persistentState.predictLumpType(state, discrepancy);
         if(targetTypes.includes(lumpType)) {
             prettyPrintPredictionState(lumpType, state, discrepancy);
         }
     }
 }
 
-function prettyPrintPredictionState(lumpType, state, discrepancy) {
+function prettyPrintPredictionState(lumpType, transientState, discrepancy) {
     let str = "Lump type: " + lumpType + ", with ";
-    if(state.grandmaCount !== -1) str += state.grandmaCount + " ";
-    if(state.grandmapocalypseStage == 0) str += "appeased grandmas, ";
-    if(state.grandmapocalypseStage == 1) str += "awoken grandmas, ";
-    if(state.grandmapocalypseStage == 2) str += "displeased grandmas, ";
-    if(state.grandmapocalypseStage == 3) str += "angered grandmas, ";
+    if(transientState.grandmaCount !== -1) str += transientState.grandmaCount + " ";
+    if(transientState.grandmapocalypseStage == 0) str += "appeased grandmas, ";
+    if(transientState.grandmapocalypseStage == 1) str += "awoken grandmas, ";
+    if(transientState.grandmapocalypseStage == 2) str += "displeased grandmas, ";
+    if(transientState.grandmapocalypseStage == 3) str += "angered grandmas, ";
 
-    str += state.dragon + ", ";
+    str += transientState.dragon + ", ";
 
-    if(state.rigidelSlot == 0) str += "Rigidel unslotted,";
-    if(state.rigidelSlot == 1) str += "Rigidel on Jade slot,";
-    if(state.rigidelSlot == 2) str += "Rigidel on Ruby slot,";
-    if(state.rigidelSlot == 3) str += "Rigidel on Diamond slot,";
+    if(transientState.rigidelSlot == 0) str += "Rigidel unslotted,";
+    if(transientState.rigidelSlot == 1) str += "Rigidel on Jade slot,";
+    if(transientState.rigidelSlot == 2) str += "Rigidel on Ruby slot,";
+    if(transientState.rigidelSlot == 3) str += "Rigidel on Diamond slot,";
 
     str += " and " + discrepancy + " of discrepancy.";
 
@@ -178,6 +203,7 @@ function predictNextLumpType(discrepancy, verbose) {
         throw new Error("Missing discrepancy parameter");
     }
 
-    let state = TransientState.current();
-    return predictLumpType(state, discrepancy, verbose);
+    let transientState = TransientState.current();
+    let persistentState = PersistentState.current();
+    return persistentState.predictLumpType(transientState, discrepancy, verbose);
 }
