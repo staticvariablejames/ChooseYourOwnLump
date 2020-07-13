@@ -177,7 +177,7 @@ function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
 
 function prettyPrintPredictionState(transientState, discrepancy) {
     let str = "Lump type: " + transientState.lumpType + ", with ";
-    if(transientState.grandmaCount !== -1) str += transientState.grandmaCount + " ";
+    if(transientState.grandmaCount !== undefined) str += transientState.grandmaCount + " ";
     if(transientState.grandmapocalypseStage == 0) str += "appeased grandmas, ";
     if(transientState.grandmapocalypseStage == 1) str += "awoken grandmas, ";
     if(transientState.grandmapocalypseStage == 2) str += "displeased grandmas, ";
