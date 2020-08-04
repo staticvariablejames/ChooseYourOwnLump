@@ -1,4 +1,7 @@
-class DragonAuras {
+var CYOL = {};
+// 'var' used here to avoid syntax errors if this script is loaded more than once
+
+CYOL.DragonAuras = class {
     /* This class accounts for how the game handles the dragon's auras.
      *
      * In the end,
@@ -24,7 +27,7 @@ class DragonAuras {
     }
     static fromGame() {
         // Return the DragonAuras corresponding to the current in-game state.
-        return new DragonAuras(Game.hasAura("Dragon's Curve"), Game.hasAura("Reality Bending"));
+        return new CYOL.DragonAuras(Game.hasAura("Dragon's Curve"), Game.hasAura("Reality Bending"));
     }
 
     /* Makeshift enum!
@@ -37,19 +40,19 @@ class DragonAuras {
     static neitherAuras = undefined;
     static all = undefined;
     static init() {
-        this.bothAuras = new DragonAuras(true, true);
-        this.onlyDragonsCurve = new DragonAuras(true, false);
-        this.onlyRealityBending = new DragonAuras(false, true);
-        this.neitherAuras = new DragonAuras(false, false);
+        this.bothAuras = new this(true, true);
+        this.onlyDragonsCurve = new this(true, false);
+        this.onlyRealityBending = new this(false, true);
+        this.neitherAuras = new this(false, false);
         this.all = [this.neitherAuras, this.onlyRealityBending, this.onlyDragonsCurve, this.bothAuras];
     }
 }
-DragonAuras.init();
+CYOL.DragonAuras.init();
 
 /* Atttributes from the game that affect lump maturation time
  * which can be easily modified by the player.
  */
-class TransientState {
+CYOL.TransientState = class {
     constructor(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount) {
         this.grandmapocalypseStage = grandmapocalypseStage;
         this.dragon = dragon;
@@ -69,9 +72,7 @@ class TransientState {
         if (!Game.Has('Sugar aging process'))
             effectiveGrandmas = undefined;
 
-        return new TransientState(
-            grandmapocalypseStage, dragon, rigidelSlot, effectiveGrandmas
-        );
+        return new this(grandmapocalypseStage, dragon, rigidelSlot, effectiveGrandmas);
     }
 
     static grandmalessStates = undefined; // All possible states without grandmas
@@ -81,13 +82,13 @@ class TransientState {
         this.grandmafulStates = [];
 
         for(let grandmapocalypseStage = 0; grandmapocalypseStage <= 3; grandmapocalypseStage++) {
-            for(let dragon of DragonAuras.all) {
+            for(let dragon of CYOL.DragonAuras.all) {
                 for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
-                    this.grandmalessStates.push(new TransientState(
+                    this.grandmalessStates.push(new this(
                         grandmapocalypseStage, dragon, rigidelSlot
                     ));
                     for(let grandmaCount = 0; grandmaCount <= 600; grandmaCount++) {
-                        this.grandmafulStates.push(new TransientState(
+                        this.grandmafulStates.push(new this(
                             grandmapocalypseStage, dragon, rigidelSlot, grandmaCount
                         ));
                     }
@@ -96,12 +97,12 @@ class TransientState {
         }
     }
 }
-TransientState.init();
+CYOL.TransientState.init();
 
 /* Attributes from the game that are not easily modifiable by the player,
  * like having certain upgrades.
  */
-class PersistentState {
+CYOL.PersistentState = class {
     constructor(seed, lumpT, hasSteviaCaelestis, hasSucralosiaInutilis) {
         this.seed = seed; // Corresponds to Game.seed
         this.lumpT = lumpT; // Time that the current lump type started coalescing
@@ -153,15 +154,13 @@ class PersistentState {
         let lumpT = Game.lumpT;
         let hasSteviaCaelestis = Game.Has('Stevia Caelestis');
         let hasSucralosiaInutilis = Game.Has('Sucralosia Inutilis');
-        return new PersistentState(
-            seed, lumpT, hasSteviaCaelestis, hasSucralosiaInutilis
-        );
+        return new this(seed, lumpT, hasSteviaCaelestis, hasSucralosiaInutilis);
     }
 }
 
-function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
-    let transientStates = hasSugarAgingProcess ? TransientState.grandmafulStates : TransientState.grandmalessStates;
-    let persistentState = PersistentState.current();
+CYOL.allPredictions = function(targetTypes, hasSugarAgingProcess, discrepancy) {
+    let transientStates = hasSugarAgingProcess ? CYOL.TransientState.grandmafulStates : CYOL.TransientState.grandmalessStates;
+    let persistentState = CYOL.PersistentState.current();
     let goodStates = [];
     for(let state of transientStates) {
         let lumpType = persistentState.predictLumpType(state, discrepancy);
@@ -171,11 +170,11 @@ function allPredictions(targetTypes, hasSugarAgingProcess, discrepancy) {
     }
     goodStates.sort((state1, state2) => state1.autoharvestTime - state2.autoharvestTime);
     for(let state of goodStates) {
-        prettyPrintPredictionState(state, discrepancy);
+        CYOL.prettyPrintPredictionState(state, discrepancy);
     }
 }
 
-function prettyPrintPredictionState(transientState, discrepancy) {
+CYOL.prettyPrintPredictionState = function(transientState, discrepancy) {
     let str = "Lump type: " + transientState.lumpType + ", with ";
     if(transientState.grandmaCount !== undefined) str += transientState.grandmaCount + " ";
     if(transientState.grandmapocalypseStage == 0) str += "appeased grandmas, ";
@@ -195,26 +194,26 @@ function prettyPrintPredictionState(transientState, discrepancy) {
     console.log(str);
 }
 
-function earlyGamePredictions(discrepancy) {
+CYOL.earlyGamePredictions = function(discrepancy) {
     if(discrepancy === undefined) {
         throw new Error("Missing discrepancy parameter");
     }
-    allPredictions(['bifurcated', 'golden', 'meaty', 'caramelized'], false, discrepancy);
+    CYOL.allPredictions(['bifurcated', 'golden', 'meaty', 'caramelized'], false, discrepancy);
 }
 
-function lateGamePredictions(discrepancy) {
+CYOL.lateGamePredictions = function(discrepancy) {
     if(discrepancy === undefined) {
         throw new Error("Missing discrepancy parameter");
     }
-    allPredictions(['golden'], true, discrepancy);
+    CYOL.allPredictions(['golden'], true, discrepancy);
 }
 
-function predictNextLumpType(discrepancy, verbose) {
+CYOL.predictNextLumpType = function(discrepancy, verbose) {
     if(discrepancy === undefined) {
         throw new Error("Missing discrepancy parameter");
     }
 
-    let transientState = TransientState.current();
-    let persistentState = PersistentState.current();
+    let transientState = CYOL.TransientState.current();
+    let persistentState = CYOL.PersistentState.current();
     return persistentState.predictLumpType(transientState, discrepancy, verbose);
 }
