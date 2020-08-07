@@ -234,16 +234,16 @@ CYOL.UI.settings = {
 CYOL.UI.cachedPredictions = null;
 CYOL.UI.cachedState = null; // the PersistentState that was used to compute cachedPredictions
 
-/* Recomputes cachedPredictions if cachedState differs from the current state.
- * It will also recompute if cachedState === null. */
+/* Recomputes cachedPredictions if cachedState differs from the current state,
+ * or if cachedPredictions === null. */
 CYOL.UI.computePredictions = function() {
     let currentState = CYOL.PersistentState.current();
-    if(currentState.equal(CYOL.UI.cachedState)) return;
+    if(currentState.equal(CYOL.UI.cachedState) && CYOL.UI.cachedPredictions !== null) return;
     CYOL.UI.cachedState = currentState;
     CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.settings.targetTypes, CYOL.UI.settings.discrepancy);
 }
 
-CYOL.customLumpTooltip = function(str, phase) {
+CYOL.UI.customLumpTooltip = function(str, phase) {
     str += '<div class="line"></div>';
     str += 'Predicted next lump type: ' + CYOL.predictNextLumpType(1) + '<br />';
     CYOL.UI.computePredictions();
@@ -252,10 +252,23 @@ CYOL.customLumpTooltip = function(str, phase) {
     return str;
 }
 
+CYOL.UI.discrepancyCallback = function() {
+    let value = document.getElementById('CYOLdiscrepancySlider').value ?? 1;
+    CYOL.UI.settings.discrepancy = value;
+    document.getElementById('CYOLdiscrepancySliderRightText').innerHTML = value;
+    CYOL.UI.cachedPredictions = null;
+}
+
+CYOL.UI.customOptionsMenu = function() {
+    let menuStr = Game.WriteSlider('CYOLdiscrepancySlider', 'Discrepancy', '[$]', () => CYOL.UI.settings.discrepancy, 'CYOL.UI.discrepancyCallback()');
+    CCSE.AppendCollapsibleOptionsMenu("Choose Your Own Lump", menuStr);
+}
+
 CYOL.launch = function() {
     CYOL.DragonAuras.init();
     CYOL.TransientState.init();
-    Game.customLumpTooltip.push(CYOL.customLumpTooltip);
+    Game.customLumpTooltip.push(CYOL.UI.customLumpTooltip);
+    Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
     CYOL.isLoaded = true;
 }
 
