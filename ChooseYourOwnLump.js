@@ -121,6 +121,18 @@ CYOL.PersistentState = class {
         return states;
     }
 
+    /* Returns only the states whose predicted value is contained in the list targetTypes,
+     * sorted by autoharvestTime. */
+    filteredPredictions(targetTypes, discrepancy) {
+        let goodStates = [];
+        for(let state of this.allPredictions(discrepancy)) {
+            if(targetTypes.includes(state.lumpType))
+                goodStates.push(state);
+        }
+        goodStates.sort((state1, state2) => state1.autoharvestTime - state2.autoharvestTime);
+        return goodStates;
+    }
+
     /* Computes the lump type for the given transient state.
      * The lump type and autoharvest times are stored in the transient state
      * as the attributes lumpType and autoharvestTime, respectively.
@@ -159,6 +171,17 @@ CYOL.PersistentState = class {
         return lumpType;
     }
 
+    /* Determine whether the two states are equal. */
+    equal(state) {
+        return state instanceof CYOL.PersistentState
+            && state.seed === this.seed
+            && state.lumpT === this.lumpT
+            && state.hasSteviaCaelestis === this.hasSteviaCaelestis
+            && state.hasSucralosiaInutilis === this.hasSucralosiaInutilis
+            && state.hasSugarAgingProcess === this.hasSugarAgingProcess
+            ;
+    }
+
     // The current state of the game
     static current() {
         let seed = Game.seed;
@@ -170,20 +193,8 @@ CYOL.PersistentState = class {
     }
 }
 
-CYOL.filteredPredictions = function(targetTypes, discrepancy) {
-    let persistentState = CYOL.PersistentState.current();
-    let goodStates = [];
-    for(let state of persistentState.allPredictions(discrepancy)) {
-        if(targetTypes.includes(state.lumpType))
-            goodStates.push(state);
-    }
-    goodStates.sort((state1, state2) => state1.autoharvestTime - state2.autoharvestTime);
-    for(let state of goodStates) {
-        CYOL.prettyPrintPredictionState(state, discrepancy);
-    }
-}
-
-CYOL.prettyPrintPredictionState = function(transientState, discrepancy) {
+/* Stringify the prediction state in a readable way. */
+CYOL.formatPredictionState = function(transientState, discrepancy) {
     let str = "Lump type: " + transientState.lumpType + ", with ";
     if(transientState.grandmaCount !== undefined) str += transientState.grandmaCount + " ";
     if(transientState.grandmapocalypseStage == 0) str += "appeased grandmas, ";
@@ -200,21 +211,7 @@ CYOL.prettyPrintPredictionState = function(transientState, discrepancy) {
 
     str += " and " + discrepancy + " of discrepancy.";
 
-    console.log(str);
-}
-
-CYOL.earlyGamePredictions = function(discrepancy) {
-    if(discrepancy === undefined) {
-        throw new Error("Missing discrepancy parameter");
-    }
-    CYOL.filteredPredictions(['bifurcated', 'golden', 'meaty', 'caramelized'], discrepancy);
-}
-
-CYOL.lateGamePredictions = function(discrepancy) {
-    if(discrepancy === undefined) {
-        throw new Error("Missing discrepancy parameter");
-    }
-    CYOL.filteredPredictions(['golden'], discrepancy);
+    return str;
 }
 
 CYOL.predictNextLumpType = function(discrepancy, verbose) {
@@ -227,8 +224,32 @@ CYOL.predictNextLumpType = function(discrepancy, verbose) {
     return persistentState.predictLumpType(transientState, discrepancy, verbose);
 }
 
+CYOL.UI = {};
+CYOL.UI.settings = {
+    discrepancy: 1,
+    targetTypes: ['golden'],
+    display_max: 10,
+};
+
+CYOL.UI.cachedPredictions = null;
+CYOL.UI.cachedState = null; // the PersistentState that was used to compute cachedPredictions
+
+/* Recomputes cachedPredictions if cachedState differs from the current state.
+ * It will also recompute if cachedState === null. */
+CYOL.UI.computePredictions = function() {
+    let currentState = CYOL.PersistentState.current();
+    if(currentState.equal(CYOL.UI.cachedState)) return;
+    CYOL.UI.cachedState = currentState;
+    CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.settings.targetTypes, CYOL.UI.settings.discrepancy);
+}
+
 CYOL.customLumpTooltip = function(str, phase) {
-    return str + 'Predicted next lump type: ' + CYOL.predictNextLumpType(1);
+    str += '<div class="line"></div>';
+    str += 'Predicted next lump type: ' + CYOL.predictNextLumpType(1) + '<br />';
+    CYOL.UI.computePredictions();
+    for(let i = 0; i < Math.min(CYOL.UI.settings.display_max, CYOL.UI.cachedPredictions.length); i++)
+        str += CYOL.formatPredictionState(CYOL.UI.cachedPredictions[i], CYOL.UI.settings.discrepancy) + '<br />';
+    return str;
 }
 
 CYOL.launch = function() {
