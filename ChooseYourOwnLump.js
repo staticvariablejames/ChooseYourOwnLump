@@ -228,7 +228,7 @@ CYOL.UI = {};
 CYOL.UI.settings = {
     discrepancy: 1,
     targetTypes: ['golden'],
-    display_max: 10,
+    predictionsToDisplay: 10, // Number of predictions to display in the lump tooltip
 };
 
 CYOL.UI.cachedPredictions = null;
@@ -247,7 +247,7 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
     str += '<div class="line"></div>';
     str += 'Predicted next lump type: ' + CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy) + '<br />';
     CYOL.UI.computePredictions();
-    for(let i = 0; i < Math.min(CYOL.UI.settings.display_max, CYOL.UI.cachedPredictions.length); i++)
+    for(let i = 0; i < CYOL.UI.settings.predictionsToDisplay && i < CYOL.UI.cachedPredictions.length; i++)
         str += CYOL.formatPredictionState(CYOL.UI.cachedPredictions[i], CYOL.UI.settings.discrepancy) + '<br />';
     return str;
 }
@@ -259,8 +259,20 @@ CYOL.UI.discrepancyCallback = function() {
     CYOL.UI.cachedPredictions = null;
 }
 
+CYOL.UI.predictionsToDisplayCallback = function() {
+    let value = document.getElementById('CYOLpredictionsToDisplaySlider').value ?? 10;
+    CYOL.UI.settings.predictionsToDisplay = value;
+    document.getElementById('CYOLpredictionsToDisplaySliderRightText').innerHTML = value;
+}
+
 CYOL.UI.customOptionsMenu = function() {
-    let menuStr = Game.WriteSlider('CYOLdiscrepancySlider', 'Discrepancy', '[$]', () => CYOL.UI.settings.discrepancy, 'CYOL.UI.discrepancyCallback()');
+    let menuStr = "";
+    menuStr += '<div class="listing">'
+        + Game.WriteSlider('CYOLdiscrepancySlider', 'Discrepancy', '[$]', () => CYOL.UI.settings.discrepancy, 'CYOL.UI.discrepancyCallback()')
+        + '</div>';
+    menuStr += '<div class="listing">'
+        + Game.WriteSlider('CYOLpredictionsToDisplaySlider', 'Predictions to display', '[$]', () => CYOL.UI.settings.predictionsToDisplay, 'CYOL.UI.predictionsToDisplayCallback()')
+        + '</div>';
     CCSE.AppendCollapsibleOptionsMenu("Choose Your Own Lump", menuStr);
 }
 
