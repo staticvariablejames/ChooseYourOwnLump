@@ -279,8 +279,12 @@ CYOL.UI.customOptionsMenu = function() {
 CYOL.launch = function() {
     CYOL.DragonAuras.init();
     CYOL.TransientState.init();
+
     Game.customLumpTooltip.push(CYOL.UI.customLumpTooltip);
     Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
+    // Always display the lump type
+    CCSE.ReplaceCodeIntoFunction('Game.lumpTooltip', '(phase>=3)', '(true) /* CYOL modification */', 0);
+
     CYOL.isLoaded = true;
 }
 
