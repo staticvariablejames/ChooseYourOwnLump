@@ -245,7 +245,7 @@ CYOL.UI.computePredictions = function() {
 
 CYOL.UI.customLumpTooltip = function(str, phase) {
     str += '<div class="line"></div>';
-    str += 'Predicted next lump type: ' + CYOL.predictNextLumpType(1) + '<br />';
+    str += 'Predicted next lump type: ' + CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy) + '<br />';
     CYOL.UI.computePredictions();
     for(let i = 0; i < Math.min(CYOL.UI.settings.display_max, CYOL.UI.cachedPredictions.length); i++)
         str += CYOL.formatPredictionState(CYOL.UI.cachedPredictions[i], CYOL.UI.settings.discrepancy) + '<br />';
