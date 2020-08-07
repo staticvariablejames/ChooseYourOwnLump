@@ -1,5 +1,9 @@
 var CYOL = {};
 // 'var' used here to avoid syntax errors if this script is loaded more than once
+if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieClicker/CCSE.js');
+// CCSE calls Game.Win('Third-party') for us
+
+// CYOL.launch is at the end of this file.
 
 CYOL.DragonAuras = class {
     /* This class accounts for how the game handles the dragon's auras.
@@ -40,6 +44,7 @@ CYOL.DragonAuras = class {
     static neitherAuras = undefined;
     static all = undefined;
     static init() {
+        // init() is called by CYOL.launch()
         this.bothAuras = new this(true, true);
         this.onlyDragonsCurve = new this(true, false);
         this.onlyRealityBending = new this(false, true);
@@ -47,7 +52,6 @@ CYOL.DragonAuras = class {
         this.all = [this.neitherAuras, this.onlyRealityBending, this.onlyDragonsCurve, this.bothAuras];
     }
 }
-CYOL.DragonAuras.init();
 
 /* Atttributes from the game that affect lump maturation time
  * which can be easily modified by the player.
@@ -75,6 +79,7 @@ CYOL.TransientState = class {
     static grandmalessStates = undefined; // All possible states without grandmas
     static grandmafulStates = undefined; // All possible states with grandmas
     static init() {
+        // init() is called by CYOL.launch()
         this.grandmalessStates = [];
         this.grandmafulStates = [];
 
@@ -94,7 +99,6 @@ CYOL.TransientState = class {
         }
     }
 }
-CYOL.TransientState.init();
 
 /* Attributes from the game that are not easily modifiable by the player,
  * like having certain upgrades.
@@ -221,4 +225,27 @@ CYOL.predictNextLumpType = function(discrepancy, verbose) {
     let transientState = CYOL.TransientState.current();
     let persistentState = CYOL.PersistentState.current();
     return persistentState.predictLumpType(transientState, discrepancy, verbose);
+}
+
+CYOL.customLumpTooltip = function(str, phase) {
+    return str + 'Predicted next lump type: ' + CYOL.predictNextLumpType(1);
+}
+
+CYOL.launch = function() {
+    CYOL.DragonAuras.init();
+    CYOL.TransientState.init();
+    Game.customLumpTooltip.push(CYOL.customLumpTooltip);
+    CYOL.isLoaded = true;
+}
+
+// Code copied from CCSE's documentation
+if(!CYOL.isLoaded){
+	if(CCSE && CCSE.isLoaded){
+		CYOL.launch();
+	}
+	else{
+		if(!CCSE) var CCSE = {};
+		if(!CCSE.postLoadHooks) CCSE.postLoadHooks = [];
+		CCSE.postLoadHooks.push(CYOL.launch);
+	}
 }
