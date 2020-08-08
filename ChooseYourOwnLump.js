@@ -227,7 +227,19 @@ CYOL.predictNextLumpType = function(discrepancy, verbose) {
 CYOL.UI = {};
 CYOL.UI.settings = {
     discrepancy: 1,
-    targetTypes: ['golden'],
+    includeNormal: false,
+    includeBifurcated: false,
+    includeGolden: true,
+    includeCaramelized: false,
+    targetTypes: function() {
+        let types = [];
+        if(this.includeNormal) types.push('normal');
+        if(this.includeBifurcated) types.push('bifurcated');
+        if(this.includeGolden) types.push('golden');
+        if(this.includeMeaty) types.push('meaty');
+        if(this.includeCaramelized) types.push('caramelized');
+        return types;
+    },
     predictionsToDisplay: 10, // Number of predictions to display in the lump tooltip
 };
 
@@ -240,7 +252,7 @@ CYOL.UI.computePredictions = function() {
     let currentState = CYOL.PersistentState.current();
     if(currentState.equal(CYOL.UI.cachedState) && CYOL.UI.cachedPredictions !== null) return;
     CYOL.UI.cachedState = currentState;
-    CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.settings.targetTypes, CYOL.UI.settings.discrepancy);
+    CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.settings.targetTypes(), CYOL.UI.settings.discrepancy);
 }
 
 CYOL.UI.customLumpTooltip = function(str, phase) {
@@ -273,6 +285,27 @@ CYOL.UI.customOptionsMenu = function() {
     menuStr += '<div class="listing">'
         + Game.WriteSlider('CYOLpredictionsToDisplaySlider', 'Predictions to display', '[$]', () => CYOL.UI.settings.predictionsToDisplay, 'CYOL.UI.predictionsToDisplayCallback()')
         + '</div>';
+
+    function makeButton(lumpType) {
+        let settingsName = "include" + lumpType[0].toUpperCase() + lumpType.slice(1);
+        let buttonClass = "option" + (CYOL.UI.settings[settingsName] ? "" : " off");
+        let onclick = "CYOL.UI.settings." + settingsName + " = " +
+            (CYOL.UI.settings[settingsName] ? "false;" : "true;") +
+            "CYOL.UI.cachedPredictions = null;" +
+            'PlaySound(\'snd/tick.mp3\');'
+        return '<a class="' + buttonClass + '"' +
+            'id="CYOL' + settingsName + '"' +
+            'onclick="' + onclick + '">' +
+            (CYOL.UI.settings[settingsName] ? "Showing " : "Hiding ") + lumpType + " lumps" +
+            '</a>';
+    }
+    menuStr += '<div class="listing">';
+    menuStr += makeButton('normal');
+    menuStr += makeButton('bifurcated');
+    menuStr += makeButton('golden');
+    menuStr += makeButton('meaty');
+    menuStr += makeButton('caramelized');
+    menuStr += '<label>Whether to display or hide predictions resulting in the corresponding lump type</label></div>';
     CCSE.AppendCollapsibleOptionsMenu("Choose Your Own Lump", menuStr);
 }
 
