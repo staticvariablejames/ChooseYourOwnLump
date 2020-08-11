@@ -255,9 +255,20 @@ CYOL.UI.computePredictions = function() {
     CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.settings.targetTypes(), CYOL.UI.settings.discrepancy);
 }
 
+CYOL.UI.makeLumpIcon = function(type) {
+    let background_position = '';
+    if(type === 'normal') background_position += 'background-position: -1392px -672px;';
+    if(type === 'bifurcated') background_position += 'background-position: -1392px -720px;';
+    if(type === 'golden') background_position += 'background-position: -1344px -768px;';
+    if(type === 'meaty') background_position += 'background-position: -1392px -816px;';
+    if(type === 'caramelized') background_position += 'background-position: -1392px -1296px;';
+    return '<div class="icon" style="vertical-align: middle; margin-right: -8px;' + background_position + '""></div>';
+}
+
 CYOL.UI.customLumpTooltip = function(str, phase) {
     str += '<div class="line"></div>';
-    str += 'Predicted next lump type: ' + CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy) + '<br />';
+    let type = CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy);
+    str += 'Predicted next lump type: ' + CYOL.UI.makeLumpIcon(type) + ' ' + type + '<br />';
     CYOL.UI.computePredictions();
     for(let i = 0; i < CYOL.UI.settings.predictionsToDisplay && i < CYOL.UI.cachedPredictions.length; i++)
         str += CYOL.formatPredictionState(CYOL.UI.cachedPredictions[i], CYOL.UI.settings.discrepancy) + '<br />';
