@@ -304,9 +304,9 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
     str += 'Predictions: <br />';
     for(let i = 0; i < CYOL.UI.settings.predictionsToDisplay && i < CYOL.UI.cachedPredictions.length; i++) {
         let prediction = CYOL.UI.cachedPredictions[i];
-        str += CYOL.UI.makeIcon('lump_' + prediction.lumpType) + ': ';
+        str += CYOL.UI.makeIcon('lump_' + prediction.lumpType) + ':';
         if(prediction.grandmaCount) {
-            str += prediction.grandmaCount + 'x';
+            str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + prediction.grandmaCount + 'x</div>';
         }
         if(prediction.grandmapocalypseStage === 0) str += CYOL.UI.makeGrandmaIcon('appeased');
         if(prediction.grandmapocalypseStage === 1) str += CYOL.UI.makeGrandmaIcon('awoken');
