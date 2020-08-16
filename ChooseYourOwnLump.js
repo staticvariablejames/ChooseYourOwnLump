@@ -285,14 +285,14 @@ CYOL.UI.makeGrandmaIcon = function(type) {
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.
  * slot === 0 means unslotted, slot === 1 means jade slot, 2 is ruby and 3 is diamond. */
 CYOL.UI.makeRigidelIcon = function(slot) {
-    let rigidel = '<div class="icon" style="background-position:-1056px -912px;"></div>';
+    let rigidel = '<div class="icon" style="background-position:-1056px -912px"></div>';
     let gem_background = '';
     if(slot === 3) gem_background += 'background-position: -1104px -720px;';
     if(slot === 2) gem_background += 'background-position: -1128px -720px;';
     if(slot === 1) gem_background += 'background-position: -1104px -744px;';
-    if(slot === 0) gem_background += 'background-position: -1128px -744px;';
-    let gem = '<div class="icon" style="width:24px;height:24px;' + gem_background + '"></div>';
-    return rigidel+gem;
+    if(slot === 0) gem_background += 'background-position: -1128px -744px;'; // No background
+    let gem = '<div class="icon" style="width:24px;height:24px; position:absolute; top: 36px; left: 12px;' + gem_background + '"></div>';
+    return '<div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;' + (slot===0 ? 'opacity:0.2' : '') + '">' + rigidel + gem + '</div>';
 }
 
 CYOL.UI.customLumpTooltip = function(str, phase) {
