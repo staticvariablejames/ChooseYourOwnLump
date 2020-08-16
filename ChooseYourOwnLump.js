@@ -4,6 +4,10 @@ if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieC
 // CCSE calls Game.Win('Third-party') for us
 
 // CYOL.launch is at the end of this file.
+CYOL.name = "Choose Your Own Lump";
+CYOL.version = "2020-08-16";
+CYOL.GameVersion = "2.022";
+CYOL.CCSEVersion = "2.016";
 
 CYOL.DragonAuras = class {
     /* This class accounts for how the game handles the dragon's auras.
@@ -369,6 +373,11 @@ CYOL.UI.customOptionsMenu = function() {
 }
 
 CYOL.launch = function() {
+    if(!CCSE.ConfirmGameCCSEVersion(CYOL.name, CYOL.version, CYOL.GameVersion, CYOL.CCSEVersion)) {
+        CYOL.isLoaded = true;
+        return;
+    }
+
     CYOL.DragonAuras.init();
     CYOL.TransientState.init();
 
