@@ -279,7 +279,7 @@ CYOL.UI.makeGrandmaIcon = function(type) {
     if(type === 'displeased') background += 'background-position: -64px -128px;';
     if(type === 'angered') background += 'background-position: -128px -128px;';
     if(type === 'none') background += 'background-position: -64px -64px;';
-    return '<div class="icon" style="vertical-align: middle;' + background + '""></div>';
+    return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + '""></div>';
 }
 
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.
