@@ -225,23 +225,26 @@ CYOL.predictNextLumpType = function(discrepancy, verbose) {
 }
 
 CYOL.UI = {};
-CYOL.UI.settings = {
-    discrepancy: 1,
-    includeNormal: false,
-    includeBifurcated: false,
-    includeGolden: true,
-    includeCaramelized: false,
-    targetTypes: function() {
-        let types = [];
-        if(this.includeNormal) types.push('normal');
-        if(this.includeBifurcated) types.push('bifurcated');
-        if(this.includeGolden) types.push('golden');
-        if(this.includeMeaty) types.push('meaty');
-        if(this.includeCaramelized) types.push('caramelized');
-        return types;
-    },
-    predictionsToDisplay: 10, // Number of predictions to display in the lump tooltip
+CYOL.UI.defaultSettings = function() {
+    return {
+        discrepancy: 1,
+        includeNormal: false,
+        includeBifurcated: false,
+        includeGolden: true,
+        includeCaramelized: false,
+        targetTypes: function() {
+            let types = [];
+            if(this.includeNormal) types.push('normal');
+            if(this.includeBifurcated) types.push('bifurcated');
+            if(this.includeGolden) types.push('golden');
+            if(this.includeMeaty) types.push('meaty');
+            if(this.includeCaramelized) types.push('caramelized');
+            return types;
+        },
+        predictionsToDisplay: 10, // Number of predictions to display in the lump tooltip
+    };
 };
+CYOL.UI.settings = CYOL.UI.defaultSettings();
 
 CYOL.UI.cachedPredictions = null;
 CYOL.UI.cachedState = null; // the PersistentState that was used to compute cachedPredictions
@@ -373,6 +376,16 @@ CYOL.launch = function() {
     Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
     // Always display the lump type
     CCSE.ReplaceCodeIntoFunction('Game.lumpTooltip', '(phase>=3)', '(true) /* CYOL modification */', 0);
+
+    CCSE.customSave.push(function() {
+        console.log("Saving " + JSON.stringify(CYOL.UI.settings));
+        CCSE.save.OtherMods.CYOL = CYOL.UI.settings;
+    });
+    let loadSettings = function() {
+        if(CCSE.save.OtherMods.CYOL) CYOL.UI.settings = CCSE.save.OtherMods.CYOL;
+    }
+    loadSettings();
+    CCSE.customLoad.push(loadSettings);
 
     CYOL.isLoaded = true;
 }
