@@ -19,3 +19,12 @@ and the distribution of the discrepancy was:
 So it seems that roughly 80% of the times the game loads,
 the discrepancy is +1 or +2.
 The default setting of this mod is +1.
+
+
+Known Bugs/Limitations
+======================
+
+The performance is abysmal:
+it takes roughly 5 seconds on my machine to scan through all possibilities.
+This is particularly bad when savescumming,
+because the mod may try to re-scan all possibilities every time the save game is reloaded.
