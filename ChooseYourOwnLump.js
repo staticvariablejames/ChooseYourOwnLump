@@ -236,19 +236,20 @@ CYOL.UI.defaultSettings = function() {
         includeBifurcated: false,
         includeGolden: true,
         includeCaramelized: false,
-        targetTypes: function() {
-            let types = [];
-            if(this.includeNormal) types.push('normal');
-            if(this.includeBifurcated) types.push('bifurcated');
-            if(this.includeGolden) types.push('golden');
-            if(this.includeMeaty) types.push('meaty');
-            if(this.includeCaramelized) types.push('caramelized');
-            return types;
-        },
         predictionsToDisplay: 10, // Number of predictions to display in the lump tooltip
     };
 };
 CYOL.UI.settings = CYOL.UI.defaultSettings();
+
+CYOL.UI.targetTypes = function() {
+    let types = [];
+    if(CYOL.UI.settings.includeNormal) types.push('normal');
+    if(CYOL.UI.settings.includeBifurcated) types.push('bifurcated');
+    if(CYOL.UI.settings.includeGolden) types.push('golden');
+    if(CYOL.UI.settings.includeMeaty) types.push('meaty');
+    if(CYOL.UI.settings.includeCaramelized) types.push('caramelized');
+    return types;
+}
 
 CYOL.UI.cachedPredictions = null;
 CYOL.UI.cachedState = null; // the PersistentState that was used to compute cachedPredictions
@@ -259,7 +260,7 @@ CYOL.UI.computePredictions = function() {
     let currentState = CYOL.PersistentState.current();
     if(currentState.equal(CYOL.UI.cachedState) && CYOL.UI.cachedPredictions !== null) return;
     CYOL.UI.cachedState = currentState;
-    CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.settings.targetTypes(), CYOL.UI.settings.discrepancy);
+    CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.targetTypes(), CYOL.UI.settings.discrepancy);
 }
 
 /* Returns a string for a <div> tag that displays the given icon. */
