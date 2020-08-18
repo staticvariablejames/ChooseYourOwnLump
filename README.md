@@ -18,3 +18,4 @@ and the distribution of the discrepancy was:
 
 So it seems that roughly 80% of the times the game loads,
 the discrepancy is +1 or +2.
+The default setting of this mod is +1.
