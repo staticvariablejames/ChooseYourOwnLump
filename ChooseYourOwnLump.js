@@ -81,7 +81,7 @@ CYOL.TransientState = class {
     }
 
     static grandmalessStates = undefined; // All possible states without grandmas
-    static grandmafulStates = undefined; // All possible states with grandmas
+    static grandmafulStates = undefined; // All possible (inequivalent) states with grandmas
     static init() {
         // init() is called by CYOL.launch()
         this.grandmalessStates = [];
@@ -93,7 +93,14 @@ CYOL.TransientState = class {
                     this.grandmalessStates.push(new this(
                         grandmapocalypseStage, dragon, rigidelSlot
                     ));
-                    for(let grandmaCount = 0; grandmaCount <= 600; grandmaCount++) {
+                    let grandmaCount = (rigidelSlot === 0 ? 0 : 401);
+                    /* Having n grandmas with Rigidel in slot k
+                     * is the same thing as having n+200 grandmas with Rigidel in slot k-1.
+                     * The condition above prevents equivalent configurations from being generated.
+                     * It favors using grandmas instead of Rigidel;
+                     * the idea is to maximize the usefulness of the pantheon
+                     * for uses beyond this trick. */
+                    for(; grandmaCount <= 600; grandmaCount++) {
                         this.grandmafulStates.push(new this(
                             grandmapocalypseStage, dragon, rigidelSlot, grandmaCount
                         ));
