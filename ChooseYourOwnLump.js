@@ -395,7 +395,6 @@ CYOL.launch = function() {
     CCSE.ReplaceCodeIntoFunction('Game.lumpTooltip', '(phase>=3)', '(true) /* CYOL modification */', 0);
 
     CCSE.customSave.push(function() {
-        console.log("Saving " + JSON.stringify(CYOL.UI.settings));
         CCSE.save.OtherMods.CYOL = CYOL.UI.settings;
     });
     let loadSettings = function() {
