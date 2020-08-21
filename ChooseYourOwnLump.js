@@ -322,6 +322,8 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
         str += CYOL.UI.makeIcon('lump_' + prediction.lumpType) + ':';
         if(prediction.grandmaCount) {
             str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + prediction.grandmaCount + 'x</div>';
+        } else {
+            str += '&nbsp;&nbsp;&nbsp;'; // kludge
         }
         if(prediction.grandmapocalypseStage === 0) str += CYOL.UI.makeGrandmaIcon('appeased');
         if(prediction.grandmapocalypseStage === 1) str += CYOL.UI.makeGrandmaIcon('awoken');
