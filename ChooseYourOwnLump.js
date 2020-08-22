@@ -83,6 +83,14 @@ CYOL.TransientState = class {
         this.grandmaCount = grandmaCount;
     }
 
+    /* True if the only difference between the two states is the grandmapocalypseStage. */
+    almostEqual(state) {
+        return state instanceof CYOL.TransientState
+            && this.dragon.equal(state.dragon)
+            && this.rigidelSlot === state.rigidelSlot
+            && this.grandmaCount === state.grandmaCount;
+    }
+
     // Returns the current state of the game.
     static current() {
         let dragon = CYOL.DragonAuras.fromGame();
@@ -343,10 +351,7 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
     for(; rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions.length; rows++) {
         let grandmapocalypseStages = [false, false, false, false];
         let prediction = CYOL.UI.cachedPredictions[i];
-        while(prediction.dragon.equal(CYOL.UI.cachedPredictions[i].dragon)
-            && prediction.grandmaCount === CYOL.UI.cachedPredictions[i].grandmaCount
-            && prediction.rigidelSlot === CYOL.UI.cachedPredictions[i].rigidelSlot)
-        {
+        while(prediction.almostEqual(CYOL.UI.cachedPredictions[i])) {
             grandmapocalypseStages[CYOL.UI.cachedPredictions[i].grandmapocalypseStage] = true;
             i++;
         }
@@ -365,6 +370,9 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
         str += CYOL.UI.makeIcon('aura_reality_bending', !prediction.dragon.hasRealityBending);
         str += CYOL.UI.makeRigidelIcon(prediction.rigidelSlot);
         str += '<br />';
+    }
+    if(rows < CYOL.UI.settings.rowsToDisplay) {
+        str += 'No more matching predictions found.';
     }
     return str;
 }
