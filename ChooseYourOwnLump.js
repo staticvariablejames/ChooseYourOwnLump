@@ -33,6 +33,11 @@ CYOL.DragonAuras = class {
     auraValue() {
         return (this.hasDragonsCurve? 1 : 0) + (this.hasRealityBending? 0.1 : 0);
     }
+    equal(dragon) {
+        return dragon instanceof CYOL.DragonAuras
+            && this.hasDragonsCurve === dragon.hasDragonsCurve
+            && this.hasRealityBending === dragon.hasRealityBending;
+    }
     static fromGame() {
         // Return the DragonAuras corresponding to the current in-game state.
         return new CYOL.DragonAuras(Game.hasAura("Dragon's Curve"), Game.hasAura("Reality Bending"));
@@ -258,7 +263,7 @@ CYOL.UI.defaultSettings = function() {
         includeBifurcated: false,
         includeGolden: true,
         includeCaramelized: false,
-        predictionsToDisplay: 10, // Number of predictions to display in the lump tooltip
+        rowsToDisplay: 10, // Number of rows of predictions to display in the lump tooltip
     };
 };
 CYOL.UI.settings = CYOL.UI.defaultSettings();
@@ -302,14 +307,15 @@ CYOL.UI.makeIcon = function(icon, transparent) {
 }
 
 /* Same as above but for buildings instead. */
-CYOL.UI.makeGrandmaIcon = function(type) {
+CYOL.UI.makeGrandmaIcon = function(type, transparent) {
     let background = "background-image: url('img/buildings.png?v=4');";
+    let transparency = '';
     if(type === 'appeased') background += 'background-position: 0px -64px;';
     if(type === 'awoken') background += 'background-position: 0px -128px;';
     if(type === 'displeased') background += 'background-position: -64px -128px;';
     if(type === 'angered') background += 'background-position: -128px -128px;';
-    if(type === 'none') background += 'background-position: -64px -64px;';
-    return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + '""></div>';
+    if(transparent) transparency += 'opacity: 0.2;';
+    return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + transparency + '""></div>';
 }
 
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.
@@ -326,24 +332,35 @@ CYOL.UI.makeRigidelIcon = function(slot) {
 }
 
 CYOL.UI.customLumpTooltip = function(str, phase) {
+    str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
     str += '<div class="line"></div>';
     let type = CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy);
     str += 'Predicted next lump type: ' + CYOL.UI.makeIcon('lump_' + type) + ' ' + type + '<br />';
     CYOL.UI.computePredictions();
 
     str += 'Predictions: <br />';
-    for(let i = 0; i < CYOL.UI.settings.predictionsToDisplay && i < CYOL.UI.cachedPredictions.length; i++) {
+    let rows = 0, i = 0;
+    for(; rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions.length; rows++) {
+        let grandmapocalypseStages = [false, false, false, false];
         let prediction = CYOL.UI.cachedPredictions[i];
+        while(prediction.dragon.equal(CYOL.UI.cachedPredictions[i].dragon)
+            && prediction.grandmaCount === CYOL.UI.cachedPredictions[i].grandmaCount
+            && prediction.rigidelSlot === CYOL.UI.cachedPredictions[i].rigidelSlot)
+        {
+            grandmapocalypseStages[CYOL.UI.cachedPredictions[i].grandmapocalypseStage] = true;
+            i++;
+        }
+
         str += CYOL.UI.makeIcon('lump_' + prediction.lumpType) + ':';
         if(prediction.grandmaCount) {
             str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + prediction.grandmaCount + 'x</div>';
         } else {
             str += '&nbsp;&nbsp;&nbsp;'; // kludge
         }
-        if(prediction.grandmapocalypseStage === 0) str += CYOL.UI.makeGrandmaIcon('appeased');
-        if(prediction.grandmapocalypseStage === 1) str += CYOL.UI.makeGrandmaIcon('awoken');
-        if(prediction.grandmapocalypseStage === 2) str += CYOL.UI.makeGrandmaIcon('displeased');
-        if(prediction.grandmapocalypseStage === 3) str += CYOL.UI.makeGrandmaIcon('angered');
+        str += CYOL.UI.makeGrandmaIcon('appeased', !grandmapocalypseStages[0]);
+        str += CYOL.UI.makeGrandmaIcon('awoken', !grandmapocalypseStages[1]);
+        str += CYOL.UI.makeGrandmaIcon('displeased', !grandmapocalypseStages[2]);
+        str += CYOL.UI.makeGrandmaIcon('angered', !grandmapocalypseStages[3]);
         str += CYOL.UI.makeIcon('aura_dragons_curve', !prediction.dragon.hasDragonsCurve);
         str += CYOL.UI.makeIcon('aura_reality_bending', !prediction.dragon.hasRealityBending);
         str += CYOL.UI.makeRigidelIcon(prediction.rigidelSlot);
@@ -359,10 +376,10 @@ CYOL.UI.discrepancyCallback = function() {
     CYOL.UI.cachedPredictions = null;
 }
 
-CYOL.UI.predictionsToDisplayCallback = function() {
-    let value = document.getElementById('CYOLpredictionsToDisplaySlider').value ?? 10;
-    CYOL.UI.settings.predictionsToDisplay = value;
-    document.getElementById('CYOLpredictionsToDisplaySliderRightText').innerHTML = value;
+CYOL.UI.rowsToDisplayCallback = function() {
+    let value = document.getElementById('CYOLrowsToDisplaySlider').value ?? 10;
+    CYOL.UI.settings.rowsToDisplay = value;
+    document.getElementById('CYOLrowsToDisplaySliderRightText').innerHTML = value;
 }
 
 CYOL.UI.customOptionsMenu = function() {
@@ -371,7 +388,7 @@ CYOL.UI.customOptionsMenu = function() {
         + Game.WriteSlider('CYOLdiscrepancySlider', 'Discrepancy', '[$]', () => CYOL.UI.settings.discrepancy, 'CYOL.UI.discrepancyCallback()')
         + '</div>';
     menuStr += '<div class="listing">'
-        + Game.WriteSlider('CYOLpredictionsToDisplaySlider', 'Predictions to display', '[$]', () => CYOL.UI.settings.predictionsToDisplay, 'CYOL.UI.predictionsToDisplayCallback()')
+        + Game.WriteSlider('CYOLrowsToDisplaySlider', 'Rows of predictions to display', '[$]', () => CYOL.UI.settings.rowsToDisplay, 'CYOL.UI.rowsToDisplayCallback()')
         + '</div>';
 
     function makeButton(lumpType) {
