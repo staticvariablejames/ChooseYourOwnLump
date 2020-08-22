@@ -61,6 +61,16 @@ CYOL.DragonAuras = class {
  * which can be easily modified by the player.
  */
 CYOL.TransientState = class {
+    /* grandmapocalypseStage is a number between 0 and 3,
+     * dragon is an object of CYOL.DragonAuras,
+     * rigidelSlot===0 means unslotted, 1 means Jade, 2 means Ruby, 3 means Diamond
+     * (note that this is a different convention than the one used in minigamePantheon.js);
+     * grandmaCount is the number of grandmas.
+     *
+     * For ease of use,
+     * CYOL.PersistentState.prototype.predictLumpType (and related method)
+     * inject the properties 'lumpType' and 'autoharvestTime' into objects of this class.
+     */
     constructor(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount) {
         this.grandmapocalypseStage = grandmapocalypseStage;
         this.dragon = dragon;
