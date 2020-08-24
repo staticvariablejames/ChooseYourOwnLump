@@ -134,6 +134,13 @@ to display everything,
 I made the sugar lump tooltip wider in a kludgey manner;
 this might cause incompatibilities if any other mod messes with that tooltip.
 
+1.0.3
+-----
+
+Update to Cookie Clicker 2.029, CCSE 2.017.
+
+Nothing really changed sugar-lump-wise besides version numbers.
+
 
 Known Bugs/Limitations
 ======================
