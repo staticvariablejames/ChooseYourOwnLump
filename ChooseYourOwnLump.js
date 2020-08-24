@@ -340,11 +340,15 @@ CYOL.UI.makeRigidelIcon = function(slot) {
 }
 
 CYOL.UI.customLumpTooltip = function(str, phase) {
+    CYOL.UI.computePredictions();
     str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
     str += '<div class="line"></div>';
     let type = CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy);
-    str += 'Predicted next lump type: ' + CYOL.UI.makeIcon('lump_' + type) + ' ' + type + '<br />';
-    CYOL.UI.computePredictions();
+    str += 'Predicted next lump type: ' + CYOL.UI.makeIcon('lump_' + type) + ' ' + type + '.';
+    if(Game.hasGod && Game.BuildingsOwned%10!==0 && Game.hasGod('order')) {
+        str += ' Rigidel not active!';
+    }
+    str += '<br />';
 
     str += 'Predictions: <br />';
     let rows = 0, i = 0;
