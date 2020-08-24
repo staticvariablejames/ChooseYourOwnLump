@@ -122,6 +122,18 @@ instead of generating a state with 500 grandmas and Rigidel on the ruby slot
 and another state with 300 grandmas and Rigidel on the diamond slot,
 only the former one is generated.
 
+1.0.2
+-----
+
+States that differ only in the grandmapocalypse stage are now shown together.
+
+More than half of the time all four stages of the grandmapocalypse yield the same lump.
+This should help declutter the display screen.
+However,
+to display everything,
+I made the sugar lump tooltip wider in a kludgey manner;
+this might cause incompatibilities if any other mod messes with that tooltip.
+
 
 Known Bugs/Limitations
 ======================
