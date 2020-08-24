@@ -397,6 +397,18 @@ CYOL.UI.rowsToDisplayCallback = function() {
     document.getElementById('CYOLrowsToDisplaySliderRightText').innerHTML = value;
 }
 
+CYOL.UI.toggleSettings = function(buttonId, settingsName, onText, offText) {
+    CYOL.UI.settings[settingsName] = !CYOL.UI.settings[settingsName];
+    let element = document.getElementById(buttonId);
+    if(CYOL.UI.settings[settingsName]) {
+        element.classList.remove("off");
+        element.innerHTML = onText;
+    } else {
+        element.classList.add("off");
+        element.innerHTML = offText;
+    }
+}
+
 CYOL.UI.customOptionsMenu = function() {
     let menuStr = "";
     menuStr += '<div class="listing">'
@@ -409,14 +421,17 @@ CYOL.UI.customOptionsMenu = function() {
     function makeButton(lumpType) {
         let settingsName = "include" + lumpType[0].toUpperCase() + lumpType.slice(1);
         let buttonClass = "option" + (CYOL.UI.settings[settingsName] ? "" : " off");
-        let onclick = "CYOL.UI.settings." + settingsName + " = " +
-            (CYOL.UI.settings[settingsName] ? "false;" : "true;") +
+        let buttonId = 'CYOLbutton' + settingsName;
+        let onText = "Showing " + lumpType + " lumps";
+        let offText = "Hiding " + lumpType + " lumps";
+        let onclick = "CYOL.UI.toggleSettings('" + buttonId + "', '" +
+            settingsName + "', '" + onText + "', '" + offText + "');" +
             "CYOL.UI.cachedPredictions = null;" +
-            'PlaySound(\'snd/tick.mp3\');'
+            'PlaySound(\'snd/tick.mp3\');';
         return '<a class="' + buttonClass + '"' +
-            'id="CYOL' + settingsName + '"' +
-            'onclick="' + onclick + '">' +
-            (CYOL.UI.settings[settingsName] ? "Showing " : "Hiding ") + lumpType + " lumps" +
+            ' id="' + buttonId + '"' +
+            ' onclick="' + onclick + '">' +
+            (CYOL.UI.settings[settingsName] ? onText : offText) +
             '</a>';
     }
     menuStr += '<div class="listing">';
