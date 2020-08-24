@@ -26,11 +26,11 @@ The key here is that the [random seed](https://en.wikipedia.org/wiki/Random_seed
 used to determine the next lump type
 depends only on the game's random seed
 and the time that the lump started growing.
-The former changes randomly every new ascension,
-so we cannot predict its value,
-but we can manipulate the latter to choose the type of the next sugar lump.
+Thus we can look at all the possibilities of time for the "birth" of the lump
+and manipulate this value to give us the type we want.
 
-The most obvious way would be simply harvesting a ripe sugar lump at the right time.
+The most obvious way of manipulating the sugar lump birth time
+would be simply harvesting a ripe sugar lump at the right moment.
 However,
 the game uses millisecond precision for determining when the lump started growing,
 so if we miss the mark by more than one millisecond we get an essentially random lump type.
@@ -105,6 +105,95 @@ roughly 50% of the time the discrepancy is 1 millisecond,
 so this is the default setting for the mod.
 
 
+Practice
+========
+
+This mod looks at every combination of "transient states"
+(number of grandmas, dragon auras, Rigidel slot, grandmapocalypse stage),
+filter the predictions to the lump types of your choice,
+and displays them in the lump tooltip
+(the box that appears when you hover the mouse over the sugar lump).
+The tooltip looks like this:
+
+![Modified lump tooltip](doc/tooltip.png "Modified lump tooltip")
+
+The "Predicted next lump type" line says that,
+if the player makes no changes to its save game,
+then the next lump type will be normal.
+
+The first line after that says that,
+if the player enters any of the three "positive" stages of the grandmapocalypse,
+sets the dragon aura to Dragon's Curve,
+and Rigidel on the diamond slot,
+then the next sugar lump will be meaty.
+If the dragon has already been trained to have two auras,
+the second aura must be set to _something other than_ Reality Bending.
+
+The second line says that,
+regardless of the grandmapocalypse stage (even in the "stage 0", with appeased grandmas),
+if the player sets the dragon auras for Dragon's Curve _and_ Reality Bending
+and worships Rigidel in the Jade slot,
+then the sugar lump will grow to be caramelized.
+
+**All of this assumes, of course,
+that the discrepancy that happens when loading the save game
+matches the one assumed during the calculations.**
+Thus some savescumming may be needed to guarantee that the discrepancy matches the assumed value.
+This value can be adjusted in the settings,
+but I believe most users will want that value to be 1.
+
+In the screen above,
+the current lump type is bifurcated,
+as can be seen in the fourth line of the tooltip.
+This line would normally only be displayed in the fourth growth stage of that lump,
+but to help with savescumming,
+this mod forces the game to always display that line (for non-normal lump types).
+
+Only the predictions whose lump types were selected by the user are shown.
+The predictions which result in shortest lump growth time are shown first in the tooltip.
+Note that,
+for example,
+choosing the second prediction in the list above will make the current lump take longer to harvest,
+but since caramelized sugar lumps yield more lumps (on average) than meaty sugar lums,
+choosing that one yields more lumps overall.
+
+If the heavenly upgrade "Sugar Aging Process" is purchased,
+then the number of grandmas matter for the sugar lump growth time.
+The required number is displayed right after the colon:
+
+![Modified lump tooltip](doc/tooltip-with-grandmas.png "When the number of grandmas matter")
+
+Sometimes,
+the predicted configuration will limit how far (or how early)
+in the grandmapocalypse the game can be;
+for example, in the last line of the tooltip above,
+only the first two stages of the grandmapocalypse
+(and Dragon's curve and rigidel on the Ruby slot)
+yield the chosen lump type.
+If you are past that stage,
+the only way of going back is to stop the grandmapocalypse
+either through Elder Pledge or Elder Covenant.
+
+In some rare cases,
+the required stages are on "the middle".
+For example,
+in the second line above,
+only stages 1 and 2 (awoken and displeased grandmas) work.
+
+You can check the grandmapocalypse stage on the Status menu,
+or by looking at the picture of the grandmas in your buildings list;
+they will match the ones displayed in the tooltip.
+
+Increasing the number of grandmas by 200 is equivalent to raising Rigidel one slot
+(unslotted to Jade, Jade to Ruby, or Ruby do Diamond).
+For example,
+in the image above,
+the third line is equivalent to using 378 grandmas instead of 578
+but worshipping Rigidel in the Diamond slot.
+They have exactly the same results,
+so the mod only displays the one with the most grandmas.
+
+
 Changelog
 =========
 
@@ -149,3 +238,7 @@ The performance is abysmal:
 it takes roughly 5 seconds on my machine to scan through all possibilities.
 This is particularly bad when savescumming,
 because the mod may try to re-scan all possibilities every time the save game is reloaded.
+
+Although the value of the discrepancy is necessary to make sure everything went smoothly,
+the mod currently does _not_ display which value it was;
+the only way to verify is to see whether the actual lump type matches the predicted lump type.
