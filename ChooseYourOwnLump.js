@@ -376,7 +376,10 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
         str += '<br />';
     }
     if(rows < CYOL.UI.settings.rowsToDisplay) {
-        str += 'No more matching predictions found.';
+        str += 'No other matching predictions found.';
+        if(rows === 0) {
+            str += '<br />Try displaying more lump types in the settings!';
+        }
     }
     return str;
 }
