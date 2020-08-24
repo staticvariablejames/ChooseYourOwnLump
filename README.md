@@ -105,6 +105,24 @@ roughly 50% of the time the discrepancy is 1 millisecond,
 so this is the default setting for the mod.
 
 
+Changelog
+=========
+
+1.0.0
+-----
+
+Initial release.
+
+1.0.1
+-----
+
+Funcionally equivalent states are no longer generated multiple times;
+for example,
+instead of generating a state with 500 grandmas and Rigidel on the ruby slot
+and another state with 300 grandmas and Rigidel on the diamond slot,
+only the former one is generated.
+
+
 Known Bugs/Limitations
 ======================
 
