@@ -194,6 +194,25 @@ They have exactly the same results,
 so the mod only displays the one with the most grandmas.
 
 
+Using the mod
+=============
+
+The best solution is adding
+<https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js>
+to [Cookie Clicker Mod Manager](https://github.com/klattmose/CookieClickerModManager).
+
+Alternatively,
+run
+```javascript
+    Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js');
+```
+on your browser Javascript console,
+or create a bookmarklet with the code
+```javascript
+    javascript:(function(){Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js');}());
+```
+
+
 Changelog
 =========
 
