@@ -230,6 +230,11 @@ Update to Cookie Clicker 2.029, CCSE 2.017.
 
 Nothing really changed sugar-lump-wise besides version numbers.
 
+1.0.4
+-----
+
+Minor UI improvements.
+
 
 Known Bugs/Limitations
 ======================
