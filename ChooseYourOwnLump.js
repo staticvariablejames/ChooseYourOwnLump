@@ -263,6 +263,15 @@ CYOL.predictNextLumpType = function(discrepancy, verbose) {
     return persistentState.predictLumpType(transientState, discrepancy, verbose);
 }
 
+/* Injects or modifies the function with the given name.
+ * `pattern` and `replacement` are the first and second arguments to String.prototype.replace.
+ */
+CYOL.rewriteCode = function(functionName, pattern, replacement) {
+    let code = eval(functionName + ".toString()");
+    let newCode = code.replace(pattern, replacement);
+    eval(functionName + " = " + newCode);
+}
+
 CYOL.UI = {};
 CYOL.UI.defaultSettings = function() {
     return {
@@ -456,7 +465,7 @@ CYOL.launch = function() {
     Game.customLumpTooltip.push(CYOL.UI.customLumpTooltip);
     Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
     // Always display the lump type
-    CCSE.ReplaceCodeIntoFunction('Game.lumpTooltip', '(phase>=3)', '(true) /* CYOL modification */', 0);
+    CYOL.rewriteCode('Game.lumpTooltip', /(phase>=3)/, '(true) /* CYOL modification */');
 
     CCSE.customSave.push(function() {
         CCSE.save.OtherMods.CYOL = CYOL.UI.settings;
