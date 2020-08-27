@@ -268,6 +268,11 @@ Technically the minor version number should have been increased a few patch vers
 since more functionality was added
 (significantly improved displaying of states and displaying the discrepancy).
 
+1.1.1
+-----
+
+Fix visual bug regarding the display of the discrepancy.
+
 
 Known Bugs/Limitations
 ======================
