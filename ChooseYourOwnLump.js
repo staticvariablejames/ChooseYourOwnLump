@@ -372,13 +372,23 @@ CYOL.UI.currentLumpType = function() {
     }
 }
 
-CYOL.UI.customLumpTooltip = function(str, phase) {
-    CYOL.UI.computePredictions();
-    str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
-    str += '<div class="line"></div>';
+// Builds a string that displays the discrepancy and the current lump type.
+CYOL.UI.discrepancyTooltip = function() {
+    /* The bunch of if-elses here is trying to remind the user about the peculiarities of the mod.
+     * For example,
+     * if CYOL.UI.previousLumpT === Game.lumpT,
+     * no lumps were harvested between saving and loading the game,
+     * so this function tries to remind the user to load the save game
+     * only after a lump is autoharvested.
+     *
+     * Another example: if the actual discrepancy differs from CYOL.UI.settings.discrepancy,
+     * then the lump type is probably not what the user wanted,
+     * so there is a reminder to try to reload the game again.
+     * (This is also the reason why the current lump type is shown here.)
+     */
+    let str = '<div>Expected discrepancy: ' + CYOL.UI.settings.discrepancy + 'ms.</div>';
+    str += '<div>The current lump type is ' + CYOL.UI.currentLumpType() + '.</div>';
 
-    // Show discrepancy info
-    str += 'Expected discrepancy: ' + CYOL.UI.settings.discrepancy + 'ms.<br />';
     if(CYOL.UI.previousAutoharvestTime) {
         let discrepancy = Game.lumpT - CYOL.UI.previousAutoharvestTime;
         if(Game.lumpT === CYOL.UI.previousLumpT) {
@@ -387,15 +397,16 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
                 ' This is likely because no sugar lumps were harvested while the game was closed.' +
                 ' Try exporting your save game and reloading after a lump is auto-harvested!' +
                 '</div>';
-        } else if(discrepancy < 0 || discrepancy > 1000) {
+        } else if(discrepancy < 0 || discrepancy > 100) {
             str += '<div>' +
-                'The actual discrepancy seems to be ' + discrepancy + ', which seems wrong...';
+                'The actual discrepancy is ' + discrepancy + ', which seems wrong...';
             if(discrepancy < 0) {
                 str += ' Maybe no lump was harvested when the save game was loaded?';
             } else {
                 str += ' Maybe more than one lump was harvested when the save game was loaded?';
             }
             str += '</div>';
+            // The threshold is 100 because it is the highest the slider can go in the options menu
         } else {
             str += "<div>The actual discrepancy was ";
             if(discrepancy === CYOL.UI.settings.discrepancy) {
@@ -408,7 +419,6 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
                 else
                     str += ' more than what we expected.';
             }
-            str += ' The current lump type is ' + CYOL.UI.currentLumpType() + '.';
             if(discrepancy !== CYOL.UI.settings.discrepancy)
                 str += ' Try reloading the save if the lump has the wrong type.';
             str += '</div>';
@@ -418,6 +428,16 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
             ' Try loading your game after CYOL finishes launching!' +
             '</div>';
     }
+
+    return str;
+}
+
+CYOL.UI.customLumpTooltip = function(str, phase) {
+    CYOL.UI.computePredictions();
+    str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
+    str += '<div class="line"></div>';
+
+    str += CYOL.UI.discrepancyTooltip();
     str += '<div class="line"></div>';
 
     // Next lump type
