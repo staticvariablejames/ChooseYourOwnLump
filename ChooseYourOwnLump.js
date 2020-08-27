@@ -315,9 +315,17 @@ CYOL.UI.computePredictions = function() {
  */
 CYOL.UI.previousAutoharvestTime = null;
 CYOL.UI.previousLumpT = null;
+/* It seems that, in rare cases,
+ * the game might try to loadLumps before all minigames have finished loading.
+ * This means that the bonus from Rigidel cannot be computed
+ * and is simply skipped.
+ * So we warn the player about this issue in the lump tooltip.
+ */
+CYOL.UI.warnPantheonNotLoaded = false;
 CYOL.UI.sneakySaveDataRetrieval = function() {
     CYOL.UI.previousLumpT = Game.lumpT;
     CYOL.UI.previousAutoharvestTime = Game.lumpT + Game.lumpOverripeAge;
+    CYOL.UI.warnPantheonNotLoaded = !Game.hasGod;
 }
 
 /* Returns a string for a <div> tag that displays the given icon. */
@@ -388,6 +396,14 @@ CYOL.UI.discrepancyTooltip = function() {
      */
     let str = '<div>Expected discrepancy: ' + CYOL.UI.settings.discrepancy + 'ms.</div>';
     str += '<div>The current lump type is ' + CYOL.UI.currentLumpType() + '.</div>';
+
+    if(Game.hasGod && CYOL.UI.warnPantheonNotLoaded) {
+        str += '<div style="color:red">' +
+            'The Pantheon was still loading when the current lump type was computed,' +
+            ' so Rigidel may have had no effect.' +
+            ' Try reloading your save game again if the lump type is not the expected type.' +
+            '</div>';
+    }
 
     if(CYOL.UI.previousAutoharvestTime) {
         let discrepancy = Game.lumpT - CYOL.UI.previousAutoharvestTime;
