@@ -273,6 +273,11 @@ since more functionality was added
 
 Fix visual bug regarding the display of the discrepancy.
 
+1.1.2
+-----
+
+Warn the player if the Pantheon was not loaded when the lump type was being computed.
+
 
 Known Bugs/Limitations
 ======================
