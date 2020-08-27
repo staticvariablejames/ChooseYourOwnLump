@@ -259,6 +259,15 @@ Minor UI improvements.
 
 The discrepancy is now displayed in the lump tooltip.
 
+1.1.0
+-----
+
+Released under GPLv3 or later.
+
+Technically the minor version number should have been increased a few patch versions ago,
+since more functionality was added
+(significantly improved displaying of states and displaying the discrepancy).
+
 
 Known Bugs/Limitations
 ======================
