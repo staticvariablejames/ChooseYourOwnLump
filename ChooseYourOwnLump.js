@@ -314,8 +314,10 @@ CYOL.UI.computePredictions = function() {
  * This allows us to display the actual value of discrepancy to the user.
  */
 CYOL.UI.previousAutoharvestTime = null;
+CYOL.UI.previousLumpT = null;
 CYOL.UI.sneakySaveDataRetrieval = function() {
-    CYOL.UI.previousAutoharvestTime = Math.floor(Game.lumpT + Game.lumpOverripeAge);
+    CYOL.UI.previousLumpT = Game.lumpT;
+    CYOL.UI.previousAutoharvestTime = Game.lumpT + Game.lumpOverripeAge;
 }
 
 /* Returns a string for a <div> tag that displays the given icon. */
@@ -379,10 +381,23 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
     str += 'Expected discrepancy: ' + CYOL.UI.settings.discrepancy + 'ms.<br />';
     if(CYOL.UI.previousAutoharvestTime) {
         let discrepancy = Game.lumpT - CYOL.UI.previousAutoharvestTime;
-        if(discrepancy < 0 && discrepancy > 1000) {
-            str += "The actual discrepancy seems to be " + discrepancy + "; I'm not sure what went wrong... maybe no lump was harvested when the save game was loaded?";
+        if(Game.lumpT === CYOL.UI.previousLumpT) {
+            str += '<div style="color:gray">' +
+                'No discrepancy information to show.' +
+                ' This is likely because no sugar lumps were harvested while the game was closed.' +
+                ' Try exporting your save game and reloading after a lump is auto-harvested!' +
+                '</div>';
+        } else if(discrepancy < 0 || discrepancy > 1000) {
+            str += '<div>' +
+                'The actual discrepancy seems to be ' + discrepancy + ', which seems wrong...';
+            if(discrepancy < 0) {
+                str += ' Maybe no lump was harvested when the save game was loaded?';
+            } else {
+                str += ' Maybe more than one lump was harvested when the save game was loaded?';
+            }
+            str += '</div>';
         } else {
-            str += "The actual discrepancy was ";
+            str += "<div>The actual discrepancy was ";
             if(discrepancy === CYOL.UI.settings.discrepancy) {
                 str += '<div style="display:inline; color:green">' + discrepancy + ' milliseconds</div>,';
                 str += ' precisely what we expected!<br />';
@@ -393,12 +408,17 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
                 else
                     str += ' more than what we expected.';
             }
-            str += ' The current lump type is ' + CYOL.UI.currentLumpType() + '. Try reloading the save if the lump has the wrong type.';
+            str += ' The current lump type is ' + CYOL.UI.currentLumpType() + '.';
+            if(discrepancy !== CYOL.UI.settings.discrepancy)
+                str += ' Try reloading the save if the lump has the wrong type.';
+            str += '</div>';
         }
     } else {
-        str += '<div style="color:gray">No discrepancy information to show; you have to load your save game after CYOL finishes loading.</div>';
+        str += '<div style="color:gray">No discrepancy information to show.' +
+            ' Try loading your game after CYOL finishes launching!' +
+            '</div>';
     }
-    str += '<br />';
+    str += '<div class="line"></div>';
 
     // Next lump type
     let type = CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy);
