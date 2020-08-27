@@ -254,6 +254,11 @@ Nothing really changed sugar-lump-wise besides version numbers.
 
 Minor UI improvements.
 
+1.0.5
+-----
+
+The discrepancy is now displayed in the lump tooltip.
+
 
 Known Bugs/Limitations
 ======================
@@ -262,7 +267,3 @@ The performance is abysmal:
 it takes roughly 5 seconds on my machine to scan through all possibilities.
 This is particularly bad when savescumming,
 because the mod may try to re-scan all possibilities every time the save game is reloaded.
-
-Although the value of the discrepancy is necessary to make sure everything went smoothly,
-the mod currently does _not_ display which value it was;
-the only way to verify is to see whether the actual lump type matches the predicted lump type.
