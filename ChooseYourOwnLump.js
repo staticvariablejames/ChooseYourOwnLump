@@ -572,9 +572,6 @@ CYOL.launch = function() {
 
     CYOL.rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
 
-    // Always display the lump type
-    CYOL.rewriteCode('Game.lumpTooltip', /(phase>=3)/, '(true) /* CYOL modification */');
-
     CCSE.customSave.push(function() {
         CCSE.save.OtherMods.CYOL = CYOL.UI.settings;
     });
