@@ -115,25 +115,29 @@ and displays them in the lump tooltip
 (the box that appears when you hover the mouse over the sugar lump).
 The tooltip looks like this:
 
-![Modified lump tooltip](doc/tooltip.png "Modified lump tooltip")
+![Modified lump tooltip](doc/tooltip-with-grandmas.png "Modified lump tooltip")
 
 The "Predicted next lump type" line says that,
 if the player makes no changes to its save game,
 then the next lump type will be normal.
 
-The first line after that says that,
-if the player enters any of the three "positive" stages of the grandmapocalypse,
-sets the dragon aura to Dragon's Curve,
-and Rigidel on the diamond slot,
-then the next sugar lump will be meaty.
-If the dragon has already been trained to have two auras,
-the second aura must be set to _something other than_ Reality Bending.
+The first line says that,
+regardless of the stage of the grandmapocalypse,
+if the dragon has both Dragon's Curve and Reality Bending as active auras,
+and Rigidel is active on the ruby slot,
+then the next sugar lump type will be caramelized.
 
 The second line says that,
-regardless of the grandmapocalypse stage (even in the "stage 0", with appeased grandmas),
-if the player sets the dragon auras for Dragon's Curve _and_ Reality Bending
-and worships Rigidel in the Jade slot,
-then the sugar lump will grow to be caramelized.
+if the player progresses through the second or third "positive stages" of the grandmapocalypse
+(displeased and angered grandmas, respectively),
+the dragon has only Dragon's Curve as active aura,
+and Rigidel is active on the ruby slot,
+then the sugar lump will be meaty.
+
+Here only one of the two relevant auras (Dragon's Curve and Reality Bending) is needed,
+so this configuration works with a partially-trained dragon.
+If the dragon is fully trained,
+then the other aura must be set to something _other_ than reality bending.
 
 **All of this assumes, of course,
 that the discrepancy that happens when loading the save game
@@ -143,11 +147,9 @@ This value can be adjusted in the settings,
 but I believe most users will want that value to be 1.
 
 In the screen above,
-the current lump type is bifurcated,
-as can be seen in the fourth line of the tooltip.
-This line would normally only be displayed in the fourth growth stage of that lump,
-but to help with savescumming,
-this mod forces the game to always display that line (for non-normal lump types).
+the current lump type is normal,
+as can be seen in the second line of the paragraph above the predictions.
+This line will always say the type of the lump regardless of the growth stage.
 
 Only the predictions whose lump types were selected by the user are shown.
 The predictions which result in shortest lump growth time are shown first in the tooltip.
@@ -167,8 +169,8 @@ Sometimes,
 the predicted configuration will limit how far (or how early)
 in the grandmapocalypse the game can be;
 for example, in the last line of the tooltip above,
-only the first two stages of the grandmapocalypse
-(and Dragon's curve and rigidel on the Ruby slot)
+only the first three stages of the grandmapocalypse
+(and Dragon's curve and reality bending, and Rigidel unslotted)
 yield the chosen lump type.
 If you are past that stage,
 the only way of going back is to stop the grandmapocalypse
@@ -185,7 +187,7 @@ or by looking at the picture of the grandmas in your buildings list;
 they will match the ones displayed in the tooltip.
 
 Increasing the number of grandmas by 200 is equivalent to raising Rigidel one slot
-(unslotted to Jade, Jade to Ruby, or Ruby do Diamond).
+(unslotted to Jade, Jade to Ruby, or Ruby to Diamond).
 For example,
 in the image above,
 the third line is equivalent to using 378 grandmas instead of 578
