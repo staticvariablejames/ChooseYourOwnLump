@@ -13,7 +13,7 @@ Getting Started (aka TL;DR)
     the stage of the grandmapocalypse,
     the slot that Rigidel is being worshipped,
     and the auras of the dragon
-    can all be used to indirectly manipulate the type of the next coalescing sugar lump.
+    can all be used to indirectly manipulate the type of the next coalescing sugar lump
     (similarly to how Force the Hand of Fate planners can be used to achieve big combos).
 
 2.  This mod tries all possibilities and tells you which ones give the desired lump types.
@@ -144,7 +144,7 @@ and displays them in the lump tooltip
 (the box that appears when you hover the mouse over the sugar lump).
 The tooltip looks like this:
 
-![Modified lump tooltip](doc/tooltip-with-grandmas.png "Modified lump tooltip")
+![Modified lump tooltip](doc/tooltip-without-grandmas.png "Modified lump tooltip")
 
 The "Predicted next lump type" line says that,
 if the player makes no changes to its save game,
@@ -182,11 +182,6 @@ This line will always say the type of the lump regardless of the growth stage.
 
 Only the predictions whose lump types were selected by the user are shown.
 The predictions which result in shortest lump growth time are shown first in the tooltip.
-Note that,
-for example,
-choosing the second prediction in the list above will make the current lump take longer to harvest,
-but since caramelized sugar lumps yield more lumps (on average) than meaty sugar lums,
-choosing that one yields more lumps overall.
 
 If the heavenly upgrade "Sugar Aging Process" is purchased,
 then the number of grandmas matter for the sugar lump growth time.
@@ -328,7 +323,7 @@ because the mod may try to re-scan all possibilities every time the save game is
 License
 =======
 
-Choose Your Own Lump, a Cookie Clicker add-on.
+Choose Your Own Lump is a Cookie Clicker add-on.
 Copyright (C) 2020 Static Variable James
 
 This program is free software: you can redistribute it and/or modify
