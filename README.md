@@ -6,6 +6,35 @@ that helps manipulating time
 so that the right coalescing lump type can be chosen.
 
 
+Getting Started (aka TL;DR)
+===========================
+
+1.  The number of grandmas,
+    the stage of the grandmapocalypse,
+    the slot that Rigidel is being worshipped,
+    and the auras of the dragon
+    can all be used to indirectly manipulate the type of the next coalescing sugar lump.
+    (similarly to how Force the Hand of Fate planners can be used to achieve big combos).
+
+2.  This mod tries all possibilities and tells you which ones give the desired lump types.
+    Look at the pictures below and try to understand what the mod is telling you;
+    this information is available in the lump tooltip.
+
+3.  Add the mod to your game following the [instructions below](#using-the-mod),
+    choose your lump type and adjust your buildings/dragon etc. accordingly,
+    **export your save**,
+    wait for the lump to be auto-harvested,
+    and then load your save game again.
+    If everything went alright the type of your next lump is the one you choose!
+
+4.  The most common issue is the discrepancy.
+    In short, the game does not account for Javascript being slow,
+    so sometimes the game misses the autoharvesting time by one or two millisecond.
+    Reload your save game until the discrepancy matches the expected discrepancy
+    (typically 1);
+    the tooltip will provide instructions as needed.
+
+
 Theory
 ======
 
