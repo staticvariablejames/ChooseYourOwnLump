@@ -278,6 +278,12 @@ Fix visual bug regarding the display of the discrepancy.
 
 Warn the player if the Pantheon was not loaded when the lump type was being computed.
 
+1.1.3
+-----
+
+Remove code injection to `Game.lumpTooltip` that showed the lump type,
+as this information is already shown together with the discrepancy.
+
 
 Known Bugs/Limitations
 ======================
