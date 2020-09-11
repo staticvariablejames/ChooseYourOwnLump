@@ -179,6 +179,7 @@ CYOL.PersistentState = class {
      * as the attributes lumpType and autoharvestTime, respectively.
      */
     predictLumpType(transientState, discrepancy, verbose) {
+        discrepancy = Number(discrepancy); // Just to be sure
         let ripeAge = 23 * 60*60*1000; // 23 hours
         if (this.hasSteviaCaelestis) ripeAge -= 60*60*1000;
         if (this.hasSugarAgingProcess) ripeAge -= 6*1000 * Math.min(transientState.grandmaCount, 600);
