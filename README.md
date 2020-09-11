@@ -310,6 +310,14 @@ Warn the player if the Pantheon was not loaded when the lump type was being comp
 Remove code injection to `Game.lumpTooltip` that showed the lump type,
 as this information is already shown together with the discrepancy.
 
+1.1.4
+-----
+
+Fixed nasty bug when loading settings.
+(Sometimes `CYOL.UI.settings.discrepancy` was being loaded as a string,
+resulting in wrong predictions
+due to Javascript silently performing string concatenation where it should add two numbers.)
+
 
 Known Bugs/Limitations
 ======================
