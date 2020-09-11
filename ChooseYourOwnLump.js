@@ -275,17 +275,31 @@ CYOL.rewriteCode = function(functionName, pattern, replacement) {
 }
 
 CYOL.UI = {};
-CYOL.UI.defaultSettings = function() {
-    return {
-        discrepancy: 1,
-        includeNormal: false,
-        includeBifurcated: false,
-        includeGolden: true,
-        includeCaramelized: false,
-        rowsToDisplay: 10, // Number of rows of predictions to display in the lump tooltip
-    };
+
+CYOL.UI.settings = { // default settings
+    discrepancy: 1,
+    includeNormal: false,
+    includeBifurcated: false,
+    includeGolden: true,
+    includeCaramelized: false,
+    rowsToDisplay: 10,
 };
-CYOL.UI.settings = CYOL.UI.defaultSettings();
+
+/* Copies the given settings object to CYOL.UI.settings,
+ * enforcing that the objects have their appropriate types.
+ */
+CYOL.UI.copySettings = function(settings) {
+    if(!settings) return;
+    let numericSettings = ['discrepancy', 'rowsToDisplay'];
+    let booleanSettings = ['includeNormal', 'includeBifurcated', 'includeGolden', 'includeCaramelized'];
+
+    for(key of numericSettings) {
+        if(settings[key]) CYOL.UI.settings[key] = Number(settings[key]);
+    }
+    for(key of booleanSettings) {
+        if(settings[key]) CYOL.UI.settings[key] = Boolean(settings[key]);
+    }
+}
 
 CYOL.UI.targetTypes = function() {
     let types = [];
@@ -567,19 +581,21 @@ CYOL.launch = function() {
     CYOL.DragonAuras.init();
     CYOL.TransientState.init();
 
-    Game.customLumpTooltip.push(CYOL.UI.customLumpTooltip);
-    Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
-
-    CYOL.rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
-
     CCSE.customSave.push(function() {
         CCSE.save.OtherMods.CYOL = CYOL.UI.settings;
     });
     let loadSettings = function() {
-        if(CCSE.save.OtherMods.CYOL) CYOL.UI.settings = CCSE.save.OtherMods.CYOL;
+        if(CCSE.save.OtherMods.CYOL) {
+            CYOL.UI.copySettings(CCSE.save.OtherMods.CYOL);
+        }
     }
     loadSettings();
     CCSE.customLoad.push(loadSettings);
+
+    Game.customLumpTooltip.push(CYOL.UI.customLumpTooltip);
+    Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
+
+    CYOL.rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
 
     CYOL.isLoaded = true;
 }
