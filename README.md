@@ -318,6 +318,9 @@ Fixed nasty bug when loading settings.
 resulting in wrong predictions
 due to Javascript silently performing string concatenation where it should add two numbers.)
 
+Thanks to [`u/cookieliker`](https://www.reddit.com/user/cookieliker)
+and [`u/GLucky88`](https://www.reddit.com/user/GLucky88/) for the bug report!
+
 
 Known Bugs/Limitations
 ======================
