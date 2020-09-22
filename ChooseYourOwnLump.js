@@ -295,10 +295,10 @@ CYOL.UI.copySettings = function(settings) {
     let booleanSettings = ['includeNormal', 'includeBifurcated', 'includeGolden', 'includeCaramelized'];
 
     for(key of numericSettings) {
-        if(settings[key]) CYOL.UI.settings[key] = Number(settings[key]);
+        if(key in settings) CYOL.UI.settings[key] = Number(settings[key]);
     }
     for(key of booleanSettings) {
-        if(settings[key]) CYOL.UI.settings[key] = Boolean(settings[key]);
+        if(key in settings) CYOL.UI.settings[key] = Boolean(settings[key]);
     }
 }
 
