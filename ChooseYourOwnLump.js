@@ -595,6 +595,9 @@ CYOL.launch = function() {
 
     Game.customLumpTooltip.push(CYOL.UI.customLumpTooltip);
     Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
+    Game.customStatsMenu.push(function() {
+        CCSE.AppendStatsVersionNumber(CYOL.name, CYOL.version);
+    });
 
     CYOL.rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
 
