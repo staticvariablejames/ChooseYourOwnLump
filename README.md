@@ -321,6 +321,11 @@ due to Javascript silently performing string concatenation where it should add t
 Thanks to [`u/cookieliker`](https://www.reddit.com/user/cookieliker)
 and [`u/GLucky88`](https://www.reddit.com/user/GLucky88/) for the bug report!
 
+1.1.5
+-----
+
+Display version number in the stats menu.
+
 
 Known Bugs/Limitations
 ======================
