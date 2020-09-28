@@ -453,23 +453,9 @@ CYOL.UI.discrepancyTooltip = function() {
     return str;
 }
 
-CYOL.UI.customLumpTooltip = function(str, phase) {
-    CYOL.UI.computePredictions();
-    str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
-    str += '<div class="line"></div>';
-
-    str += CYOL.UI.discrepancyTooltip();
-    str += '<div class="line"></div>';
-
-    // Next lump type
-    let type = CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy);
-    str += 'Predicted next lump type: ' + CYOL.UI.makeIcon('lump_' + type) + ' ' + type + '.';
-    if(Game.hasGod && Game.BuildingsOwned%10!==0 && Game.hasGod('order')) {
-        str += ' Rigidel not active!';
-    }
-    str += '<br />';
-
-    str += 'Predictions: <br />';
+// Constructs a fancy table of predictions
+CYOL.UI.predictionTable = function() {
+    let str = '';
     let rows = 0, i = 0;
     while(rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions.length) {
         let grandmapocalypseStages = [false, false, false, false];
@@ -506,6 +492,27 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
             str += '<br />Try displaying more lump types in the settings!';
         }
     }
+    return str;
+}
+
+CYOL.UI.customLumpTooltip = function(str, phase) {
+    CYOL.UI.computePredictions();
+    str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
+    str += '<div class="line"></div>';
+
+    str += CYOL.UI.discrepancyTooltip();
+    str += '<div class="line"></div>';
+
+    // Next lump type
+    let type = CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy);
+    str += 'Predicted next lump type: ' + CYOL.UI.makeIcon('lump_' + type) + ' ' + type + '.';
+    if(Game.hasGod && Game.BuildingsOwned%10!==0 && Game.hasGod('order')) {
+        str += ' Rigidel not active!';
+    }
+    str += '<br />';
+
+    str += 'Predictions: <br />';
+    str += CYOL.UI.predictionTable();
     return str;
 }
 
