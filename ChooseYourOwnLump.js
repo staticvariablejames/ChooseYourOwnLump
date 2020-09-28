@@ -273,6 +273,9 @@ CYOL.UI.settings = { // default settings
     includeBifurcated: false,
     includeGolden: true,
     includeCaramelized: false,
+    preserveGrandmapocalypseStage: false,
+    preserveDragon: false,
+    preservePantheon: false,
     rowsToDisplay: 10,
 };
 
@@ -282,7 +285,10 @@ CYOL.UI.settings = { // default settings
 CYOL.UI.copySettings = function(settings) {
     if(!settings) return;
     let numericSettings = ['discrepancy', 'rowsToDisplay'];
-    let booleanSettings = ['includeNormal', 'includeBifurcated', 'includeGolden', 'includeCaramelized'];
+    let booleanSettings = [
+        'includeNormal', 'includeBifurcated', 'includeGolden', 'includeCaramelized',
+        'preserveGrandmapocalypseStage', 'preserveDragon', 'preservePantheon'
+    ];
 
     for(key of numericSettings) {
         if(key in settings) CYOL.UI.settings[key] = Number(settings[key]);
