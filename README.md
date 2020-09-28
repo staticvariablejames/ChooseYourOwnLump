@@ -326,6 +326,13 @@ and [`u/GLucky88`](https://www.reddit.com/user/GLucky88/) for the bug report!
 
 Display version number in the stats menu.
 
+1.2.0
+-----
+
+Add option to only show predictions matching the current grandmapocalypse stage,
+the current dragon auras,
+and the current pantheon configuration.
+
 
 Known Bugs/Limitations
 ======================
