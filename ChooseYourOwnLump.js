@@ -459,6 +459,39 @@ CYOL.UI.discrepancyTooltip = function() {
     return str;
 }
 
+/* Decides whether the given prediction is desirable
+ * based on current user preferences.
+ */
+CYOL.UI.isDesirablePrediction = function(prediction, additionalGrandmapocalypseStages) {
+    if(CYOL.UI.targetTypes().indexOf(prediction.lumpType) === -1) return false;
+    let current = CYOL.TransientState.current();
+    if(CYOL.UI.settings.preserveGrandmapocalypseStage) {
+        if(!additionalGrandmapocalypseStages[current.grandmapocalypseStage])
+            return false;
+    }
+    if(CYOL.UI.settings.preserveDragon) {
+        if(!current.dragon.equal(prediction.dragon))
+            return false;
+    }
+
+    // Last thing: the pantheon
+    if(CYOL.UI.settings.preservePantheon) {
+        if(prediction.rigidelSlot === 0) return true;
+        // If CYOL.TransientState.init generated 'prediction' with a slotted Rigidel,
+        // then we absolutely need it.
+        let currentSlot = Game.hasGod('order') ? 4 - Game.hasGod('order') : 0;
+        // We cannot use current.rigidelSlot because it considers inactive Rigidel as slot 0
+        if(!prediction.grandmaCount) return currentSlot === prediction.rigidelSlot;
+
+        let extraGrandmas = 200*(prediction.rigidelSlot - currentSlot); // make up the difference
+        return prediction.grandmaCount + extraGrandmas <= 600
+            && prediction.grandmaCount + extraGrandmas >= 0;
+    }
+
+    // Passed all tests!
+    return true;
+}
+
 // Constructs a fancy table of predictions
 CYOL.UI.predictionTable = function() {
     let str = '';
@@ -471,7 +504,7 @@ CYOL.UI.predictionTable = function() {
             i++;
         }
 
-        if(CYOL.UI.targetTypes().indexOf(prediction.lumpType) === -1) {
+        if(!CYOL.UI.isDesirablePrediction(prediction, grandmapocalypseStages)) {
             continue;
         } else {
             rows++; // This is a valid row
