@@ -90,7 +90,8 @@ CYOL.TransientState = class {
         return state instanceof CYOL.TransientState
             && this.dragon.equal(state.dragon)
             && this.rigidelSlot === state.rigidelSlot
-            && this.grandmaCount === state.grandmaCount;
+            && this.grandmaCount === state.grandmaCount
+            && this.lumpType === state.lumpType;
     }
 
     // Returns the current state of the game.
