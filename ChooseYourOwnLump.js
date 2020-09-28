@@ -547,6 +547,20 @@ CYOL.UI.toggleSettings = function(buttonId, settingsName, onText, offText) {
     }
 }
 
+// Constructs a button for toggling CYOL.UI.settings[settingsName].
+CYOL.UI.makeButton = function(settingsName, onText, offText) {
+    let buttonClass = "option" + (CYOL.UI.settings[settingsName] ? "" : " off");
+    let buttonId = 'CYOLbutton' + settingsName;
+    let onclick = "CYOL.UI.toggleSettings('" + buttonId + "', '" +
+        settingsName + "', '" + onText + "', '" + offText + "');" +
+        'PlaySound(\'snd/tick.mp3\');';
+    return '<a class="' + buttonClass + '"' +
+        ' id="' + buttonId + '"' +
+        ' onclick="' + onclick + '">' +
+        (CYOL.UI.settings[settingsName] ? onText : offText) +
+        '</a>';
+}
+
 CYOL.UI.customOptionsMenu = function() {
     let menuStr = "";
     menuStr += '<div class="listing">'
@@ -556,29 +570,26 @@ CYOL.UI.customOptionsMenu = function() {
         + Game.WriteSlider('CYOLrowsToDisplaySlider', 'Rows of predictions to display', '[$]', () => CYOL.UI.settings.rowsToDisplay, 'CYOL.UI.rowsToDisplayCallback()')
         + '</div>';
 
-    function makeButton(lumpType) {
-        let settingsName = "include" + lumpType[0].toUpperCase() + lumpType.slice(1);
-        let buttonClass = "option" + (CYOL.UI.settings[settingsName] ? "" : " off");
-        let buttonId = 'CYOLbutton' + settingsName;
-        let onText = "Showing " + lumpType + " lumps";
-        let offText = "Hiding " + lumpType + " lumps";
-        let onclick = "CYOL.UI.toggleSettings('" + buttonId + "', '" +
-            settingsName + "', '" + onText + "', '" + offText + "');" +
-            "CYOL.UI.cachedPredictions = null;" +
-            'PlaySound(\'snd/tick.mp3\');';
-        return '<a class="' + buttonClass + '"' +
-            ' id="' + buttonId + '"' +
-            ' onclick="' + onclick + '">' +
-            (CYOL.UI.settings[settingsName] ? onText : offText) +
-            '</a>';
-    }
     menuStr += '<div class="listing">';
-    menuStr += makeButton('normal');
-    menuStr += makeButton('bifurcated');
-    menuStr += makeButton('golden');
-    menuStr += makeButton('meaty');
-    menuStr += makeButton('caramelized');
+    menuStr += CYOL.UI.makeButton('includeNormal', 'Showing normal lumps', 'Hiding normal lumps');
+    menuStr += CYOL.UI.makeButton('includeBifurcated', 'Showing bifurcated lumps', 'Hiding bifurcated lumps');
+    menuStr += CYOL.UI.makeButton('includeGolden', 'Showing golden lumps', 'hiding golden lumps');
+    menuStr += CYOL.UI.makeButton('includeMeaty', 'Showing meaty lumps', 'hiding meaty lumps');
+    menuStr += CYOL.UI.makeButton('includeCaramelized', 'Showing caramelized lumps', 'Hiding caramelized lumps');
     menuStr += '<label>Whether to display or hide predictions resulting in the corresponding lump type</label></div>';
+
+    menuStr += '<div class="listing">';
+    menuStr += CYOL.UI.makeButton('preserveGrandmapocalypseStage', 'Only current grandmapocalypse stage', 'Any grandmapocalypse stage');
+    menuStr += '<label>Whether to display only predictions which match the current grandmapocalypse stage or not</label></div>';
+
+    menuStr += '<div class="listing">';
+    menuStr += CYOL.UI.makeButton('preserveDragon', 'Only current dragon auras', 'Any dragon auras');
+    menuStr += '<label>Whether to display only predictions which match the current dragon auras or not</label></div>';
+
+    menuStr += '<div class="listing">';
+    menuStr += CYOL.UI.makeButton('preservePantheon', 'Only current pantheon configuration', 'Any pantheon configuration', 'Ignore current pantheon');
+    menuStr += '<label>Whether to display only predictions which match the current pantheon or not (note Rigidel can be disabled by manipulating the number of buildings)</label></div>';
+
     CCSE.AppendCollapsibleOptionsMenu("Choose Your Own Lump", menuStr);
 }
 
