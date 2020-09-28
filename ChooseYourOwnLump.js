@@ -160,19 +160,8 @@ CYOL.PersistentState = class {
         for(let state of states) {
             this.predictLumpType(state, discrepancy);
         }
+        states.sort((state1, state2) => state1.autoharvestTime - state2.autoharvestTime);
         return states;
-    }
-
-    /* Returns only the states whose predicted value is contained in the list targetTypes,
-     * sorted by autoharvestTime. */
-    filteredPredictions(targetTypes, discrepancy) {
-        let goodStates = [];
-        for(let state of this.allPredictions(discrepancy)) {
-            if(targetTypes.includes(state.lumpType))
-                goodStates.push(state);
-        }
-        goodStates.sort((state1, state2) => state1.autoharvestTime - state2.autoharvestTime);
-        return goodStates;
     }
 
     /* Computes the lump type for the given transient state.
@@ -322,7 +311,7 @@ CYOL.UI.computePredictions = function() {
     let currentState = CYOL.PersistentState.current();
     if(currentState.equal(CYOL.UI.cachedState) && CYOL.UI.cachedPredictions !== null) return;
     CYOL.UI.cachedState = currentState;
-    CYOL.UI.cachedPredictions = currentState.filteredPredictions(CYOL.UI.targetTypes(), CYOL.UI.settings.discrepancy);
+    CYOL.UI.cachedPredictions = currentState.allPredictions(CYOL.UI.settings.discrepancy);
 }
 
 /* In CYOL.init(),
@@ -482,12 +471,18 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
 
     str += 'Predictions: <br />';
     let rows = 0, i = 0;
-    for(; rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions.length; rows++) {
+    while(rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions.length) {
         let grandmapocalypseStages = [false, false, false, false];
         let prediction = CYOL.UI.cachedPredictions[i];
         while(prediction.almostEqual(CYOL.UI.cachedPredictions[i])) {
             grandmapocalypseStages[CYOL.UI.cachedPredictions[i].grandmapocalypseStage] = true;
             i++;
+        }
+
+        if(CYOL.UI.targetTypes().indexOf(prediction.lumpType) === -1) {
+            continue;
+        } else {
+            rows++; // This is a valid row
         }
 
         str += CYOL.UI.makeIcon('lump_' + prediction.lumpType) + ':';
