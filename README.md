@@ -333,6 +333,11 @@ Add option to only show predictions matching the current grandmapocalypse stage,
 the current dragon auras,
 and the current pantheon configuration.
 
+1.2.1
+-----
+
+Use CCSE v2.018.
+
 
 Known Bugs/Limitations
 ======================
