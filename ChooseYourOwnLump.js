@@ -7,7 +7,7 @@ if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieC
 
 // CYOL.launch is at the end of this file.
 CYOL.name = "Choose Your Own Lump";
-CYOL.version = "1.2.1"; // Semantic versioning
+CYOL.version = "1.2.2"; // Semantic versioning
 CYOL.GameVersion = "2.031";
 CYOL.CCSEVersion = "2.020";
 

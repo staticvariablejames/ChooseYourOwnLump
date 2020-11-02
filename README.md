@@ -338,6 +338,11 @@ and the current pantheon configuration.
 
 Use CCSE v2.018.
 
+1.2.2
+-----
+
+Update to Cookie Clicker v2.031.
+
 
 Known Bugs/Limitations
 ======================
