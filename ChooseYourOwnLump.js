@@ -8,8 +8,8 @@ if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieC
 // CYOL.launch is at the end of this file.
 CYOL.name = "Choose Your Own Lump";
 CYOL.version = "1.2.1"; // Semantic versioning
-CYOL.GameVersion = "2.029";
-CYOL.CCSEVersion = "2.018";
+CYOL.GameVersion = "2.031";
+CYOL.CCSEVersion = "2.020";
 
 CYOL.DragonAuras = class {
     /* This class accounts for how the game handles the dragon's auras.
@@ -357,7 +357,7 @@ CYOL.UI.makeIcon = function(icon, transparent) {
 
 /* Same as above but for buildings instead. */
 CYOL.UI.makeGrandmaIcon = function(type, transparent) {
-    let background = "background-image: url('img/buildings.png?v=4');";
+    let background = "background-image: url('img/buildings.png?v=5');";
     let transparency = '';
     if(type === 'appeased') background += 'background-position: 0px -64px;';
     if(type === 'awoken') background += 'background-position: 0px -128px;';
@@ -636,11 +636,11 @@ CYOL.launch = function() {
     CYOL.TransientState.init();
 
     CCSE.customSave.push(function() {
-        CCSE.save.OtherMods.CYOL = CYOL.UI.settings;
+        CCSE.config.OtherMods.CYOL = CYOL.UI.settings;
     });
     let loadSettings = function() {
-        if(CCSE.save.OtherMods.CYOL) {
-            CYOL.UI.copySettings(CCSE.save.OtherMods.CYOL);
+        if(CCSE.config.OtherMods.CYOL) {
+            CYOL.UI.copySettings(CCSE.config.OtherMods.CYOL);
         }
     }
     loadSettings();
