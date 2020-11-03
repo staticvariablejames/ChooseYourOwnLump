@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-var CYOL = {};
-// 'var' used here to avoid syntax errors if this script is loaded more than once
+let CYOL = {};
 if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieClicker/CCSE.js');
-// CCSE calls Game.Win('Third-party') for us
 
-// CYOL.launch is at the end of this file.
 CYOL.name = "Choose Your Own Lump";
 CYOL.version = "1.2.2"; // Semantic versioning
 CYOL.GameVersion = "2.031";
@@ -626,25 +623,23 @@ CYOL.UI.customOptionsMenu = function() {
     CCSE.AppendCollapsibleOptionsMenu("Choose Your Own Lump", menuStr);
 }
 
-CYOL.launch = function() {
-    if(!CCSE.ConfirmGameCCSEVersion(CYOL.name, CYOL.version, CYOL.GameVersion, CYOL.CCSEVersion)) {
-        CYOL.isLoaded = true;
-        return;
-    }
+CYOL.save = function() {
+    return JSON.stringify(CYOL.UI.settings);
+}
 
+CYOL.load = function(str) {
+    CYOL.UI.copySettings(JSON.parse(str));
+}
+
+CYOL.init = function() {
     CYOL.DragonAuras.init();
     CYOL.TransientState.init();
 
-    CCSE.customSave.push(function() {
-        CCSE.config.OtherMods.CYOL = CYOL.UI.settings;
-    });
-    let loadSettings = function() {
-        if(CCSE.config.OtherMods.CYOL) {
-            CYOL.UI.copySettings(CCSE.config.OtherMods.CYOL);
-        }
+    // Legacy data, was previously stored in CCSE.config.OtherMods
+    if(CCSE.config.OtherMods.CYOL) {
+        CYOL.UI.copySettings(CCSE.config.OtherMods.CYOL);
+        delete CCSE.config.OtherMods.CYOL; // be a good citizen and not bloat CCSE's save object
     }
-    loadSettings();
-    CCSE.customLoad.push(loadSettings);
 
     Game.customLumpTooltip.push(CYOL.UI.customLumpTooltip);
     Game.customOptionsMenu.push(CYOL.UI.customOptionsMenu);
@@ -657,14 +652,17 @@ CYOL.launch = function() {
     CYOL.isLoaded = true;
 }
 
-// Code copied from CCSE's documentation
 if(!CYOL.isLoaded){
-	if(CCSE && CCSE.isLoaded){
-		CYOL.launch();
-	}
-	else{
-		if(!CCSE) var CCSE = {};
-		if(!CCSE.postLoadHooks) CCSE.postLoadHooks = [];
-		CCSE.postLoadHooks.push(CYOL.launch);
-	}
+    if(CCSE && CCSE.isLoaded){
+        Game.registerMod('Choose your own lump', CYOL);
+    }
+    else {
+        if(!CCSE) var CCSE = {};
+        if(!CCSE.postLoadHooks) CCSE.postLoadHooks = [];
+        CCSE.postLoadHooks.push(function() {
+            if(CCSE.ConfirmGameCCSEVersion(CYOL.name, CYOL.version, CYOL.GameVersion, CYOL.CCSEVersion)) {
+                Game.registerMod('Choose your own lump', CYOL);
+            }
+        });
+    }
 }
