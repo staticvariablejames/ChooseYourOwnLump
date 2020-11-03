@@ -343,6 +343,11 @@ Use CCSE v2.018.
 
 Update to Cookie Clicker v2.031.
 
+1.2.3
+-----
+
+Register the mod in the modding API and use it for storing the settings.
+
 
 Known Bugs/Limitations
 ======================
