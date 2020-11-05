@@ -348,6 +348,12 @@ Update to Cookie Clicker v2.031.
 
 Register the mod in the modding API and use it for storing the settings.
 
+1.2.4
+-----
+
+Minor tooltip improvement:
+the current lump type also has an icon now.
+
 
 Known Bugs/Limitations
 ======================
