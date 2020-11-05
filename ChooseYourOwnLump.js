@@ -403,7 +403,8 @@ CYOL.UI.discrepancyTooltip = function() {
      * (This is also the reason why the current lump type is shown here.)
      */
     let str = '<div>Expected discrepancy: ' + CYOL.UI.settings.discrepancy + 'ms.</div>';
-    str += '<div>The current lump type is ' + CYOL.UI.currentLumpType() + '.</div>';
+    str += '<div>Current lump type: ' + CYOL.UI.makeIcon('lump_' + CYOL.UI.currentLumpType()) +
+        ' ' + CYOL.UI.currentLumpType() + '.</div>';
 
     if(Game.hasGod && CYOL.UI.warnPantheonNotLoaded) {
         str += '<div style="color:red">' +
