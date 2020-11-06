@@ -295,6 +295,15 @@ CYOL.UI.copySettings = function(settings) {
     }
 }
 
+/* Returns the discrepancy,
+ * unless the Spiced Cookies discrepancy patch is detected,
+ * in which it returns 0.
+ */
+CYOL.UI.effectiveDiscrepancy = function() {
+    if(typeof Spice !== 'undefined' && Spice?.settings?.patchDiscrepancy) return 0;
+    return CYOL.UI.settings.discrepancy;
+}
+
 CYOL.UI.targetTypes = function() {
     let types = [];
     if(CYOL.UI.settings.includeNormal) types.push('normal');
@@ -314,7 +323,7 @@ CYOL.UI.computePredictions = function() {
     let currentState = CYOL.PersistentState.current();
     if(currentState.equal(CYOL.UI.cachedState) && CYOL.UI.cachedPredictions !== null) return;
     CYOL.UI.cachedState = currentState;
-    CYOL.UI.cachedPredictions = currentState.allPredictions(CYOL.UI.settings.discrepancy);
+    CYOL.UI.cachedPredictions = currentState.allPredictions(CYOL.UI.effectiveDiscrepancy());
 }
 
 /* In CYOL.init(),
@@ -397,12 +406,12 @@ CYOL.UI.discrepancyTooltip = function() {
      * so this function tries to remind the user to load the save game
      * only after a lump is autoharvested.
      *
-     * Another example: if the actual discrepancy differs from CYOL.UI.settings.discrepancy,
+     * Another example: if the actual discrepancy differs from CYOL.UI.effectiveDiscrepancy(),
      * then the lump type is probably not what the user wanted,
      * so there is a reminder to try to reload the game again.
      * (This is also the reason why the current lump type is shown here.)
      */
-    let str = '<div>Expected discrepancy: ' + CYOL.UI.settings.discrepancy + 'ms.</div>';
+    let str = '<div>Expected discrepancy: ' + CYOL.UI.effectiveDiscrepancy() + 'ms.</div>';
     str += '<div>Current lump type: ' + CYOL.UI.makeIcon('lump_' + CYOL.UI.currentLumpType()) +
         ' ' + CYOL.UI.currentLumpType() + '.</div>';
 
@@ -434,17 +443,17 @@ CYOL.UI.discrepancyTooltip = function() {
             // The threshold is 100 because it is the highest the slider can go in the options menu
         } else {
             str += "<div>The actual discrepancy was ";
-            if(discrepancy === CYOL.UI.settings.discrepancy) {
+            if(discrepancy === CYOL.UI.effectiveDiscrepancy()) {
                 str += '<div style="display:inline; color:green">' + discrepancy + ' milliseconds</div>,';
                 str += ' precisely what we expected!<br />';
             } else {
                 str += '<div style="display:inline; color:red">' + discrepancy + ' milliseconds</div>,';
-                if(discrepancy < CYOL.UI.settings.discrepancy)
+                if(discrepancy < CYOL.UI.effectiveDiscrepancy())
                     str += ' less than what we expected.';
                 else
                     str += ' more than what we expected.';
             }
-            if(discrepancy !== CYOL.UI.settings.discrepancy)
+            if(discrepancy !== CYOL.UI.effectiveDiscrepancy())
                 str += ' Try reloading the save if the lump has the wrong type.';
             str += '</div>';
         }
@@ -541,7 +550,7 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
     str += '<div class="line"></div>';
 
     // Next lump type
-    let type = CYOL.predictNextLumpType(CYOL.UI.settings.discrepancy);
+    let type = CYOL.predictNextLumpType(CYOL.UI.effectiveDiscrepancy());
     str += 'Predicted next lump type: ' + CYOL.UI.makeIcon('lump_' + type) + ' ' + type + '.';
     if(Game.hasGod && Game.BuildingsOwned%10!==0 && Game.hasGod('order')) {
         str += ' Rigidel not active!';
