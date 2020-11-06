@@ -220,6 +220,16 @@ They have exactly the same results,
 so the mod only displays the one with the most grandmas.
 
 
+Compatibility with Spiced Cookies
+---------------------------------
+
+As a special provision,
+if [Spiced Cookies](https://github.com/staticvariablejames/SpicedCookies) is in use
+and the discrepancy patch is enabled,
+this mod assumes that the discrepancy is zero,
+regardless of what is set in the settings.
+
+
 Using the mod
 =============
 
