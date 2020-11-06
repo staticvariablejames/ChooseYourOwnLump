@@ -316,13 +316,20 @@ CYOL.UI.targetTypes = function() {
 
 CYOL.UI.cachedPredictions = null;
 CYOL.UI.cachedState = null; // the PersistentState that was used to compute cachedPredictions
+CYOL.UI.cachedDiscrepancy = null;
 
 /* Recomputes cachedPredictions if cachedState differs from the current state,
  * or if cachedPredictions === null. */
 CYOL.UI.computePredictions = function() {
     let currentState = CYOL.PersistentState.current();
-    if(currentState.equal(CYOL.UI.cachedState) && CYOL.UI.cachedPredictions !== null) return;
+    if(currentState.equal(CYOL.UI.cachedState)
+        && CYOL.UI.cachedPredictions !== null
+        && CYOL.UI.cachedDiscrepancy === CYOL.UI.effectiveDiscrepancy()
+    ) {
+        return;
+    }
     CYOL.UI.cachedState = currentState;
+    CYOL.UI.cachedDiscrepancy = CYOL.UI.effectiveDiscrepancy();
     CYOL.UI.cachedPredictions = currentState.allPredictions(CYOL.UI.effectiveDiscrepancy());
 }
 
@@ -501,6 +508,7 @@ CYOL.UI.isDesirablePrediction = function(prediction, additionalGrandmapocalypseS
 
 // Constructs a fancy table of predictions
 CYOL.UI.predictionTable = function() {
+    CYOL.UI.computePredictions();
     let str = '';
     let rows = 0, i = 0;
     while(rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions.length) {
@@ -566,7 +574,6 @@ CYOL.UI.discrepancyCallback = function() {
     let value = document.getElementById('CYOLdiscrepancySlider').value ?? 1;
     CYOL.UI.settings.discrepancy = value;
     document.getElementById('CYOLdiscrepancySliderRightText').innerHTML = value;
-    CYOL.UI.cachedPredictions = null;
 }
 
 CYOL.UI.rowsToDisplayCallback = function() {
