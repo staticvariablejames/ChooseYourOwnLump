@@ -364,6 +364,11 @@ Register the mod in the modding API and use it for storing the settings.
 Minor tooltip improvement:
 the current lump type also has an icon now.
 
+1.2.5
+-----
+
+Compatibility with [Spiced Cookies' discrepancy patch](https://github.com/staticvariablejames/SpicedCookies#discrepancy-patch-disabled-by-default).
+
 
 Known Bugs/Limitations
 ======================
