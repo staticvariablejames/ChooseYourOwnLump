@@ -6,7 +6,7 @@ if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieC
 CYOL.name = "Choose Your Own Lump";
 CYOL.version = "1.2.5"; // Semantic versioning
 CYOL.GameVersion = "2.031";
-CYOL.CCSEVersion = "2.020";
+CYOL.CCSEVersion = "2.021";
 
 CYOL.DragonAuras = class {
     /* This class accounts for how the game handles the dragon's auras.
