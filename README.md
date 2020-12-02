@@ -369,6 +369,11 @@ the current lump type also has an icon now.
 
 Compatibility with [Spiced Cookies' discrepancy patch](https://github.com/staticvariablejames/SpicedCookies#discrepancy-patch-disabled-by-default).
 
+1.2.6
+-----
+
+Update to CCSE 2.021 and display a notification on load.
+
 
 Known Bugs/Limitations
 ======================
