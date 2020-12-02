@@ -666,7 +666,7 @@ CYOL.init = function() {
 
     CYOL.rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
 
-    CYOL.isLoaded = true;
+    Game.Notify('Choose Your Own Lump loaded!', '', '', 1, 1);
 }
 
 if(!CYOL.isLoaded){
