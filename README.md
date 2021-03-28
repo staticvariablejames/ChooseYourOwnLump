@@ -374,6 +374,11 @@ Compatibility with [Spiced Cookies' discrepancy patch](https://github.com/static
 
 Update to CCSE 2.021 and display a notification on load.
 
+1.2.7
+-----
+
+Update to CCSE 2.023.
+
 
 Known Bugs/Limitations
 ======================
