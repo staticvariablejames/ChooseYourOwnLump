@@ -1,0 +1,22 @@
+{
+  "name": "choose-your-own-lump",
+  "version": "1.2.7",
+  "description": "Cookie Clicker mod to aid choosing specific sugar lump types",
+  "main": "ChooseYourOwnLump.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/staticvariablejames/ChooseYourOwnLump.git"
+  },
+  "author": "Static Variable James",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/staticvariablejames/ChooseYourOwnLump/issues"
+  },
+  "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme"
+}
