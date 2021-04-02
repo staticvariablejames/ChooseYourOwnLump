@@ -68,4 +68,37 @@ test('Transient state is retrieved correctly', async () => {
     await page.close();
 });
 
+test('Lump types are predicted correctly', async() => {
+    let page = await newPage();
+    await page.evaluate("Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js')");
+    await page.waitForFunction('typeof CYOL == "object" && CYOL.isLoaded;');
+
+    let prediction = await page.evaluate(`new CYOL.PersistentState(
+        'ufekf', 16e11, false, false, false
+    ).predictLumpType(new CYOL.TransientState(0, CYOL.DragonAuras.neitherAuras, 0, 0), 0)`);
+    expect(prediction).toEqual('normal');
+
+    prediction = await page.evaluate(`new CYOL.PersistentState(
+        'ufekf', 16e11, false, false, false
+    ).predictLumpType(new CYOL.TransientState(0, CYOL.DragonAuras.neitherAuras, 0, 0), 1)`);
+    expect(prediction).toEqual('caramelized');
+
+    prediction = await page.evaluate(`new CYOL.PersistentState(
+        'ufekf', 16e11, false, false, false
+    ).predictLumpType(new CYOL.TransientState(0, CYOL.DragonAuras.onlyRealityBending, 1, 1), 1)`);
+    expect(prediction).toEqual('normal');
+
+    prediction = await page.evaluate(`new CYOL.PersistentState(
+        'ufekf', 16e11, false, false, false
+    ).predictLumpType(new CYOL.TransientState(1, CYOL.DragonAuras.onlyRealityBending, 1, 1), 1)`);
+    expect(prediction).toEqual('meaty');
+
+    prediction = await page.evaluate(`new CYOL.PersistentState(
+        'ufekf', 16e11, false, false, false
+    ).predictLumpType(new CYOL.TransientState(2, CYOL.DragonAuras.onlyRealityBending, 1, 1), 1)`);
+    expect(prediction).toEqual('meaty');
+
+    await page.close();
+});
+
 };
