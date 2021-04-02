@@ -7,7 +7,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/staticvariablejames/ChooseYourOwnLump/issues"
   },
-  "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme"
+  "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme",
+  "devDependencies": {
+    "@types/jest": "^26.0.22",
+    "cookie-connoisseur": "^0.1.0",
+    "jest": "^26.6.3",
+    "playwright": "^1.10.0",
+    "ts-jest": "^26.5.4",
+    "typescript": "^4.2.3"
+  }
 }
