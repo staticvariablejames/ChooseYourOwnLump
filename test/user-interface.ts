@@ -72,4 +72,26 @@ test('Changing settings updates the CYOL.UI.settings object', async () => {
     await page.close();
 });
 
+test('The lump tooltip displays the predictions without grandmas', async () => {
+    let page = await newPage();
+    await page.evaluate("Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js')");
+    await page.waitForFunction('typeof CYOL == "object" && CYOL.isLoaded;');
+    await page.evaluate('Game.seed = "ufekf"');
+    await page.evaluate('Game.Earn(1e12)');
+    await page.waitForFunction('Game.lumpsTotal != -1');
+    await page.evaluate('Game.lumpT = 16e11');
+    await page.evaluate('CYOL.UI.settings.includeMeaty = true');
+    await page.evaluate('CYOL.UI.settings.includeCaramelized = true');
+
+    // The following two make the snapshot test less brittle:
+    await page.evaluate('Game.lumpCurrentType = 1'); // Makes the lump not depend on time
+    await page.waitForFunction('Date.now() > 16e11+1000'); // Forces time till mature to be 19h59m
+
+    await page.hover('#lumps');
+    expect(await page.evaluate('document.getElementById("tooltip").outerHTML')).toMatchSnapshot();
+    await page.pause();
+
+    await page.close();
+});
+
 };

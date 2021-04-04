@@ -1,0 +1,167 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User interface displays predictions correctly The lump tooltip displays the predictions without grandmas 1`] = `
+<div id="tooltip"
+     class="framed"
+     onmouseout="Game.tooltip.hide();"
+     style="inset: auto;"
+>
+  <div style="padding:8px;width:475px;font-size:11px;text-align:center;">
+    You have
+    <span class="price lump">
+      0 sugar lumps
+    </span>
+    .
+    <div class="line">
+    </div>
+    A
+    <b>
+      sugar lump
+    </b>
+    is coalescing here, attracted by your accomplishments.
+    <div class="line">
+    </div>
+    This sugar lump is still growing and will take
+    <b>
+      19 hours, 59 minutes
+    </b>
+    to reach maturity.
+    <div class="line">
+    </div>
+    Your sugar lumps mature after
+    <b>
+      20 hours
+    </b>
+    ,
+    <br>
+    ripen after
+    <b>
+      23 hours
+    </b>
+    ,
+    <br>
+    and fall after
+    <b>
+      1 day
+    </b>
+    .
+    <div class="line">
+    </div>
+    • Sugar lumps can be harvested when mature, though if left alone beyond that point they will start ripening (increasing the chance of harvesting them) and will eventually fall and be auto-harvested after some time.
+    <br>
+    • Sugar lumps are delicious and may be used as currency for all sorts of things.
+    <br>
+    • Once a sugar lump is harvested, another one will start growing in its place.
+    <br>
+    • Note that sugar lumps keep growing when the game is closed.
+  </div>
+  <div class="line">
+  </div>
+  <div>
+    Expected discrepancy: 1ms.
+  </div>
+  <div>
+    Current lump type:
+    <div class="icon"
+         style="vertical-align: middle; margin: 0 -4px;background-position: -1392px -720px;"
+    >
+    </div>
+    bifurcated.
+  </div>
+  <div style="color:gray">
+    No discrepancy information to show. Try loading your game after CYOL finishes launching!
+  </div>
+  <div class="line">
+  </div>
+  Predicted next lump type:
+  <div class="icon"
+       style="vertical-align: middle; margin: 0 -4px;background-position: -1392px -1296px;"
+  >
+  </div>
+  caramelized.
+  <br>
+  Predictions:
+  <br>
+  <div class="icon"
+       style="vertical-align: middle; margin: 0 -4px;background-position: -1392px -816px;"
+  >
+  </div>
+  :&nbsp;&nbsp;&nbsp;
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: 0px -64px;opacity: 0.2;"
+       "
+  >
+  </div>
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: 0px -128px;"
+       "
+  >
+  </div>
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: -64px -128px;"
+       "
+  >
+  </div>
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: -128px -128px;"
+       "
+  >
+  </div>
+  <div class="icon"
+       style="vertical-align: middle; margin: 0 -4px;background-position: -960px -1200px;opacity: 0.2;"
+  >
+  </div>
+  <div class="icon"
+       style="vertical-align: middle; margin: 0 -4px;background-position: -1536px -1200px;"
+  >
+  </div>
+  <div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;">
+    <div class="icon"
+         style="background-position:-1056px -912px"
+    >
+    </div>
+    <div class="icon"
+         style="width:24px;height:24px; position:absolute; top: 36px; left: 12px;background-position: -1104px -744px;"
+    >
+    </div>
+  </div>
+  <br>
+  <div class="icon"
+       style="vertical-align: middle; margin: 0 -4px;background-position: -1392px -1296px;"
+  >
+  </div>
+  :&nbsp;&nbsp;&nbsp;
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: 0px -64px;"
+       "
+  >
+  </div>
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: 0px -128px;"
+       "
+  >
+  </div>
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: -64px -128px;"
+       "
+  >
+  </div>
+  <div style="display: inline-block; width:64px; height:64px; vertical-align: middle;background-image: url('img/buildings.png?v=5');background-position: -128px -128px;"
+       "
+  >
+  </div>
+  <div class="icon"
+       style="vertical-align: middle; margin: 0 -4px;background-position: -960px -1200px;opacity: 0.2;"
+  >
+  </div>
+  <div class="icon"
+       style="vertical-align: middle; margin: 0 -4px;background-position: -1536px -1200px;opacity: 0.2;"
+  >
+  </div>
+  <div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;opacity:0.2">
+    <div class="icon"
+         style="background-position:-1056px -912px"
+    >
+    </div>
+    <div class="icon"
+         style="width:24px;height:24px; position:absolute; top: 36px; left: 12px;background-position: -1128px -744px;"
+    >
+    </div>
+  </div>
+  <br>
+  No other matching predictions found.
+</div>
+`;
