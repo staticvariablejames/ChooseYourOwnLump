@@ -15,6 +15,7 @@ test('Changing settings updates the CYOL.UI.settings object', async () => {
         includeNormal: false,
         includeBifurcated: false,
         includeGolden: true,
+        includeMeaty: false,
         includeCaramelized: false,
         preserveGrandmapocalypseStage: false,
         preserveDragon: false,
@@ -42,6 +43,10 @@ test('Changing settings updates the CYOL.UI.settings object', async () => {
 
     await page.click('text=Hiding caramelized lumps');
     actualSettings.includeCaramelized = true;
+    expect(await page.evaluate('CYOL.UI.settings')).toEqual(actualSettings);
+
+    await page.click('text=Hiding meaty lumps');
+    actualSettings.includeMeaty = true;
     expect(await page.evaluate('CYOL.UI.settings')).toEqual(actualSettings);
 
     expect(await page.$eval('#CYOLdiscrepancySlider', e => {

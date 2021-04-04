@@ -269,6 +269,7 @@ CYOL.UI.settings = { // default settings
     includeNormal: false,
     includeBifurcated: false,
     includeGolden: true,
+    includeMeaty: false,
     includeCaramelized: false,
     preserveGrandmapocalypseStage: false,
     preserveDragon: false,
