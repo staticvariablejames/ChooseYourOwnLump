@@ -572,13 +572,13 @@ CYOL.UI.customLumpTooltip = function(str, phase) {
 
 CYOL.UI.discrepancyCallback = function() {
     let value = document.getElementById('CYOLdiscrepancySlider').value ?? 1;
-    CYOL.UI.settings.discrepancy = value;
+    CYOL.UI.settings.discrepancy = Number(value);
     document.getElementById('CYOLdiscrepancySliderRightText').innerHTML = value;
 }
 
 CYOL.UI.rowsToDisplayCallback = function() {
     let value = document.getElementById('CYOLrowsToDisplaySlider').value ?? 10;
-    CYOL.UI.settings.rowsToDisplay = value;
+    CYOL.UI.settings.rowsToDisplay = Number(value);
     document.getElementById('CYOLrowsToDisplaySliderRightText').innerHTML = value;
 }
 
