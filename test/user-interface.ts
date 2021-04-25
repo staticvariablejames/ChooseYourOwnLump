@@ -89,13 +89,15 @@ test('The lump tooltip displays the predictions without grandmas', async () => {
 
     await page.hover('#lumps');
     expect(await page.evaluate('document.getElementById("tooltip").outerHTML')).toMatchSnapshot();
-    await page.pause();
+    const tooltipHandle = await page.$('#tooltip');
+    await tooltipHandle!.screenshot({ path: 'doc/tooltip-without-grandmas.png' });
 
     await page.close();
 });
 
 test('The lump tooltip displays the predictions with grandmas', async () => {
     let page = await newPage();
+    await page.setViewportSize({ width: 1920, height: 1050 }); // for the screenshot
     await page.evaluate("Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js')");
     await page.waitForFunction('typeof CYOL == "object" && CYOL.isLoaded;');
     await page.evaluate('Game.seed = "hcecu"');
@@ -109,7 +111,8 @@ test('The lump tooltip displays the predictions with grandmas', async () => {
 
     await page.hover('#lumps');
     expect(await page.evaluate('document.getElementById("tooltip").outerHTML')).toMatchSnapshot();
-    await page.pause();
+    const tooltipHandle = await page.$('#tooltip');
+    await tooltipHandle!.screenshot({ path: 'doc/tooltip-with-grandmas.png' });
 
     await page.close();
 });
