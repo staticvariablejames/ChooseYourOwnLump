@@ -94,4 +94,24 @@ test('The lump tooltip displays the predictions without grandmas', async () => {
     await page.close();
 });
 
+test('The lump tooltip displays the predictions with grandmas', async () => {
+    let page = await newPage();
+    await page.evaluate("Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js')");
+    await page.waitForFunction('typeof CYOL == "object" && CYOL.isLoaded;');
+    await page.evaluate('Game.seed = "hcecu"');
+    await page.evaluate('Game.Earn(1e12)');
+    await page.waitForFunction('Game.lumpsTotal != -1');
+    await page.evaluate('Game.lumpT = 16e11');
+    await page.evaluate('Game.Upgrades["Sugar aging process"].earn()');
+    await page.evaluate('Game.lumpCurrentType = 1');
+    await page.evaluate('CYOL.UI.settings.rowsToDisplay = 8');
+    await page.waitForFunction('Date.now() > 16e11+1000');
+
+    await page.hover('#lumps');
+    expect(await page.evaluate('document.getElementById("tooltip").outerHTML')).toMatchSnapshot();
+    await page.pause();
+
+    await page.close();
+});
+
 };
