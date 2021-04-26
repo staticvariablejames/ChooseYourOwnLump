@@ -100,7 +100,7 @@ a new sugar lump starts growing if the game is open and the lump falls
 (i.e. it becomes overripe, so the lump is autoharvested),
 or when a save game is loaded and the game notices the previous lump fell.
 Two different pieces of code handle each of the latter two,
-and I noticed that the timing of the first one
+and the timing of the first one
 (lump falling while the game is open)
 is unreliable.
 So we will use the second one.
@@ -139,7 +139,7 @@ Practice
 
 This mod looks at every combination of "transient states"
 (number of grandmas, dragon auras, Rigidel slot, grandmapocalypse stage),
-filter the predictions to the lump types of your choice,
+filters the predictions to the lump types of your choice,
 and displays them in the lump tooltip
 (the box that appears when you hover the mouse over the sugar lump).
 The tooltip looks like this:
@@ -148,25 +148,26 @@ The tooltip looks like this:
 
 The "Predicted next lump type" line says that,
 if the player makes no changes to its save game,
-then the next lump type will be normal.
+then the next lump type will be caramelized.
 
 The first line says that,
-regardless of the stage of the grandmapocalypse,
-if the dragon has both Dragon's Curve and Reality Bending as active auras,
-and Rigidel is active on the ruby slot,
-then the next sugar lump type will be caramelized.
+if the player is in stages 1, 2 or 3 of the grandmapocalypse
+(awakened, displeased, or angered grandmas),
+Rigidel active in the jade slot,
+and the dragon has only Reality Bending as the active aura,
+then the next sugar lump type will be meaty.
 
 The second line says that,
-if the player progresses through the second or third "positive stages" of the grandmapocalypse
-(displeased and angered grandmas, respectively),
-the dragon has only Dragon's Curve as active aura,
-and Rigidel is active on the ruby slot,
-then the sugar lump will be meaty.
+regardless of the stage of the grandmapocalypse,
+if Rigidel is inactive
+and the dragon has neither Dragon's Curve nor Reality Bending as active auras,
+then the sugar lump will be caramelized.
 
-Here only one of the two relevant auras (Dragon's Curve and Reality Bending) is needed,
+For the first line,
+only one of the two relevant auras (Dragon's Curve and Reality Bending) is needed,
 so this configuration works with a partially-trained dragon.
 If the dragon is fully trained,
-then the other aura must be set to something _other_ than reality bending.
+then the other aura must be set to something _other_ than Dragon's Curve.
 
 **All of this assumes, of course,
 that the discrepancy that happens when loading the save game
@@ -176,7 +177,7 @@ This value can be adjusted in the settings,
 but I believe most users will want that value to be 1.
 
 In the screen above,
-the current lump type is normal,
+the current lump type is bifurcated,
 as can be seen in the second line of the paragraph above the predictions.
 This line will always say the type of the lump regardless of the growth stage.
 
@@ -192,29 +193,36 @@ The required number is displayed right after the colon:
 Sometimes,
 the predicted configuration will limit how far (or how early)
 in the grandmapocalypse the game can be;
-for example, in the last line of the tooltip above,
-only the first three stages of the grandmapocalypse
-(and Dragon's curve and reality bending, and Rigidel unslotted)
-yield the chosen lump type.
+for example, in the first line of the tooltip above,
+only the first two stages of the grandmapocalypse
+(and Dragon's Curve active, and Rigidel in the diamond slot)
+yield the golden lump type.
 If you are past that stage,
 the only way of going back is to stop the grandmapocalypse
 either through Elder Pledge or Elder Covenant.
-
-In some rare cases,
-the required stages are on "the middle".
-For example,
-in the second line above,
-only stages 1 and 2 (awoken and displeased grandmas) work.
 
 You can check the grandmapocalypse stage on the Status menu,
 or by looking at the picture of the grandmas in your buildings list;
 they will match the ones displayed in the tooltip.
 
+In some rare cases,
+the required stages are on "the middle".
+For example,
+in the fifth line above,
+only stage 1 (awoken grandmas) work.
+If you are past this stage,
+the only way of still getting the golden lump is to use the Elder Covenant
+to get out of the grandmapocalypse,
+then revoking the elder covenant to start the grandmapocalypse again,
+and exporting the save and quitting the game before the grandmapocalypse progresses to stage 2.
+This will "freeze" the grandmapocalypse until the game is reopened,
+allowing the lump to be harvested under stage 1.
+
 Increasing the number of grandmas by 200 is equivalent to raising Rigidel one slot
 (unslotted to Jade, Jade to Ruby, or Ruby to Diamond).
 For example,
 in the image above,
-the third line is equivalent to using 378 grandmas instead of 578
+the second line is equivalent to using 337 grandmas instead of 337,
 but worshipping Rigidel in the Diamond slot.
 They have exactly the same results,
 so the mod only displays the one with the most grandmas.
@@ -260,7 +268,7 @@ Initial release.
 1.0.1
 -----
 
-Funcionally equivalent states are no longer generated multiple times;
+Functionally equivalent states are no longer generated multiple times;
 for example,
 instead of generating a state with 500 grandmas and Rigidel on the ruby slot
 and another state with 300 grandmas and Rigidel on the diamond slot,
