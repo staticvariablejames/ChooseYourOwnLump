@@ -222,7 +222,7 @@ Increasing the number of grandmas by 200 is equivalent to raising Rigidel one sl
 (unslotted to Jade, Jade to Ruby, or Ruby to Diamond).
 For example,
 in the image above,
-the second line is equivalent to using 337 grandmas instead of 337,
+the second line is equivalent to using 337 grandmas instead of 537,
 but worshipping Rigidel in the Diamond slot.
 They have exactly the same results,
 so the mod only displays the one with the most grandmas.
