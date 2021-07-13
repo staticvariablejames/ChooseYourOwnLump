@@ -89,8 +89,11 @@ test('The lump tooltip displays the predictions without grandmas', async () => {
 
     await page.hover('#lumps');
     expect(await page.evaluate('document.getElementById("tooltip").outerHTML')).toMatchSnapshot();
-    const tooltipHandle = await page.$('#tooltip');
-    await tooltipHandle!.screenshot({ path: 'doc/tooltip-without-grandmas.png' });
+
+    if(process.env.UPDATE_SCREENSHOTS) {
+        const tooltipHandle = await page.$('#tooltip');
+        await tooltipHandle!.screenshot({ path: 'doc/tooltip-without-grandmas.png' });
+    }
 
     await page.close();
 });
@@ -111,8 +114,11 @@ test('The lump tooltip displays the predictions with grandmas', async () => {
 
     await page.hover('#lumps');
     expect(await page.evaluate('document.getElementById("tooltip").outerHTML')).toMatchSnapshot();
-    const tooltipHandle = await page.$('#tooltip');
-    await tooltipHandle!.screenshot({ path: 'doc/tooltip-with-grandmas.png' });
+
+    if(process.env.UPDATE_SCREENSHOTS) {
+        const tooltipHandle = await page.$('#tooltip');
+        await tooltipHandle!.screenshot({ path: 'doc/tooltip-with-grandmas.png' });
+    }
 
     await page.close();
 });
