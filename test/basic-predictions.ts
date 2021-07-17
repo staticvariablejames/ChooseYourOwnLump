@@ -42,7 +42,7 @@ test('Transient state is retrieved correctly', async () => {
     await page.evaluate("Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js')");
     await page.evaluate('Game.Earn(1e12)');
 
-    await page.waitForFunction('CYOL && CYOL.isLoaded;');
+    await page.waitForFunction('typeof CYOL == "object" && CYOL.isLoaded;');
     let currentTransientState = await page.evaluate('CYOL.TransientState.current();');
     expect(currentTransientState).toEqual({
         dragon: {
