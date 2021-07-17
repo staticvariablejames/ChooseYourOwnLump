@@ -3,6 +3,7 @@
     "target": "es2020",
     "module": "commonjs",
     "sourceMap": true,
+    "outDir": "./dist",
     "noEmitOnError": true,
     "strict": true,
     "noUnusedLocals": true,
@@ -10,5 +11,8 @@
     "noImplicitReturns": true,
     "esModuleInterop": true,
     "declaration": true
-  }
+  },
+  "include": [
+      "./src"
+  ]
 }
