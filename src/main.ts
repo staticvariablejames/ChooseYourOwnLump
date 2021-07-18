@@ -1,23 +1,26 @@
-declare var CCSE: any;
-declare var Game: any;
-declare var Spice: any;
+declare global {
+    var CCSE: any;
+    var Game: any;
+    var Spice: any;
 
-interface Math {
-    seedrandom(seed?: string): void;
+    function randomFloor(x: number): number;
+    function choose(arr: any): any;
+
+    interface Math {
+        seedrandom(seed?: string): void;
+    }
 }
-declare function randomFloor(x: number): number;
-declare function choose(arr: any): any;
 
-let CYOL:any = {};
+export namespace CYOL {
 
 if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieClicker/CCSE.js');
 
-CYOL.name = "Choose Your Own Lump";
-CYOL.version = "1.2.7"; // Semantic versioning
-CYOL.GameVersion = "2.031";
-CYOL.CCSEVersion = "2.023";
+export let name = "Choose Your Own Lump";
+export let version = "1.2.7"; // Semantic versioning
+export let GameVersion = "2.031";
+export let CCSEVersion = "2.023";
 
-CYOL.DragonAuras = class {
+export class DragonAuras {
     /* This class accounts for how the game handles the dragon's auras.
      *
      * In the end,
@@ -39,7 +42,7 @@ CYOL.DragonAuras = class {
     auraValue() {
         return (this.hasDragonsCurve? 1 : 0) + (this.hasRealityBending? 0.1 : 0);
     }
-    equal(dragon: any) {
+    equal(dragon: DragonAuras) {
         return dragon instanceof CYOL.DragonAuras
             && this.hasDragonsCurve === dragon.hasDragonsCurve
             && this.hasRealityBending === dragon.hasRealityBending;
@@ -71,7 +74,7 @@ CYOL.DragonAuras = class {
 /* Atttributes from the game that affect lump maturation time
  * which can be easily modified by the player.
  */
-CYOL.TransientState = class {
+export class TransientState {
     public lumpType?: string;
     public autoharvestTime?: number;
     /* grandmapocalypseStage is a number between 0 and 3,
@@ -92,7 +95,7 @@ CYOL.TransientState = class {
     ) {}
 
     /* True if the only difference between the two states is the grandmapocalypseStage. */
-    almostEqual(state: any) {
+    almostEqual(state: TransientState) {
         return state instanceof CYOL.TransientState
             && this.dragon.equal(state.dragon)
             && this.rigidelSlot === state.rigidelSlot
@@ -151,7 +154,7 @@ CYOL.TransientState = class {
 /* Attributes from the game that are not easily modifiable by the player,
  * like having certain upgrades.
  */
-CYOL.PersistentState = class {
+export class PersistentState {
     constructor(
         public seed: string, // Corresponds to Game.seed
         public lumpT: number, // Time that the current lump type started coalescing
@@ -174,7 +177,7 @@ CYOL.PersistentState = class {
      * The lump type and autoharvest times are stored in the transient state
      * as the attributes lumpType and autoharvestTime, respectively.
      */
-    predictLumpType(transientState: any, discrepancy: number, verbose: boolean = false) {
+    predictLumpType(transientState: TransientState, discrepancy: number, verbose: boolean = false) {
         discrepancy = Number(discrepancy); // Just to be sure
         let ripeAge = 23 * 60*60*1000; // 23 hours
         if (this.hasSteviaCaelestis) ripeAge -= 60*60*1000;
@@ -193,8 +196,7 @@ CYOL.PersistentState = class {
 
         let types=['normal'];
         let loop = 1 + randomFloor(transientState.dragon.auraValue());
-        let i = 0;
-        for (i=0; i<loop; i++) {
+        for (let i = 0; i < loop; i++) {
             if (Math.random()<(this.hasSucralosiaInutilis?0.15:0.1)) types.push('bifurcated');
             if (Math.random()<3/1000) types.push('golden');
             if (Math.random()<0.1*transientState.grandmapocalypseStage) types.push('meaty');
@@ -233,7 +235,7 @@ CYOL.PersistentState = class {
 }
 
 /* Stringify the prediction state in a readable way. */
-CYOL.formatPredictionState = function(transientState:any, discrepancy:number) {
+export function formatPredictionState(transientState:any, discrepancy:number) {
     let str = "Lump type: " + transientState.lumpType + ", with ";
     if(transientState.grandmaCount !== undefined) str += transientState.grandmaCount + " ";
     if(transientState.grandmapocalypseStage == 0) str += "appeased grandmas, ";
@@ -253,7 +255,7 @@ CYOL.formatPredictionState = function(transientState:any, discrepancy:number) {
     return str;
 }
 
-CYOL.predictNextLumpType = function(discrepancy:any, verbose: boolean = false) {
+export function predictNextLumpType(discrepancy:any, verbose: boolean = false) {
     if(discrepancy === undefined) {
         throw new Error("Missing discrepancy parameter");
     }
@@ -266,15 +268,15 @@ CYOL.predictNextLumpType = function(discrepancy:any, verbose: boolean = false) {
 /* Injects or modifies the function with the given name.
  * `pattern` and `replacement` are the first and second arguments to String.prototype.replace.
  */
-CYOL.rewriteCode = function(functionName: string, pattern: string, replacement: string) {
+export function rewriteCode(functionName: string, pattern: string, replacement: string) {
     let code = eval(functionName + ".toString()");
     let newCode = code.replace(pattern, replacement);
     eval(functionName + " = " + newCode);
 }
 
-CYOL.UI = {};
+export namespace UI {
 
-CYOL.UI.settings = { // default settings
+export let settings = { // default settings
     discrepancy: 1,
     includeNormal: false,
     includeBifurcated: false,
@@ -290,7 +292,7 @@ CYOL.UI.settings = { // default settings
 /* Copies the given settings object to CYOL.UI.settings,
  * enforcing that the objects have their appropriate types.
  */
-CYOL.UI.copySettings = function(settings: any) {
+export function copySettings(settings: any) {
     if(!settings) return;
     let numericSettings = ['discrepancy', 'rowsToDisplay'];
     let booleanSettings = [
@@ -299,10 +301,10 @@ CYOL.UI.copySettings = function(settings: any) {
     ];
 
     for(let key of numericSettings) {
-        if(key in settings) CYOL.UI.settings[key] = Number(settings[key]);
+        if(key in settings) (CYOL.UI.settings as any)[key] = Number(settings[key]);
     }
     for(let key of booleanSettings) {
-        if(key in settings) CYOL.UI.settings[key] = Boolean(settings[key]);
+        if(key in settings) (CYOL.UI.settings as any)[key] = Boolean(settings[key]);
     }
 }
 
@@ -310,12 +312,12 @@ CYOL.UI.copySettings = function(settings: any) {
  * unless the Spiced Cookies discrepancy patch is detected,
  * in which it returns 0.
  */
-CYOL.UI.effectiveDiscrepancy = function() {
+export function effectiveDiscrepancy() {
     if(typeof Spice !== 'undefined' && Spice?.settings?.patchDiscrepancy) return 0;
     return CYOL.UI.settings.discrepancy;
 }
 
-CYOL.UI.targetTypes = function() {
+export function targetTypes() {
     let types = [];
     if(CYOL.UI.settings.includeNormal) types.push('normal');
     if(CYOL.UI.settings.includeBifurcated) types.push('bifurcated');
@@ -325,13 +327,13 @@ CYOL.UI.targetTypes = function() {
     return types;
 }
 
-CYOL.UI.cachedPredictions = null;
-CYOL.UI.cachedState = null; // the PersistentState that was used to compute cachedPredictions
-CYOL.UI.cachedDiscrepancy = null;
+export let cachedPredictions: TransientState[] | null = null;
+export let cachedState: PersistentState | null = null; // the PersistentState that was used to compute cachedPredictions
+export let cachedDiscrepancy: number = -1;
 
 /* Recomputes cachedPredictions if cachedState differs from the current state,
  * or if cachedPredictions === null. */
-CYOL.UI.computePredictions = function() {
+export function computePredictions() {
     let currentState = CYOL.PersistentState.current();
     if(currentState.equal(CYOL.UI.cachedState)
         && CYOL.UI.cachedPredictions !== null
@@ -348,23 +350,23 @@ CYOL.UI.computePredictions = function() {
  * a call to sneakySaveDataRetrieval is injected right before the new lump type is calculated.
  * This allows us to display the actual value of discrepancy to the user.
  */
-CYOL.UI.previousAutoharvestTime = null;
-CYOL.UI.previousLumpT = null;
+export let previousAutoharvestTime: number | null = null;
+export let previousLumpT: number | null = null;
 /* It seems that, in rare cases,
  * the game might try to loadLumps before all minigames have finished loading.
  * This means that the bonus from Rigidel cannot be computed
  * and is simply skipped.
  * So we warn the player about this issue in the lump tooltip.
  */
-CYOL.UI.warnPantheonNotLoaded = false;
-CYOL.UI.sneakySaveDataRetrieval = function() {
+export let warnPantheonNotLoaded: boolean = false;
+export function sneakySaveDataRetrieval() {
     CYOL.UI.previousLumpT = Game.lumpT;
     CYOL.UI.previousAutoharvestTime = Game.lumpT + Game.lumpOverripeAge;
     CYOL.UI.warnPantheonNotLoaded = !Game.hasGod;
 }
 
 /* Returns a string for a <div> tag that displays the given icon. */
-CYOL.UI.makeIcon = function(icon: any, transparent: boolean) {
+export function makeIcon(icon: any, transparent: boolean = false) {
     let transparency = '';
     let background = '';
     if(icon === 'lump_normal') background += 'background-position: -1392px -672px;';
@@ -380,7 +382,7 @@ CYOL.UI.makeIcon = function(icon: any, transparent: boolean) {
 }
 
 /* Same as above but for buildings instead. */
-CYOL.UI.makeGrandmaIcon = function(type: string, transparent: boolean) {
+export function makeGrandmaIcon(type: string, transparent: boolean) {
     let background = "background-image: url('img/buildings.png?v=5');";
     let transparency = '';
     if(type === 'appeased') background += 'background-position: 0px -64px;';
@@ -393,7 +395,7 @@ CYOL.UI.makeGrandmaIcon = function(type: string, transparent: boolean) {
 
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.
  * slot === 0 means unslotted, slot === 1 means jade slot, 2 is ruby and 3 is diamond. */
-CYOL.UI.makeRigidelIcon = function(slot: number) {
+export function makeRigidelIcon(slot: number) {
     let rigidel = '<div class="icon" style="background-position:-1056px -912px"></div>';
     let gem_background = '';
     if(slot === 3) gem_background += 'background-position: -1104px -720px;';
@@ -404,7 +406,7 @@ CYOL.UI.makeRigidelIcon = function(slot: number) {
     return '<div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;' + (slot===0 ? 'opacity:0.2' : '') + '">' + rigidel + gem + '</div>';
 }
 
-CYOL.UI.currentLumpType = function() {
+export function currentLumpType() {
     switch(Game.lumpCurrentType) {
         case 0: return 'normal';
         case 1: return 'bifurcated';
@@ -416,7 +418,7 @@ CYOL.UI.currentLumpType = function() {
 }
 
 // Builds a string that displays the discrepancy and the current lump type.
-CYOL.UI.discrepancyTooltip = function() {
+export function discrepancyTooltip() {
     /* The bunch of if-elses here is trying to remind the user about the peculiarities of the mod.
      * For example,
      * if CYOL.UI.previousLumpT === Game.lumpT,
@@ -441,7 +443,7 @@ CYOL.UI.discrepancyTooltip = function() {
             '</div>';
     }
 
-    if(CYOL.UI.previousAutoharvestTime) {
+    if(CYOL.UI.previousAutoharvestTime != null) {
         let discrepancy = Game.lumpT - CYOL.UI.previousAutoharvestTime;
         if(Game.lumpT === CYOL.UI.previousLumpT) {
             str += '<div style="color:gray">' +
@@ -487,7 +489,7 @@ CYOL.UI.discrepancyTooltip = function() {
 /* Decides whether the given prediction is desirable
  * based on current user preferences.
  */
-CYOL.UI.isDesirablePrediction = function(prediction: any, additionalGrandmapocalypseStages: any) {
+export function isDesirablePrediction(prediction: any, additionalGrandmapocalypseStages: any) {
     if(CYOL.UI.targetTypes().indexOf(prediction.lumpType) === -1) return false;
     let current = CYOL.TransientState.current();
     if(CYOL.UI.settings.preserveGrandmapocalypseStage) {
@@ -518,15 +520,15 @@ CYOL.UI.isDesirablePrediction = function(prediction: any, additionalGrandmapocal
 }
 
 // Constructs a fancy table of predictions
-CYOL.UI.predictionTable = function() {
+export function predictionTable() {
     CYOL.UI.computePredictions();
     let str = '';
     let rows = 0, i = 0;
-    while(rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions.length) {
+    while(rows < CYOL.UI.settings.rowsToDisplay && i < CYOL.UI.cachedPredictions!.length) {
         let grandmapocalypseStages = [false, false, false, false];
-        let prediction = CYOL.UI.cachedPredictions[i];
-        while(prediction.almostEqual(CYOL.UI.cachedPredictions[i])) {
-            grandmapocalypseStages[CYOL.UI.cachedPredictions[i].grandmapocalypseStage] = true;
+        let prediction = CYOL.UI.cachedPredictions![i];
+        while(prediction.almostEqual(CYOL.UI.cachedPredictions![i])) {
+            grandmapocalypseStages[CYOL.UI.cachedPredictions![i].grandmapocalypseStage] = true;
             i++;
         }
 
@@ -560,7 +562,7 @@ CYOL.UI.predictionTable = function() {
     return str;
 }
 
-CYOL.UI.customLumpTooltip = function(str: string, _phase: any) {
+export function customLumpTooltip(str: string, _phase: any) {
     CYOL.UI.computePredictions();
     str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
     str += '<div class="line"></div>';
@@ -581,22 +583,22 @@ CYOL.UI.customLumpTooltip = function(str: string, _phase: any) {
     return str;
 }
 
-CYOL.UI.discrepancyCallback = function() {
+export function discrepancyCallback() {
     let value = (document.getElementById('CYOLdiscrepancySlider') as HTMLInputElement).value ?? 1;
     CYOL.UI.settings.discrepancy = Number(value);
     document.getElementById('CYOLdiscrepancySliderRightText')!.innerHTML = value;
 }
 
-CYOL.UI.rowsToDisplayCallback = function() {
+export function rowsToDisplayCallback() {
     let value = (document.getElementById('CYOLrowsToDisplaySlider') as HTMLInputElement).value ?? 10;
     CYOL.UI.settings.rowsToDisplay = Number(value);
     document.getElementById('CYOLrowsToDisplaySliderRightText')!.innerHTML = value;
 }
 
-CYOL.UI.toggleSettings = function(buttonId: string, settingsName: string, onText: string, offText: string) {
-    CYOL.UI.settings[settingsName] = !CYOL.UI.settings[settingsName];
+export function toggleSettings(buttonId: string, settingsName: string, onText: string, offText: string) {
+    (CYOL.UI.settings as any)[settingsName] = !(CYOL.UI.settings as any)[settingsName];
     let element = document.getElementById(buttonId) as HTMLAnchorElement;
-    if(CYOL.UI.settings[settingsName]) {
+    if((CYOL.UI.settings as any)[settingsName]) {
         element.classList.remove("off");
         element.innerHTML = onText;
     } else {
@@ -606,8 +608,8 @@ CYOL.UI.toggleSettings = function(buttonId: string, settingsName: string, onText
 }
 
 // Constructs a button for toggling CYOL.UI.settings[settingsName].
-CYOL.UI.makeButton = function(settingsName:string, onText:string, offText:string) {
-    let buttonClass = "option" + (CYOL.UI.settings[settingsName] ? "" : " off");
+export function makeButton(settingsName:string, onText:string, offText:string) {
+    let buttonClass = "option" + ((CYOL.UI.settings as any)[settingsName] ? "" : " off");
     let buttonId = 'CYOLbutton' + settingsName;
     let onclick = "CYOL.UI.toggleSettings('" + buttonId + "', '" +
         settingsName + "', '" + onText + "', '" + offText + "');" +
@@ -615,11 +617,11 @@ CYOL.UI.makeButton = function(settingsName:string, onText:string, offText:string
     return '<a class="' + buttonClass + '"' +
         ' id="' + buttonId + '"' +
         ' onclick="' + onclick + '">' +
-        (CYOL.UI.settings[settingsName] ? onText : offText) +
+        ((CYOL.UI.settings as any)[settingsName] ? onText : offText) +
         '</a>';
 }
 
-CYOL.UI.customOptionsMenu = function() {
+export function customOptionsMenu() {
     let menuStr = "";
     menuStr += '<div class="listing">'
         + Game.WriteSlider('CYOLdiscrepancySlider', 'Discrepancy', '[$]', () => CYOL.UI.settings.discrepancy, 'CYOL.UI.discrepancyCallback()')
@@ -645,21 +647,25 @@ CYOL.UI.customOptionsMenu = function() {
     menuStr += '<label>Whether to display only predictions which match the current dragon auras or not</label></div>';
 
     menuStr += '<div class="listing">';
-    menuStr += CYOL.UI.makeButton('preservePantheon', 'Only current pantheon configuration', 'Any pantheon configuration', 'Ignore current pantheon');
+    menuStr += CYOL.UI.makeButton('preservePantheon', 'Only current pantheon configuration', 'Any pantheon configuration');
     menuStr += '<label>Whether to display only predictions which match the current pantheon or not (note Rigidel can be disabled by manipulating the number of buildings)</label></div>';
 
     CCSE.AppendCollapsibleOptionsMenu("Choose Your Own Lump", menuStr);
 }
 
-CYOL.save = function() {
+} // namespace UI
+
+export function save() {
     return JSON.stringify(CYOL.UI.settings);
 }
 
-CYOL.load = function(str: string) {
+export function load(str: string) {
     CYOL.UI.copySettings(JSON.parse(str));
 }
 
-CYOL.init = function() {
+export let isLoaded: boolean = false;
+
+export function init() {
     CYOL.DragonAuras.init();
     CYOL.TransientState.init();
 
@@ -680,6 +686,8 @@ CYOL.init = function() {
     CYOL.isLoaded = true;
     Game.Notify('Choose Your Own Lump loaded!', '', '', 1, 1);
 }
+
+} // namespace CYOL
 
 if(!CYOL.isLoaded){
     if(CCSE && CCSE.isLoaded){

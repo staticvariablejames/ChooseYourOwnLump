@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "es3",
     "module": "commonjs",
+    "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",
     "noEmitOnError": true,
