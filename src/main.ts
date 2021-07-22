@@ -689,15 +689,24 @@ export function init() {
 
 } // namespace CYOL
 
+declare global {
+    interface Window {
+        CYOL: typeof CYOL;
+        CCSE: any;
+    }
+}
+
+window.CYOL = CYOL;
+
 if(!CYOL.isLoaded){
-    if(CCSE && CCSE.isLoaded){
+    if(window.CCSE && window.CCSE.isLoaded){
         Game.registerMod('Choose your own lump', CYOL);
     }
     else {
-        if(!CCSE) var CCSE: any = {};
-        if(!CCSE.postLoadHooks) CCSE.postLoadHooks = [];
-        CCSE.postLoadHooks.push(function() {
-            if(CCSE.ConfirmGameCCSEVersion(CYOL.name, CYOL.version, CYOL.GameVersion, CYOL.CCSEVersion)) {
+        if(!window.CCSE) window.CCSE = {};
+        if(!window.CCSE.postLoadHooks) window.CCSE.postLoadHooks = [];
+        window.CCSE.postLoadHooks.push(function() {
+            if(window.CCSE.ConfirmGameCCSEVersion(CYOL.name, CYOL.version, CYOL.GameVersion, CYOL.CCSEVersion)) {
                 Game.registerMod('Choose your own lump', CYOL);
             }
         });

@@ -7,7 +7,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "build": "npx tsc",
+    "build": "npx rollup -c",
     "test": "jest"
   },
   "repository": {
