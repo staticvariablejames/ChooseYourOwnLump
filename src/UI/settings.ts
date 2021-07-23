@@ -22,7 +22,7 @@ export function copySettings(newSettings: any) {
     if(!newSettings) return;
     let numericSettings = ['discrepancy', 'rowsToDisplay'];
     let booleanSettings = [
-        'includeNormal', 'includeBifurcated', 'includeGolden', 'includeCaramelized',
+        'includeNormal', 'includeBifurcated', 'includeGolden', 'includeMeaty', 'includeCaramelized',
         'preserveGrandmapocalypseStage', 'preserveDragon', 'preservePantheon'
     ];
 
