@@ -43,3 +43,10 @@ export function init() {
     isLoaded = true;
     Game.Notify('Choose Your Own Lump loaded!', '', '', 1, 1);
 }
+
+/* The attribute below is set by Cookie Clicker itself.
+ * It must be present because Rollup freezes the object CYOL
+ * (created in main.ts),
+ * so Cookie Clicker is not able to create this attribute on its own.
+ */
+export let id = 'Choose your own lump';

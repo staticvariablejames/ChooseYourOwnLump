@@ -1,5 +1,5 @@
 import * as CYOL from './index';
-import { name, version, GameVersion, CCSEVersion } from './mod';
+import { name, version, GameVersion, CCSEVersion, id } from './mod';
 
 declare global {
     interface Window {
@@ -20,7 +20,7 @@ if(!CYOL.isLoaded){
         if(!window.CCSE.postLoadHooks) window.CCSE.postLoadHooks = [];
         window.CCSE.postLoadHooks.push(function() {
             if(window.CCSE.ConfirmGameCCSEVersion(name, version, GameVersion, CCSEVersion)) {
-                Game.registerMod('Choose your own lump', CYOL);
+                Game.registerMod(id, CYOL);
             }
         });
     }
