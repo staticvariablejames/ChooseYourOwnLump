@@ -5,7 +5,7 @@ export default {
     output: {
         dir: 'dist',
         format: 'umd',
-        freeze: false,
+        freeze: false, // Game.registerMod requires the object to be mutable
         name: 'CYOL',
     },
     plugins: [
