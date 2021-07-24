@@ -24,6 +24,7 @@
     "@rollup/plugin-typescript": "^8.2.3",
     "@types/cookieclicker": "^2.31.4",
     "@types/jest": "^26.0.22",
+    "ccse-ts": "git+https://github.com/staticvariablejames/CCSE-ts.git#semver:^0.1.0",
     "cookie-connoisseur": "^0.1.0",
     "jest": "^26.6.3",
     "jest-serializer-html": "^7.0.0",

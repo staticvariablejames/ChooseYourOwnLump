@@ -17,7 +17,7 @@ if(!CYOL.isLoaded){
         Game.registerMod(id, CYOL);
     }
     else {
-        if(!window.CCSE) window.CCSE = {};
+        if(!window.CCSE) window.CCSE = ({} as (typeof CCSE));
         if(!window.CCSE.postLoadHooks) window.CCSE.postLoadHooks = [];
         window.CCSE.postLoadHooks.push(function() {
             if(window.CCSE.ConfirmGameCCSEVersion(name, version, GameVersion, CCSEVersion)) {
