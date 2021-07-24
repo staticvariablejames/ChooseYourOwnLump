@@ -45,23 +45,31 @@ export class TransientState {
         return new this(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount);
     }
 
-    static grandmalessStates: any; // All possible states without grandmas
-    static grandmafulStates: any; // All possible (inequivalent) states with grandmas
+    static grandmalessStates = TransientState.initGrandmalessStates(); // All possible states without grandmas
+    static grandmafulStates = TransientState.initGrandmafulStates(); // All possible (inequivalent) states with grandmas
     /* States which differ only in their grandmapocalypseStage are generated together.
      * This guarantees that they are grouped when sorting by autoharvestTime,
      * as Array.prototype.sort is stable. */
-    static init() {
-        // init() is called by CYOL.launch()
-        this.grandmalessStates = [];
-        this.grandmafulStates = [];
 
+    private static initGrandmalessStates() {
+        let states: TransientState[] = [];
         for(let dragon of DragonAuras.all) {
             for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
                 for(let gStage = 0; gStage <= 3; gStage++) {
-                    this.grandmalessStates.push(new this(
+                    states.push(new this(
                         gStage, dragon, rigidelSlot, 0
                     ));
                 }
+            }
+        }
+        return states;
+    }
+
+    private static initGrandmafulStates() {
+        let states: TransientState[] = [];
+
+        for(let dragon of DragonAuras.all) {
+            for(let rigidelSlot = 0; rigidelSlot <= 3; rigidelSlot++) {
                 let grandmaCount = (rigidelSlot === 0 ? 0 : 401);
                 /* Having n grandmas with Rigidel in slot k
                  * is the same thing as having n+200 grandmas with Rigidel in slot k-1.
@@ -71,12 +79,13 @@ export class TransientState {
                  * for uses beyond this trick. */
                 for(; grandmaCount <= 600; grandmaCount++) {
                     for(let gStage = 0; gStage <= 3; gStage++) {
-                        this.grandmafulStates.push(new this(
+                        states.push(new this(
                             gStage, dragon, rigidelSlot, grandmaCount
                         ));
                     }
                 }
             }
         }
+        return states;
     }
 }

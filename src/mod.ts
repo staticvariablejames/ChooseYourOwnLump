@@ -2,7 +2,6 @@
  * used by Game.registerMod.
  */
 import { settings, copySettings } from './UI/settings';
-import { TransientState } from './transientState';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu } from './UI/optionsMenu';
 import { rewriteCode } from './util';
@@ -22,8 +21,6 @@ export function load(str: string) {
 }
 
 export function init() {
-    TransientState.init();
-
     // Legacy data, was previously stored in CCSE.config.OtherMods
     if(CCSE.config.OtherMods.CYOL) {
         copySettings(CCSE.config.OtherMods.CYOL);
