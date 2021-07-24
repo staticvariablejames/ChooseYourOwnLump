@@ -34,17 +34,14 @@ export class DragonAuras {
      * All kinds of auras will be iterable via
      *  for(dragon of DragonAuras.all) {...}
      */
-    static bothAuras: any;
-    static onlyDragonsCurve:any;
-    static onlyRealityBending:any;
-    static neitherAuras:any;
-    static all:any;
-    static init() {
-        // init() is called by CYOL.launch()
-        this.bothAuras = new this(true, true);
-        this.onlyDragonsCurve = new this(true, false);
-        this.onlyRealityBending = new this(false, true);
-        this.neitherAuras = new this(false, false);
-        this.all = [this.neitherAuras, this.onlyRealityBending, this.onlyDragonsCurve, this.bothAuras];
-    }
+    static bothAuras = new DragonAuras(true, true);
+    static onlyDragonsCurve = new DragonAuras(true, false);
+    static onlyRealityBending = new DragonAuras(false, true);
+    static neitherAuras = new DragonAuras(false, false);
+    static all = [
+        DragonAuras.neitherAuras,
+        DragonAuras.onlyRealityBending,
+        DragonAuras.onlyDragonsCurve,
+        DragonAuras.bothAuras,
+    ];
 }
