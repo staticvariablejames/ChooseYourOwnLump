@@ -17,7 +17,7 @@ export function save() {
 }
 
 export function load(str: string) {
-    copySettings(JSON.parse(str));
+    copySettings(str);
 }
 
 export function init() {

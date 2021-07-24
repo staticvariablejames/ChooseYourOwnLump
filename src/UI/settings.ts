@@ -18,7 +18,8 @@ export let settings = { // default settings
 /* Copies the given settings object to settings,
  * enforcing that the objects have their appropriate types.
  */
-export function copySettings(newSettings: any) {
+export function copySettings(settingsStr: string) {
+    let newSettings = JSON.parse(settingsStr);
     if(!newSettings) return;
     let numericSettings = ['discrepancy', 'rowsToDisplay'];
     let booleanSettings = [

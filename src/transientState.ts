@@ -19,7 +19,7 @@ export class TransientState {
      */
     constructor(
         public grandmapocalypseStage:number,
-        public dragon:any,
+        public dragon:DragonAuras,
         public rigidelSlot:number,
         public grandmaCount:number
     ) {}

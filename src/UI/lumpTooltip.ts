@@ -78,8 +78,11 @@ export function discrepancyTooltip() {
 /* Decides whether the given prediction is desirable
  * based on current user preferences.
  */
-export function isDesirablePrediction(prediction: any, additionalGrandmapocalypseStages: any) {
-    if(targetTypes().indexOf(prediction.lumpType) === -1) return false;
+export function isDesirablePrediction(
+    prediction: TransientState,
+    additionalGrandmapocalypseStages: boolean[]
+) {
+    if(targetTypes().indexOf(prediction.lumpType!) === -1) return false;
     let current = TransientState.current();
     if(settings.preserveGrandmapocalypseStage) {
         if(!additionalGrandmapocalypseStages[current.grandmapocalypseStage])
@@ -151,7 +154,7 @@ export function predictionTable() {
     return str;
 }
 
-export function customLumpTooltip(str: string, _phase: any) {
+export function customLumpTooltip(str: string, _phase: number) {
     computePredictions();
     str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
     str += '<div class="line"></div>';

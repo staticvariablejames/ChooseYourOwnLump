@@ -18,7 +18,7 @@ export class PersistentState {
         for(let state of states) {
             this.predictLumpType(state, discrepancy);
         }
-        states.sort((state1:any, state2:any) => state1.autoharvestTime - state2.autoharvestTime);
+        states.sort((state1:TransientState, state2:TransientState) => state1.autoharvestTime! - state2.autoharvestTime!);
         return states;
     }
 
@@ -62,7 +62,7 @@ export class PersistentState {
     }
 
     /* Determine whether the two states are equal. */
-    equal(state: any) {
+    equal(state: unknown) {
         return state instanceof PersistentState
             && state.seed === this.seed
             && state.lumpT === this.lumpT

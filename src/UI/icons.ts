@@ -1,5 +1,5 @@
 /* Returns a string for a <div> tag that displays the given icon. */
-export function makeIcon(icon: any, transparent: boolean = false) {
+export function makeIcon(icon: string, transparent: boolean = false) {
     let transparency = '';
     let background = '';
     if(icon === 'lump_normal') background += 'background-position: -1392px -672px;';

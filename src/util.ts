@@ -31,11 +31,7 @@ export function formatPredictionState(transientState:TransientState, discrepancy
     return str;
 }
 
-export function predictNextLumpType(discrepancy:any, verbose: boolean = false) {
-    if(discrepancy === undefined) {
-        throw new Error("Missing discrepancy parameter");
-    }
-
+export function predictNextLumpType(discrepancy: number, verbose: boolean = false) {
     let transientState = TransientState.current();
     let persistentState = PersistentState.current();
     return persistentState.predictLumpType(transientState, discrepancy, verbose);
