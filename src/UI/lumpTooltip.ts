@@ -1,7 +1,7 @@
 import { TransientState } from '../transientState';
 import { settings, effectiveDiscrepancy, targetTypes } from './settings';
 import { makeIcon, makeGrandmaIcon, makeRigidelIcon } from './icons';
-import { currentLumpType } from './util';
+import { currentLumpType, currentRigidelSlot } from './util';
 import { previousAutoharvestTime, previousLumpT, warnPantheonNotLoaded } from './preAutoharvestDataRetrieval';
 import { computePredictions, cachedPredictions } from './predictionsCache';
 import { predictNextLumpType } from '../util';
@@ -95,7 +95,7 @@ export function isDesirablePrediction(prediction: any, additionalGrandmapocalyps
         if(prediction.rigidelSlot === 0) return true;
         // If CYOL.TransientState.init generated 'prediction' with a slotted Rigidel,
         // then we absolutely need it.
-        let currentSlot = Game.hasGod('order') ? 4 - Game.hasGod('order') : 0;
+        let currentSlot = currentRigidelSlot();
         // We cannot use current.rigidelSlot because it considers inactive Rigidel as slot 0
         if(!prediction.grandmaCount) return currentSlot === prediction.rigidelSlot;
 

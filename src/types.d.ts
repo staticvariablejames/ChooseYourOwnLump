@@ -3,14 +3,16 @@
 
 declare global {
     var CCSE: any;
-    var Game: any;
     var Spice: any;
-
-    function randomFloor(x: number): number;
-    function choose(arr: any): any;
 
     interface Math {
         seedrandom(seed?: string): void;
+    }
+
+    namespace Game {
+        export let customLumpTooltip: undefined | ( (str: string, phase: number) => String )[];
+        export let customOptionsMenu: undefined | ( () => void )[];
+        export let customStatsMenu: undefined | ( () => void )[];
     }
 }
 

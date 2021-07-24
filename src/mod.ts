@@ -32,21 +32,14 @@ export function init() {
         delete CCSE.config.OtherMods.CYOL; // be a good citizen and not bloat CCSE's save object
     }
 
-    Game.customLumpTooltip.push(customLumpTooltip);
-    Game.customOptionsMenu.push(customOptionsMenu);
-    Game.customStatsMenu.push(function() {
+    Game.customLumpTooltip!.push(customLumpTooltip);
+    Game.customOptionsMenu!.push(customOptionsMenu);
+    Game.customStatsMenu!.push(function() {
         CCSE.AppendStatsVersionNumber(name, version);
     });
 
     rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
 
     isLoaded = true;
-    Game.Notify('Choose Your Own Lump loaded!', '', '', 1, 1);
+    Game.Notify('Choose Your Own Lump loaded!', undefined, undefined, 1, true);
 }
-
-/* The attribute below is set by Cookie Clicker itself.
- * It must be present because Rollup freezes the object CYOL
- * (created in main.ts),
- * so Cookie Clicker is not able to create this attribute on its own.
- */
-export let id = 'Choose your own lump';

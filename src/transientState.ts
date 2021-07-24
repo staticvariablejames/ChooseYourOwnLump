@@ -1,4 +1,5 @@
 import { DragonAuras } from './dragonAuras';
+import { currentRigidelSlot } from './UI/util';
 
 /* Atttributes from the game that affect lump maturation time
  * which can be easily modified by the player.
@@ -36,9 +37,9 @@ export class TransientState {
     static current() {
         let dragon = DragonAuras.fromGame();
         let grandmapocalypseStage = Game.elderWrath;
-        let rigidelSlot = 0;
-        if (Game.hasGod && Game.BuildingsOwned%10==0 && Game.hasGod('order'))
-            rigidelSlot = 4 - Game.hasGod('order');
+        let rigidelSlot = currentRigidelSlot();
+        if (Game.BuildingsOwned % 10 != 0)
+            rigidelSlot = 0;
 
         let grandmaCount = Game.Objects['Grandma'].amount;
         return new this(grandmapocalypseStage, dragon, rigidelSlot, grandmaCount);

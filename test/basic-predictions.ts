@@ -18,9 +18,9 @@ test('Persistent state is retrieved correctly', async () => {
     expect(currentPersistentState).toEqual({
         seed: 'ufekf',
         lumpT: 16e11,
-        hasSteviaCaelestis: 0,
-        hasSucralosiaInutilis: 0,
-        hasSugarAgingProcess: 0,
+        hasSteviaCaelestis: false,
+        hasSucralosiaInutilis: false,
+        hasSugarAgingProcess: false,
     });
 
     await page.evaluate("Game.Upgrades['Stevia Caelestis'].earn()");
@@ -29,9 +29,9 @@ test('Persistent state is retrieved correctly', async () => {
     expect(currentPersistentState).toEqual({
         seed: 'ufekf',
         lumpT: 16e11+1000,
-        hasSteviaCaelestis: 1,
-        hasSucralosiaInutilis: 0,
-        hasSugarAgingProcess: 0,
+        hasSteviaCaelestis: true,
+        hasSucralosiaInutilis: false,
+        hasSugarAgingProcess: false,
     });
 
     await page.close();

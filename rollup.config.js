@@ -5,6 +5,7 @@ export default {
     output: {
         dir: 'dist',
         format: 'umd',
+        freeze: false,
         name: 'CYOL',
     },
     plugins: [

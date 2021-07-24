@@ -76,9 +76,9 @@ export class PersistentState {
     static current() {
         let seed = Game.seed;
         let lumpT = Game.lumpT;
-        let hasSteviaCaelestis = Game.Has('Stevia Caelestis');
-        let hasSucralosiaInutilis = Game.Has('Sucralosia Inutilis');
-        let hasSugarAgingProcess = Game.Has('Sugar aging process');
+        let hasSteviaCaelestis = Boolean(Game.Has('Stevia Caelestis'));
+        let hasSucralosiaInutilis = Boolean(Game.Has('Sucralosia Inutilis'));
+        let hasSugarAgingProcess = Boolean(Game.Has('Sugar aging process'));
         return new this(seed, lumpT, hasSteviaCaelestis, hasSucralosiaInutilis, hasSugarAgingProcess);
     }
 }

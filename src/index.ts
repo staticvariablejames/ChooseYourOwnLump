@@ -1,4 +1,4 @@
-export { name, version, GameVersion, CCSEVersion, isLoaded, save, load, init, id } from './mod';
+export { name, version, GameVersion, CCSEVersion, isLoaded, save, load, init } from './mod';
 export { DragonAuras } from './dragonAuras';
 export { TransientState } from './transientState';
 export { PersistentState } from './persistentState';

@@ -22,6 +22,7 @@
   "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.3",
+    "@types/cookieclicker": "^2.31.4",
     "@types/jest": "^26.0.22",
     "cookie-connoisseur": "^0.1.0",
     "jest": "^26.6.3",
