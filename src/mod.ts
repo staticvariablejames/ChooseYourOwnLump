@@ -36,5 +36,5 @@ export function init() {
     rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
 
     isLoaded = true;
-    Game.Notify('Choose Your Own Lump loaded!', undefined, undefined, 1, true);
+    Game.Notify('Choose Your Own Lump loaded!', '', undefined, 1, true);
 }
