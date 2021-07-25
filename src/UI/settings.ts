@@ -15,23 +15,22 @@ export let settings = { // default settings
     rowsToDisplay: 10,
 };
 
-/* Copies the given settings object to settings,
+/* Copies the given string to the settings object,
  * enforcing that the objects have their appropriate types.
+ *
+ * Any nonexistent attributes are ignored.
  */
 export function copySettings(settingsStr: string) {
     let newSettings = JSON.parse(settingsStr);
-    if(!newSettings) return;
-    let numericSettings = ['discrepancy', 'rowsToDisplay'];
-    let booleanSettings = [
-        'includeNormal', 'includeBifurcated', 'includeGolden', 'includeMeaty', 'includeCaramelized',
-        'preserveGrandmapocalypseStage', 'preserveDragon', 'preservePantheon'
-    ];
+    if(typeof newSettings !== "object") return;
 
-    for(let key of numericSettings) {
-        if(key in newSettings) (settings as any)[key] = Number(newSettings[key]);
-    }
-    for(let key of booleanSettings) {
-        if(key in newSettings) (settings as any)[key] = Boolean(newSettings[key]);
+    let key: keyof typeof settings;
+    for(key in settings) {
+        if(!(key in newSettings)) continue;
+        //@ts-ignore: Type 'number' is not assignable to type 'never'.
+        if(typeof settings[key] == 'number') settings[key] = Number(newSettings[key]);
+        //@ts-ignore: Type 'boolean' is not assignable to type 'never'.
+        if(typeof settings[key] == 'boolean') settings[key] = Boolean(newSettings[key]);
     }
 }
 
