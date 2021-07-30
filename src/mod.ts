@@ -23,7 +23,8 @@ export function load(str: string) {
 export function init() {
     // Legacy data, was previously stored in CCSE.config.OtherMods
     if(CCSE.config.OtherMods.CYOL) {
-        loadSettingsFrom(CCSE.config.OtherMods.CYOL);
+        loadSettingsFrom(JSON.stringify(CCSE.config.OtherMods.CYOL));
+        // Using JSON.stringify is easier than writing a separate function just for legacy support
         delete CCSE.config.OtherMods.CYOL; // be a good citizen and not bloat CCSE's save object
     }
 
