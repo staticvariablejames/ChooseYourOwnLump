@@ -1,7 +1,7 @@
 /* These functions turn the CYOL object compatible with the Mod interface,
  * used by Game.registerMod.
  */
-import { settings, loadSettingsFrom } from './UI/settings';
+import { loadSettingsFrom, exportSettings } from './UI/settings';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu } from './UI/optionsMenu';
 import { rewriteCode } from './util';
@@ -13,7 +13,7 @@ export let CCSEVersion = "2.023";
 export let isLoaded: boolean = false;
 
 export function save() {
-    return JSON.stringify(settings);
+    return exportSettings();
 }
 
 export function load(str: string) {

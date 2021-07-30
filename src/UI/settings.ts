@@ -2,6 +2,8 @@
  * Contains the `settings` object and utilities for querying it.
  */
 
+import { version } from '../mod';
+
 export let settings = { // default settings
     discrepancy: 1,
     includeNormal: false,
@@ -15,14 +17,23 @@ export let settings = { // default settings
     rowsToDisplay: 10,
 };
 
-/* Copies the given string to the settings object,
+/* Load settings from the given save game string.
  * enforcing that the objects have their appropriate types.
  *
  * Any nonexistent attributes are ignored.
  */
-export function loadSettingsFrom(settingsStr: string) {
-    let newSettings = JSON.parse(settingsStr);
-    if(typeof newSettings !== "object") return;
+export function loadSettingsFrom(save: string) {
+    let saveObject = JSON.parse(save);
+    if(typeof saveObject !== "object") return;
+    let newSettings: object;
+
+    if('version' in saveObject) {
+        newSettings = saveObject.settings ?? {};
+        // TODO: if(saveObject.version != version) announceNewVersion()
+    } else {
+        // legacy save format (1.2.7 and earlier)
+        newSettings = saveObject;
+    }
 
     let key: keyof typeof settings;
     for(key in settings) {
@@ -32,6 +43,13 @@ export function loadSettingsFrom(settingsStr: string) {
         //@ts-ignore: Type 'boolean' is not assignable to type 'never'.
         if(typeof settings[key] == 'boolean') settings[key] = Boolean(newSettings[key]);
     }
+}
+
+export function exportSettings() {
+    return JSON.stringify({
+        version: version,
+        settings: settings,
+    });
 }
 
 /* Returns the discrepancy,

@@ -1,4 +1,4 @@
-export { settings, loadSettingsFrom, effectiveDiscrepancy, targetTypes } from './settings';
+export { settings, loadSettingsFrom, exportSettings, effectiveDiscrepancy, targetTypes } from './settings';
 export { cachedDiscrepancy, cachedPredictions, cachedState, computePredictions } from './predictionsCache';
 export { makeIcon, makeGrandmaIcon, makeRigidelIcon } from './icons';
 export { currentLumpType } from './util';
