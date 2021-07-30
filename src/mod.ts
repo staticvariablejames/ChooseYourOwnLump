@@ -1,7 +1,7 @@
 /* These functions turn the CYOL object compatible with the Mod interface,
  * used by Game.registerMod.
  */
-import { settings, copySettings } from './UI/settings';
+import { settings, loadSettingsFrom } from './UI/settings';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu } from './UI/optionsMenu';
 import { rewriteCode } from './util';
@@ -17,13 +17,13 @@ export function save() {
 }
 
 export function load(str: string) {
-    copySettings(str);
+    loadSettingsFrom(str);
 }
 
 export function init() {
     // Legacy data, was previously stored in CCSE.config.OtherMods
     if(CCSE.config.OtherMods.CYOL) {
-        copySettings(CCSE.config.OtherMods.CYOL);
+        loadSettingsFrom(CCSE.config.OtherMods.CYOL);
         delete CCSE.config.OtherMods.CYOL; // be a good citizen and not bloat CCSE's save object
     }
 

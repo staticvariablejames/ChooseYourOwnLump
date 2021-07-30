@@ -20,7 +20,7 @@ export let settings = { // default settings
  *
  * Any nonexistent attributes are ignored.
  */
-export function copySettings(settingsStr: string) {
+export function loadSettingsFrom(settingsStr: string) {
     let newSettings = JSON.parse(settingsStr);
     if(typeof newSettings !== "object") return;
 
