@@ -7,7 +7,7 @@ import { customOptionsMenu } from './UI/optionsMenu';
 import { rewriteCode } from './util';
 
 export let name = "Choose Your Own Lump";
-export let version = "1.2.7";
+export let version = "1.3.0";
 export let GameVersion = "2.031";
 export let CCSEVersion = "2.023";
 export let isLoaded: boolean = false;

@@ -387,6 +387,15 @@ Update to CCSE 2.021 and display a notification on load.
 
 Update to CCSE 2.023.
 
+1.3.0
+-----
+
+Several internal changes;
+mainly, porting the mod to TypeScript
+and adding a robust test suite.
+
+Bug fix: The setting to search for meaty lumps was not being saved.
+
 
 Known Bugs/Limitations
 ======================
