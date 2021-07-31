@@ -28,9 +28,9 @@ export function init() {
         delete CCSE.config.OtherMods.CYOL; // be a good citizen and not bloat CCSE's save object
     }
 
-    Game.customLumpTooltip!.push(customLumpTooltip);
-    Game.customOptionsMenu!.push(customOptionsMenu);
-    Game.customStatsMenu!.push(function() {
+    Game.customLumpTooltip.push(customLumpTooltip);
+    Game.customOptionsMenu.push(customOptionsMenu);
+    Game.customStatsMenu.push(function() {
         CCSE.AppendStatsVersionNumber(name, version);
     });
 
