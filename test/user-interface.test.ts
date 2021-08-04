@@ -1,13 +1,10 @@
-import { CCPageOptions, openCookieClickerPage } from 'cookie-connoisseur';
-import { Browser } from 'playwright';
+import { test, expect } from '@playwright/test';
+import { openCookieClickerPage } from 'cookie-connoisseur';
+import { html as beautify_html } from 'js-beautify';
 import * as CYOL from '../src/index';
 
-export const userInterface = (getBrowser: () => Browser) => {
-
-let newPage = (options: CCPageOptions = {}) => openCookieClickerPage(getBrowser(), options);
-
-test('Changing settings updates the CYOL.UI.settings object', async () => {
-    let page = await newPage();
+test('Changing settings updates the CYOL.UI.settings object', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
 
@@ -73,8 +70,8 @@ test('Changing settings updates the CYOL.UI.settings object', async () => {
     await page.close();
 });
 
-test('The lump tooltip displays the predictions without grandmas', async () => {
-    let page = await newPage();
+test('The lump tooltip displays the predictions without grandmas', async ({browser}) => {
+    let page = await openCookieClickerPage(browser,);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
     await page.evaluate(() => Game.seed = "ufekf");
@@ -89,7 +86,8 @@ test('The lump tooltip displays the predictions without grandmas', async () => {
     await page.waitForFunction(() => Date.now() > 16e11+1000); // Forces time till mature to be 19h59m
 
     await page.hover('#lumps');
-    expect(await page.evaluate(() => document.getElementById("tooltip")!.outerHTML)).toMatchSnapshot();
+    let tooltipHtml = await page.evaluate(() => document.getElementById("tooltip")!.outerHTML);
+    expect(beautify_html(tooltipHtml)).toMatchSnapshot('tooltip-without-grandmas.txt');
 
     if(process.env.UPDATE_SCREENSHOTS) {
         const tooltipHandle = await page.$('#tooltip');
@@ -99,8 +97,8 @@ test('The lump tooltip displays the predictions without grandmas', async () => {
     await page.close();
 });
 
-test('The lump tooltip displays the predictions with grandmas', async () => {
-    let page = await newPage();
+test('The lump tooltip displays the predictions with grandmas', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.setViewportSize({ width: 1920, height: 1050 }); // for the screenshot
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
@@ -114,7 +112,8 @@ test('The lump tooltip displays the predictions with grandmas', async () => {
     await page.waitForFunction(() => Date.now() > 16e11+1000);
 
     await page.hover('#lumps');
-    expect(await page.evaluate(() => document.getElementById("tooltip")!.outerHTML)).toMatchSnapshot();
+    let tooltipHtml = await page.evaluate(() => document.getElementById("tooltip")!.outerHTML);
+    expect(beautify_html(tooltipHtml)).toMatchSnapshot('tooltip-with-grandmas.txt');
 
     if(process.env.UPDATE_SCREENSHOTS) {
         const tooltipHandle = await page.$('#tooltip');
@@ -123,5 +122,3 @@ test('The lump tooltip displays the predictions with grandmas', async () => {
 
     await page.close();
 });
-
-};

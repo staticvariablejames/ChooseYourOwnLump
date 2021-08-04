@@ -1,13 +1,9 @@
-import { CCPageOptions, openCookieClickerPage } from 'cookie-connoisseur';
-import { Browser } from 'playwright';
+import { test, expect } from '@playwright/test';
+import { openCookieClickerPage } from 'cookie-connoisseur';
 import * as CYOL from '../src/index';
 
-export const saveGames = (getBrowser: () => Browser) => {
-
-let newPage = (options: CCPageOptions = {}) => openCookieClickerPage(getBrowser(), options);
-
-test('Can write and read save games', async () => {
-    let page = await newPage();
+test('Can write and read save games', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
 
@@ -59,7 +55,7 @@ test('Can write and read save games', async () => {
     await page.close();
 
     // Check that everything still works in a brand new page
-    page = await newPage();
+    page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
     await page.evaluate((save: string) => Game.LoadSave(save), save3);
@@ -67,9 +63,9 @@ test('Can write and read save games', async () => {
     await page.close();
 });
 
-test('Can load a save game from Web Storage', async () => {
+test('Can load a save game from Web Storage', async ({browser}) => {
     // First, fabricate the save game
-    let page = await newPage();
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
 
@@ -94,7 +90,7 @@ test('Can load a save game from Web Storage', async () => {
     await page.close();
 
     // Now create new page with existing save file
-    page = await newPage({saveGame: save as string});
+    page = await openCookieClickerPage(browser, {saveGame: save as string});
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
 
@@ -104,8 +100,8 @@ test('Can load a save game from Web Storage', async () => {
     await page.close();
 });
 
-test('Can load saves from previous versions', async () => {
-    let page = await newPage();
+test('Can load saves from previous versions', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
 
@@ -145,5 +141,3 @@ test('Can load saves from previous versions', async () => {
 
     await page.close();
 });
-
-};

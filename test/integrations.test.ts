@@ -1,16 +1,12 @@
 // Tests integration with other mods.
 
 ///<reference path="../src/types.d.ts" />
-import { CCPageOptions, openCookieClickerPage } from 'cookie-connoisseur';
-import { Browser } from 'playwright';
+import { test, expect } from '@playwright/test';
+import { openCookieClickerPage } from 'cookie-connoisseur';
 import * as CYOL from '../src/index';
 
-export const integrations = (getBrowser: () => Browser) => {
-
-let newPage = (options: CCPageOptions = {}) => openCookieClickerPage(getBrowser(), options);
-
-test('Recognizes Spiced Cookies\' discrepancy patch', async () => {
-    let page = await newPage();
+test('Recognizes Spiced Cookies\' discrepancy patch', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
 
     // Everything should work if Spiced Cookies is absent
@@ -32,5 +28,3 @@ test('Recognizes Spiced Cookies\' discrepancy patch', async () => {
 
     await page.close();
 });
-
-};
