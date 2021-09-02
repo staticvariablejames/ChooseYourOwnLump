@@ -21,15 +21,15 @@
   },
   "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme",
   "devDependencies": {
-    "@playwright/test": "^1.13.1",
+    "@playwright/test": "^1.14.1",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-typescript": "^8.2.3",
     "@types/cookieclicker": "^2.31.4",
     "@types/js-beautify": "^1.13.2",
     "ccse-ts": "git+https://github.com/staticvariablejames/CCSE-ts.git#semver:^0.1.0",
-    "cookie-connoisseur": "^0.1.1",
-    "playwright": "^1.13.1",
+    "cookie-connoisseur": "0.1.2",
     "js-beautify": "^1.14.0",
+    "playwright": "^1.14.1",
     "rollup": "^2.53.3",
     "tslib": "^2.3.0",
     "typescript": "^4.2.3"
