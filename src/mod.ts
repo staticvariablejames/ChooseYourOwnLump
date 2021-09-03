@@ -10,7 +10,7 @@ import * as package_json from '../package.json';
 export let name = "Choose Your Own Lump";
 export let version = package_json.version;
 export let GameVersion = "2.031";
-export let CCSEVersion = "2.023";
+export let CCSEVersion = "2.025";
 export let isLoaded: boolean = false;
 
 export function save() {
