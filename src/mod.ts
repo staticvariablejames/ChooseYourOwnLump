@@ -5,11 +5,12 @@ import { loadSettingsFrom, exportSettings } from './UI/settings';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu } from './UI/optionsMenu';
 import { rewriteCode } from './util';
+import * as package_json from '../package.json';
 
 export let name = "Choose Your Own Lump";
-export let version = "1.3.0";
+export let version = package_json.version;
 export let GameVersion = "2.031";
-export let CCSEVersion = "2.023";
+export let CCSEVersion = "2.025";
 export let isLoaded: boolean = false;
 
 export function save() {
@@ -28,9 +29,9 @@ export function init() {
         delete CCSE.config.OtherMods.CYOL; // be a good citizen and not bloat CCSE's save object
     }
 
-    Game.customLumpTooltip!.push(customLumpTooltip);
-    Game.customOptionsMenu!.push(customOptionsMenu);
-    Game.customStatsMenu!.push(function() {
+    Game.customLumpTooltip.push(customLumpTooltip);
+    Game.customOptionsMenu.push(customOptionsMenu);
+    Game.customStatsMenu.push(function() {
         CCSE.AppendStatsVersionNumber(name, version);
     });
 

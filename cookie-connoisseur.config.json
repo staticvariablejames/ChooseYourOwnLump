@@ -1,7 +1,9 @@
 {
     "customURLs": [
         {"url": "https://klattmose.github.io/CookieClicker/CCSE.js"},
-        {"url": "https://staticvariablejames.github.io/SpicedCookies/Spice.js"},
+        {"url": "https://staticvariablejames.github.io/SpicedCookies/Spice.js"}
+    ],
+    "localFiles": [
         {"url": "https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js",
          "path": "ChooseYourOwnLump.js"},
         {"url": "https://staticvariablejames.github.io/ChooseYourOwnLump/dist/main.js",

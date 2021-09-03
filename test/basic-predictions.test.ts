@@ -1,13 +1,9 @@
-import { CCPageOptions, openCookieClickerPage } from 'cookie-connoisseur';
-import { Browser } from 'playwright';
+import { test, expect } from '@playwright/test';
+import { openCookieClickerPage } from 'cookie-connoisseur';
 import * as CYOL from '../src/index';
 
-export const basicPredictions = (getBrowser: () => Browser) => {
-
-let newPage = (options: CCPageOptions = {}) => openCookieClickerPage(getBrowser(), options);
-
-test('Persistent state is retrieved correctly', async () => {
-    let page = await newPage();
+test('Persistent state is retrieved correctly', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.evaluate(() => Game.seed = "ufekf");
     await page.evaluate(() => Game.Earn(1e12));
@@ -38,8 +34,8 @@ test('Persistent state is retrieved correctly', async () => {
     await page.close();
 });
 
-test('Transient state is retrieved correctly', async () => {
-    let page = await newPage();
+test('Transient state is retrieved correctly', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.evaluate(() => Game.Earn(1e12));
 
@@ -69,8 +65,8 @@ test('Transient state is retrieved correctly', async () => {
     await page.close();
 });
 
-test('Lump types are predicted correctly', async() => {
-    let page = await newPage();
+test('Lump types are predicted correctly', async ({browser}) => {
+    let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
 
@@ -101,5 +97,3 @@ test('Lump types are predicted correctly', async() => {
 
     await page.close();
 });
-
-};

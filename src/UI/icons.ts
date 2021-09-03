@@ -23,7 +23,7 @@ export function makeGrandmaIcon(type: string, transparent: boolean) {
     if(type === 'displeased') background += 'background-position: -64px -128px;';
     if(type === 'angered') background += 'background-position: -128px -128px;';
     if(transparent) transparency += 'opacity: 0.2;';
-    return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + transparency + '""></div>';
+    return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + transparency + '"></div>';
 }
 
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.

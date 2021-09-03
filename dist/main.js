@@ -270,7 +270,7 @@
             background += 'background-position: -128px -128px;';
         if (transparent)
             transparency += 'opacity: 0.2;';
-        return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + transparency + '""></div>';
+        return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + transparency + '"></div>';
     }
     /* Similar as above, but builds a Rigidel with a pantheon icon instead.
      * slot === 0 means unslotted, slot === 1 means jade slot, 2 is ruby and 3 is diamond. */
@@ -674,13 +674,15 @@
         CCSE.AppendCollapsibleOptionsMenu("Choose Your Own Lump", menuStr);
     }
 
+    var version$1 = "1.3.1";
+
     /* These functions turn the CYOL object compatible with the Mod interface,
      * used by Game.registerMod.
      */
     let name = "Choose Your Own Lump";
-    let version = "1.3.0";
+    let version = version$1;
     let GameVersion = "2.031";
-    let CCSEVersion = "2.023";
+    let CCSEVersion = "2.025";
     let isLoaded = false;
     function save() {
         return exportSettings();

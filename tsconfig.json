@@ -3,15 +3,13 @@
     "target": "es2020",
     "module": "es2020",
     "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "./dist",
+    "resolveJsonModule": true,
     "noEmitOnError": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "esModuleInterop": true,
-    "declaration": true
+    "esModuleInterop": true
   },
   "include": [
       "./src"
