@@ -1,7 +1,13 @@
 {
     "customURLs": [
-        {"url": "https://klattmose.github.io/CookieClicker/CCSE.js"},
-        {"url": "https://staticvariablejames.github.io/SpicedCookies/Spice.js"}
+        {"url": "https://klattmose.github.io/CookieClicker/CCSE.js",
+         "sha1sum": "14b43ca92caf4db9b3becd50aef6963299d658e1"},
+        {"url": "https://klattmose.github.io/CookieClicker/img/CCSEicon.png",
+         "sha1sum": "41367f116f274c743214f158a7410070b7c92e83"},
+        {"url": "https://staticvariablejames.github.io/SpicedCookies/Spice.js",
+         "sha1sum": "d0a696e4b894299fe4b7a4637a04c6a2b6dc0e77"},
+        {"url": "https://staticvariablejames.github.io/SpicedCookies/dist/main.js",
+         "sha1sum": "aed01b68ce9b80902a8beadecacadddb4def6fc6"}
     ],
     "localFiles": [
         {"url": "https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js",
