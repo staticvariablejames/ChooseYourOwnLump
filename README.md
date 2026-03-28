@@ -144,7 +144,7 @@ and displays them in the lump tooltip
 (the box that appears when you hover the mouse over the sugar lump).
 The tooltip looks like this:
 
-![Modified lump tooltip](doc/tooltip-without-grandmas.png "Modified lump tooltip")
+![Modified lump tooltip](test/user-interface.test.ts-snapshots/tooltipWithoutGrandmas-firefox-linux.png "Modified lump tooltip")
 
 The "Predicted next lump type" line says that,
 if the player makes no changes to its save game,
@@ -188,7 +188,7 @@ If the heavenly upgrade "Sugar Aging Process" is purchased,
 then the number of grandmas matter for the sugar lump growth time.
 The required number is displayed right after the colon:
 
-![Modified lump tooltip](doc/tooltip-with-grandmas.png "When the number of grandmas matter")
+![Modified lump tooltip](test/user-interface.test.ts-snapshots/tooltipWithGrandmas-firefox-linux.png "When the number of grandmas matter")
 
 Sometimes,
 the predicted configuration will limit how far (or how early)

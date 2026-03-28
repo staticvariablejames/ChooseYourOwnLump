@@ -1,17 +1,16 @@
 import { test, expect } from '@playwright/test';
-import { openCookieClickerPage } from 'cookie-connoisseur';
-import * as CYOL from '../src/index';
+import { setupCookieClickerPage } from 'cookie-connoisseur';
 
-test('Persistent state is retrieved correctly', async ({browser}) => {
-    let page = await openCookieClickerPage(browser);
+test('Persistent state is retrieved correctly', async ({page}) => {
+    page = await setupCookieClickerPage(page, {saveGame: {
+        seed: "ufekf",
+        cookies: 1e12,
+        lumps: 0,
+        lumpT: 1.6e12,
+    }});
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.evaluate(() => Game.seed = "ufekf");
-    await page.evaluate(() => Game.Earn(1e12));
-    await page.waitForFunction(() => Game.lumpsTotal != -1);
-    await page.evaluate(() => Game.lumpT = 16e11);
-
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
-    let currentPersistentState = await page.evaluate(() => CYOL.PersistentState.current());
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+    let currentPersistentState = await page.evaluate(() => window.CYOL.PersistentState.current());
     expect(currentPersistentState).toEqual({
         seed: 'ufekf',
         lumpT: 16e11,
@@ -22,25 +21,23 @@ test('Persistent state is retrieved correctly', async ({browser}) => {
 
     await page.evaluate(() => Game.Upgrades['Stevia Caelestis'].earn());
     await page.evaluate(() => Game.lumpT += 1000);
-    currentPersistentState = await page.evaluate(() => CYOL.PersistentState.current());
+    currentPersistentState = await page.evaluate(() => window.CYOL.PersistentState.current());
     expect(currentPersistentState).toEqual({
         seed: 'ufekf',
-        lumpT: 16e11+1000,
+        lumpT: 1.6e12+1000,
         hasSteviaCaelestis: true,
         hasSucralosiaInutilis: false,
         hasSugarAgingProcess: false,
     });
-
-    await page.close();
 });
 
-test('Transient state is retrieved correctly', async ({browser}) => {
-    let page = await openCookieClickerPage(browser);
+test('Transient state is retrieved correctly', async ({page}) => {
+    page = await setupCookieClickerPage(page, {saveGame: {
+            cookies: 1e12,
+    }});
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.evaluate(() => Game.Earn(1e12));
-
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
-    let currentTransientState = await page.evaluate(() => CYOL.TransientState.current());
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+    let currentTransientState = await page.evaluate(() => window.CYOL.TransientState.current());
     expect(currentTransientState).toEqual({
         dragon: {
             hasDragonsCurve: false,
@@ -52,7 +49,7 @@ test('Transient state is retrieved correctly', async ({browser}) => {
     });
 
     await page.evaluate(() => Game.Objects["Grandma"].getFree(5));
-    currentTransientState = await page.evaluate(() => CYOL.TransientState.current());
+    currentTransientState = await page.evaluate(() => window.CYOL.TransientState.current());
     expect(currentTransientState).toEqual({
         dragon: {
             hasDragonsCurve: false,
@@ -62,38 +59,35 @@ test('Transient state is retrieved correctly', async ({browser}) => {
         grandmapocalypseStage: 0,
         rigidelSlot: 0,
     });
-    await page.close();
 });
 
-test('Lump types are predicted correctly', async ({browser}) => {
-    let page = await openCookieClickerPage(browser);
+test('Lump types are predicted correctly', async ({page}) => {
+    page = await setupCookieClickerPage(page);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
-    let prediction = await page.evaluate(() => new CYOL.PersistentState(
+    let prediction = await page.evaluate(() => new window.CYOL.PersistentState(
         'ufekf', 16e11, false, false, false
-    ).predictLumpType(new CYOL.TransientState(0, CYOL.DragonAuras.neitherAuras, 0, 0), 0));
+    ).predictLumpType(new window.CYOL.TransientState(0, window.CYOL.DragonAuras.neitherAuras, 0, 0), 0));
     expect(prediction).toEqual('normal');
 
-    prediction = await page.evaluate(() => new CYOL.PersistentState(
+    prediction = await page.evaluate(() => new window.CYOL.PersistentState(
         'ufekf', 16e11, false, false, false
-    ).predictLumpType(new CYOL.TransientState(0, CYOL.DragonAuras.neitherAuras, 0, 0), 1));
+    ).predictLumpType(new window.CYOL.TransientState(0, window.CYOL.DragonAuras.neitherAuras, 0, 0), 1));
     expect(prediction).toEqual('caramelized');
 
-    prediction = await page.evaluate(() => new CYOL.PersistentState(
+    prediction = await page.evaluate(() => new window.CYOL.PersistentState(
         'ufekf', 16e11, false, false, false
-    ).predictLumpType(new CYOL.TransientState(0, CYOL.DragonAuras.onlyRealityBending, 1, 1), 1));
+    ).predictLumpType(new window.CYOL.TransientState(0, window.CYOL.DragonAuras.onlyRealityBending, 1, 1), 1));
     expect(prediction).toEqual('normal');
 
-    prediction = await page.evaluate(() => new CYOL.PersistentState(
+    prediction = await page.evaluate(() => new window.CYOL.PersistentState(
         'ufekf', 16e11, false, false, false
-    ).predictLumpType(new CYOL.TransientState(1, CYOL.DragonAuras.onlyRealityBending, 1, 1), 1));
+    ).predictLumpType(new window.CYOL.TransientState(1, window.CYOL.DragonAuras.onlyRealityBending, 1, 1), 1));
     expect(prediction).toEqual('meaty');
 
-    prediction = await page.evaluate(() => new CYOL.PersistentState(
+    prediction = await page.evaluate(() => new window.CYOL.PersistentState(
         'ufekf', 16e11, false, false, false
-    ).predictLumpType(new CYOL.TransientState(2, CYOL.DragonAuras.onlyRealityBending, 1, 1), 1));
+    ).predictLumpType(new window.CYOL.TransientState(2, window.CYOL.DragonAuras.onlyRealityBending, 1, 1), 1));
     expect(prediction).toEqual('meaty');
-
-    await page.close();
 });

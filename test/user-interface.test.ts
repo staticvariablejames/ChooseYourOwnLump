@@ -1,17 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { openCookieClickerPage } from 'cookie-connoisseur';
-import * as CYOL from '../src/index';
+import { setupCookieClickerPage } from 'cookie-connoisseur';
 
-function beautify_html(_: any): any {
-    throw 'This test should be fixed';
-}
-
-test('Changing settings updates the CYOL.UI.settings object', async ({browser}) => {
-    let page = await openCookieClickerPage(browser);
+test('Changing settings updates the CYOL.UI.settings object', async ({page}) => {
+    page = await setupCookieClickerPage(page);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
-    let actualSettings = {
+    let expectedSettings = {
         discrepancy: 1,
         includeNormal: false,
         includeBifurcated: false,
@@ -23,105 +18,97 @@ test('Changing settings updates the CYOL.UI.settings object', async ({browser}) 
         preservePantheon: false,
         rowsToDisplay: 10,
     }
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    await page.click('text=Options');
-    await page.click('text=Hiding normal lumps');
-    actualSettings.includeNormal = true;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    await page.getByText('Options').click();
+    await page.getByText('Hiding normal lumps').click();
+    expectedSettings.includeNormal = true;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    await page.click('text=Any grandmapocalypse stage');
-    actualSettings.preserveGrandmapocalypseStage = true;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    await page.getByText('Any grandmapocalypse stage').click();
+    expectedSettings.preserveGrandmapocalypseStage = true;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    await page.click('text=Any pantheon configuration');
-    actualSettings.preservePantheon = true;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    await page.getByText('Any pantheon configuration').click();
+    expectedSettings.preservePantheon = true;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    await page.click('text=Showing golden lumps');
-    actualSettings.includeGolden = false;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    await page.getByText('Showing golden lumps').click();
+    expectedSettings.includeGolden = false;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    await page.click('text=Hiding caramelized lumps');
-    actualSettings.includeCaramelized = true;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    await page.getByText('Hiding caramelized lumps').click();
+    expectedSettings.includeCaramelized = true;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    await page.click('text=Hiding meaty lumps');
-    actualSettings.includeMeaty = true;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    await page.getByText('Hiding meaty lumps').click();
+    expectedSettings.includeMeaty = true;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    expect(await page.$eval('#CYOLdiscrepancySlider', e => {
-        if(!(e instanceof HTMLInputElement)) return false;
-        e.value = "3";
-        e.dispatchEvent(new Event('input'));
-        e.dispatchEvent(new Event('change'));
-        return true;
-    })).toBe(true);
-    actualSettings.discrepancy = 3;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    await page.locator('#CYOLdiscrepancySlider').fill('3');
+    expectedSettings.discrepancy = 3;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 
-    expect(await page.$eval('#CYOLrowsToDisplaySlider', e => {
-        if(!(e instanceof HTMLInputElement)) return false;
-        e.value = "15";
-        e.dispatchEvent(new Event('input'));
-        e.dispatchEvent(new Event('change'));
-        return true;
-    })).toBe(true);
-    actualSettings.rowsToDisplay = 15;
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
-
-    await page.close();
+    await page.locator('#CYOLrowsToDisplaySlider').fill('15');
+    expectedSettings.rowsToDisplay = 15;
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
 });
 
-test.skip('The lump tooltip displays the predictions without grandmas', async ({browser}) => {
-    let page = await openCookieClickerPage(browser,);
+test('The lump tooltip displays the predictions without grandmas', async ({page}) => {
+    page = await setupCookieClickerPage(page, {saveGame: {
+        seed: "ufekf",
+        cookies: 1e12,
+        lumps: 0, // Prevents Game.doLumps() from overriding lumpCurrentType
+        lumpCurrentType: 'bifurcated',
+        modSaveData: {
+            "CCSE": {"showVersionNo": 0}, // For the screenshot, so it does not go over the tooltip
+            "Choose your own lump": {
+                version: "1.3.2",
+                settings: {
+                    includeMeaty: true,
+                    includeCaramelized: true,
+                },
+            },
+        },
+    }});
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
-    await page.evaluate(() => Game.seed = "ufekf");
-    await page.evaluate(() => Game.Earn(1e12));
-    await page.waitForFunction(() => Game.lumpsTotal != -1);
-    await page.evaluate(() => Game.lumpT = 16e11);
-    await page.evaluate(() => CYOL.UI.settings.includeMeaty = true);
-    await page.evaluate(() => CYOL.UI.settings.includeCaramelized = true);
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
     // The following two make the snapshot test less brittle:
-    await page.evaluate(() => Game.lumpCurrentType = 1); // Makes the lump not depend on time
     await page.waitForFunction(() => Date.now() > 16e11+1000); // Forces time till mature to be 19h59m
+    await page.evaluate(() => window.CConnoisseur.closeNotes());
 
-    await page.hover('#lumps');
-    let tooltipHtml = await page.evaluate(() => document.getElementById("tooltip")!.outerHTML);
-    expect(beautify_html(tooltipHtml)).toMatchSnapshot('tooltip-without-grandmas.txt');
-
-    if(process.env.UPDATE_SCREENSHOTS) {
-        const tooltipHandle = await page.$('#tooltip');
-        await tooltipHandle!.screenshot({ path: 'doc/tooltip-without-grandmas.png' });
-    }
-
-    await page.close();
+    await page.locator('#lumps').hover();
+    let tooltipHandle = page.locator('#tooltip');
+    expect(await tooltipHandle.screenshot()).toMatchSnapshot('tooltipWithoutGrandmas.png');
 });
 
-test.skip('The lump tooltip displays the predictions with grandmas', async ({browser}) => {
-    let page = await openCookieClickerPage(browser);
+test('The lump tooltip displays the predictions with grandmas', async ({page}) => {
+    page = await setupCookieClickerPage(page, {saveGame: {
+        seed: "hcecu",
+        cookies: 1e12,
+        lumps: 0, // Prevents Game.doLumps() from overriding lumpCurrentType
+        lumpCurrentType: 'bifurcated',
+        ownedUpgrades: [
+            "Sugar aging process",
+        ],
+        modSaveData: {
+            "CCSE": {"showVersionNo": 0},
+            "Choose your own lump": {
+                version: "1.3.2",
+                settings: {
+                    rowsToDisplay: 8,
+                },
+            },
+        },
+    }});
     await page.setViewportSize({ width: 1920, height: 1050 }); // for the screenshot
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
-    await page.evaluate(() => Game.seed = "hcecu");
-    await page.evaluate(() => Game.Earn(1e12));
-    await page.waitForFunction(() => Game.lumpsTotal != -1);
-    await page.evaluate(() => Game.lumpT = 16e11);
-    await page.evaluate(() => Game.Upgrades["Sugar aging process"].earn());
-    await page.evaluate(() => Game.lumpCurrentType = 1);
-    await page.evaluate(() => CYOL.UI.settings.rowsToDisplay = 8);
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
     await page.waitForFunction(() => Date.now() > 16e11+1000);
+    await page.evaluate(() => window.CConnoisseur.closeNotes());
 
     await page.hover('#lumps');
-    let tooltipHtml = await page.evaluate(() => document.getElementById("tooltip")!.outerHTML);
-    expect(beautify_html(tooltipHtml)).toMatchSnapshot('tooltip-with-grandmas.txt');
-
-    if(process.env.UPDATE_SCREENSHOTS) {
-        const tooltipHandle = await page.$('#tooltip');
-        await tooltipHandle!.screenshot({ path: 'doc/tooltip-with-grandmas.png' });
-    }
-
-    await page.close();
+    let tooltipHandle = page.locator('#tooltip');
+    expect(await tooltipHandle.screenshot()).toMatchSnapshot('tooltipWithGrandmas.png');
 });

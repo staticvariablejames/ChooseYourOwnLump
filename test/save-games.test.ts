@@ -1,11 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { openCookieClickerPage } from 'cookie-connoisseur';
-import * as CYOL from '../src/index';
+import { openCookieClickerPage, setupCookieClickerPage } from 'cookie-connoisseur';
 
 test('Can write and read save games', async ({browser}) => {
     let page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
     let actualSettings = {
         discrepancy: 1,
@@ -21,54 +20,43 @@ test('Can write and read save games', async ({browser}) => {
     }
 
     let save1 = await page.evaluate(() => Game.WriteSave(1));
-    await page.click('text=Options');
-    await page.click('text=Hiding normal lumps');
-    await page.click('text=Any grandmapocalypse stage');
+    await page.getByText('Options').click();
+    await page.getByText('Hiding normal lumps').click()
+    await page.getByText('Any grandmapocalypse stage').click();
 
     // Check it overrides the current settings
     let save2 = await page.evaluate(() => Game.WriteSave(1));
     await page.evaluate((save: string) => Game.LoadSave(save), save1);
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(actualSettings);
 
     // Check the old settings were preserved in save2
     actualSettings.includeNormal = true;
     actualSettings.preserveGrandmapocalypseStage = true;
     await page.evaluate((save: string) => Game.LoadSave(save), save2);
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(actualSettings);
 
     // Check that changing the sliders also work
-    expect(await page.$eval('#CYOLdiscrepancySlider', e => {
-        if(!(e instanceof HTMLInputElement)) return false;
-        e.value = "3";
-        e.dispatchEvent(new Event('input'));
-        e.dispatchEvent(new Event('change'));
-        return true;
-    })).toBe(true);
+    await page.locator('#CYOLdiscrepancySlider').fill('3');
     let save3 = await page.evaluate(() => Game.WriteSave(1));
     await page.evaluate((save: string) => Game.LoadSave(save), save2);
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(actualSettings);
 
     actualSettings.discrepancy = 3;
     await page.evaluate((save: string) => Game.LoadSave(save), save3);
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(actualSettings);
 
     await page.close();
 
     // Check that everything still works in a brand new page
     page = await openCookieClickerPage(browser);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
     await page.evaluate((save: string) => Game.LoadSave(save), save3);
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(actualSettings);
     await page.close();
 });
 
-test('Can load a save game from Web Storage', async ({browser}) => {
-    // First, fabricate the save game
-    let page = await openCookieClickerPage(browser);
-    await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
-
+test('Can load a save game from Web Storage', async ({page}) => {
     let actualSettings = {
         discrepancy: 3,
         includeNormal: true,
@@ -82,28 +70,23 @@ test('Can load a save game from Web Storage', async ({browser}) => {
         rowsToDisplay: 10,
     }
 
-    await page.evaluate(() => CYOL.UI.settings.discrepancy = 3);
-    await page.evaluate(() => CYOL.UI.settings.includeNormal = true);
-    await page.evaluate(() => CYOL.UI.settings.preserveDragon = true);
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
-    let save = await page.evaluate(() => Game.WriteSave(1));
-    await page.close();
-
-    // Now create new page with existing save file
-    page = await openCookieClickerPage(browser, {saveGame: save as string});
+    page = await setupCookieClickerPage(page, {saveGame: {
+        modSaveData: {
+            "Choose your own lump": {
+                version: "1.3.2",
+                settings: actualSettings,
+            },
+        },
+    }});
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
-
-    // Finally, test whether it worked or not
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
-
-    await page.close();
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(actualSettings);
 });
 
-test('Can load saves from previous versions', async ({browser}) => {
-    let page = await openCookieClickerPage(browser);
+test('Can load saves from previous versions', async ({page}) => {
+    page = await setupCookieClickerPage(page);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
-    await page.waitForFunction(() => typeof CYOL == "object" && CYOL.isLoaded);
+    await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
     let save = 'Mi4wMzF8fDE2MDAwMDAwMDAwMDA7MTYwMDAwMDAwMDAwMDsxNjAwMDAwMDAwMD'
               +'AwO01jU2xvdGg7eXprd3N8MTExMTExMDExMDAxMDAxMDAxMDEwfDA7MDswOzA7'
@@ -137,7 +120,5 @@ test('Can load saves from previous versions', async ({browser}) => {
     }
 
     await page.evaluate((save: string) => Game.LoadSave(save), save);
-    expect(await page.evaluate(() => CYOL.UI.settings)).toEqual(actualSettings);
-
-    await page.close();
+    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(actualSettings);
 });
