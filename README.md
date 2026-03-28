@@ -1,6 +1,11 @@
 Choose Your Own Lump!
 =====================
 
+**[Changelog](CHANGELOG.md)
+| [Theory](#theory)
+| [Practice](#practice)
+| [Using the mod](#using-the-mod)**
+
 This is an add-on for [Cookie Clicker](https://orteil.dashnet.org/cookieclicker/)
 that helps manipulating time
 so that the right coalescing lump type can be chosen.
@@ -255,161 +260,6 @@ or create a bookmarklet with the code
 ```javascript
     javascript:(function(){Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js');}());
 ```
-
-
-Changelog
-=========
-
-1.0.0
------
-
-Initial release.
-
-1.0.1
------
-
-Functionally equivalent states are no longer generated multiple times;
-for example,
-instead of generating a state with 500 grandmas and Rigidel on the ruby slot
-and another state with 300 grandmas and Rigidel on the diamond slot,
-only the former one is generated.
-
-1.0.2
------
-
-States that differ only in the grandmapocalypse stage are now shown together.
-
-More than half of the time all four stages of the grandmapocalypse yield the same lump.
-This should help declutter the display screen.
-However,
-to display everything,
-I made the sugar lump tooltip wider in a kludgey manner;
-this might cause incompatibilities if any other mod messes with that tooltip.
-
-1.0.3
------
-
-Update to Cookie Clicker 2.029, CCSE 2.017.
-
-Nothing really changed sugar-lump-wise besides version numbers.
-
-1.0.4
------
-
-Minor UI improvements.
-
-1.0.5
------
-
-The discrepancy is now displayed in the lump tooltip.
-
-1.1.0
------
-
-Released under GPLv3 or later.
-
-Technically the minor version number should have been increased a few patch versions ago,
-since more functionality was added
-(significantly improved displaying of states and displaying the discrepancy).
-
-1.1.1
------
-
-Fix visual bug regarding the display of the discrepancy.
-
-1.1.2
------
-
-Warn the player if the Pantheon was not loaded when the lump type was being computed.
-
-1.1.3
------
-
-Remove code injection to `Game.lumpTooltip` that showed the lump type,
-as this information is already shown together with the discrepancy.
-
-1.1.4
------
-
-Fixed nasty bug when loading settings.
-(Sometimes `CYOL.UI.settings.discrepancy` was being loaded as a string,
-resulting in wrong predictions
-due to Javascript silently performing string concatenation where it should add two numbers.)
-
-Thanks to [`u/cookieliker`](https://www.reddit.com/user/cookieliker)
-and [`u/GLucky88`](https://www.reddit.com/user/GLucky88/) for the bug report!
-
-1.1.5
------
-
-Display version number in the stats menu.
-
-1.2.0
------
-
-Add option to only show predictions matching the current grandmapocalypse stage,
-the current dragon auras,
-and the current pantheon configuration.
-
-1.2.1
------
-
-Use CCSE v2.018.
-
-1.2.2
------
-
-Update to Cookie Clicker v2.031.
-
-1.2.3
------
-
-Register the mod in the modding API and use it for storing the settings.
-
-1.2.4
------
-
-Minor tooltip improvement:
-the current lump type also has an icon now.
-
-1.2.5
------
-
-Compatibility with [Spiced Cookies' discrepancy patch](https://github.com/staticvariablejames/SpicedCookies#discrepancy-patch-disabled-by-default).
-
-1.2.6
------
-
-Update to CCSE 2.021 and display a notification on load.
-
-1.2.7
------
-
-Update to CCSE 2.023.
-
-1.3.0
------
-
-Several internal changes;
-mainly, porting the mod to TypeScript
-and adding a robust test suite.
-
-Bug fix: The setting to search for meaty lumps was not being saved.
-
-1.3.1
------
-
-Update to CCSE 2.025.
-
-1.3.2
------
-
-Update to CCSE 2.026.
-
-The mod won't check the CCSE version anymore.
-(Reasoning: currently CCSE updates far more frequently that Choose Your Own Lump,
-and usually in a backwards-compatible manner.
-Not asking CCSE version every time makes the mod a bit more future-proof.)
 
 
 Known Bugs/Limitations
