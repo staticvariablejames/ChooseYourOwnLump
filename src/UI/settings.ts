@@ -2,7 +2,7 @@
  * Contains the `settings` object and utilities for querying it.
  */
 
-import { version } from '../mod';
+import { version } from '../modInfo';
 
 export let settings = { // default settings
     discrepancy: 1,
