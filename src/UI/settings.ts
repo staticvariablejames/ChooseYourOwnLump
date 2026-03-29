@@ -25,15 +25,8 @@ export let settings = { // default settings
 export function loadSettingsFrom(save: string) {
     let saveObject = JSON.parse(save);
     if(typeof saveObject !== "object") return;
-    let newSettings: object;
-
-    if('version' in saveObject) {
-        newSettings = saveObject.settings ?? {};
-        // TODO: if(saveObject.version != version) announceNewVersion()
-    } else {
-        // legacy save format (1.2.7 and earlier)
-        newSettings = saveObject;
-    }
+    let newSettings = saveObject.settings ?? {};
+    // TODO: if(saveObject.version != version) announceNewVersion()
 
     let key: keyof typeof settings;
     for(key in settings) {

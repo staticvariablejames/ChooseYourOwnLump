@@ -3,6 +3,9 @@
 ## Unreleased
 - Changed: Update to Cookie Clicker 2.058, CCSE 2.035.
 - Changed: The changelog now lives in its own file, rather than in `README.md`.
+- **Removed**: legacy support for loading CYOL saves from versions 1.2.7 and earlier.
+    (CYOL 1.3.2 has been around for 4.5 years,
+    nobody should be using any other version.)
 
 ## 1.3.2 - 2021-09-08
 - Changed: Update to CCSE 2.026.

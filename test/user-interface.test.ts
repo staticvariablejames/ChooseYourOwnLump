@@ -63,7 +63,6 @@ test('The lump tooltip displays the predictions without grandmas', async ({page}
         modSaveData: {
             "CCSE": {"showVersionNo": 0}, // For the screenshot, so it does not go over the tooltip
             "Choose your own lump": {
-                version: "1.3.2",
                 settings: {
                     includeMeaty: true,
                     includeCaramelized: true,
@@ -95,7 +94,6 @@ test('The lump tooltip displays the predictions with grandmas', async ({page}) =
         modSaveData: {
             "CCSE": {"showVersionNo": 0},
             "Choose your own lump": {
-                version: "1.3.2",
                 settings: {
                     rowsToDisplay: 8,
                 },
