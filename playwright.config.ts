@@ -3,7 +3,10 @@ import { PlaywrightTestConfig } from '@playwright/test';
 /* Planner tests are independent of the browser,
  * so we don't bother testing them in all available browsers.
  */
-let plannerRelatedTests = ['test/planner-core.test.ts'];
+let plannerRelatedTests = [
+    'test/planner-core.test.ts',
+    'test/planner-filtering.test.ts',
+];
 
 const config: PlaywrightTestConfig = {
     projects: [

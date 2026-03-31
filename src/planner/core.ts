@@ -1,5 +1,9 @@
 /* Core functionality of the planner.
  *
+ * This file contains only the lump type algorithm
+ * and tools for working with one game configuration at a time.
+ * 'filtering.ts' contains tools for iterating through all configurations and filtering them.
+ *
  * This file intentionally does not refer to `Game` anywhere,
  * allowing it to be tested outside of the game.
  * To get the current game state,
