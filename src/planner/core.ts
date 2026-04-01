@@ -136,8 +136,9 @@ export class PlannerRelevantState {
 
     public currentPrediction(): LumpType {
         let myRigidelPower = rigidelPower(this.currentRigidelSlot, this.currentHasSupremeIntellect);
+        let myGrandmaPower = this.hasSugarAgingProcess ? Math.min(600, this.currentGrandmaCount) : 0;
         let configuration: DistilledPlannerConfiguration = {
-            effectiveGrandmaCount: myRigidelPower + Math.min(600, this.currentGrandmaCount),
+            effectiveGrandmaCount: myRigidelPower + myGrandmaPower,
             hasDragonsCurve: this.currentHasDragonsCurve,
             hasRealityBending: this.currentHasRealityBending,
         };

@@ -13,6 +13,20 @@ test('Seedrandom works', () => {
 });
 
 test('PlannerRelevantState.currentPrediction() works', () => {
+    for(let [gpocState, lump] of [[0, 'caramelized'], [1, 'caramelized'], [2, 'meaty'], [3, 'meaty']]) {
+        expect(new PlannerRelevantState({
+            discrepancy: 0,
+            hasSugarAgingProcess: false,
+            currentLumpT: 1.6e12,
+            currentSeed: 'james',
+            currentRigidelSlot: 'none',
+            currentGrandmapocalypseStage: gpocState as number,
+            currentHasDragonsCurve: true,
+            currentHasRealityBending: false,
+            currentHasSupremeIntellect: false,
+        }).currentPrediction()).toEqual(lump);
+    }
+
     for(let [gpocState, lump] of [[0, 'golden'], [1, 'meaty'], [2, 'meaty'], [3, 'meaty']]) {
         expect(new PlannerRelevantState({
             discrepancy: 1,
