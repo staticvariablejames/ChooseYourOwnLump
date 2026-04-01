@@ -25,10 +25,10 @@ import { ConstructorData } from '../utilTypes';
  *
  * The grandmapocalypse stage frequently does not affect the lump type,
  * so predictions that only differ in their grandmapocalypse stage are always presented together.
- * Hence the grandmapocalypse stage is not part of the EffectivePlannerConfiguration,
+ * Hence the grandmapocalypse stage is not part of the DistilledPlannerConfiguration,
  * and is handled separately by the methods below.
  */
-export type EffectivePlannerConfiguration = {
+export type DistilledPlannerConfiguration = {
     effectiveGrandmaCount: number; // Always between 0 and 1200 (inclusive)
     hasDragonsCurve: boolean;
     hasRealityBending: boolean;
@@ -64,7 +64,7 @@ export class PlannerRelevantState {
      * does it take for a lump in the given configuration to be autoharvested.
      * Note that this number may be fractional if Dragon's Curve or Reality Bending are used.
      */
-    public overripeAge(configuration: EffectivePlannerConfiguration): number {
+    public overripeAge(configuration: DistilledPlannerConfiguration): number {
         let dragonBoost =
             (configuration.hasDragonsCurve ? 1.0 : 0.0) +
             (configuration.hasRealityBending ? 0.1 : 0.0);
@@ -78,11 +78,11 @@ export class PlannerRelevantState {
     /* The expected time at which the lump in the given configuration will autoharvest.
      * Includes the effect of the discrepancy.
      */
-    public autoharvestTimestamp(configuration: EffectivePlannerConfiguration) {
+    public autoharvestTimestamp(configuration: DistilledPlannerConfiguration) {
         return this.currentLumpT + this.overripeAge(configuration) + this.discrepancy;
     }
 
-    public lumpTypePredictionSet(configuration: EffectivePlannerConfiguration): LumpType[] {
+    public lumpTypePredictionSet(configuration: DistilledPlannerConfiguration): LumpType[] {
         let autoharvestTime = this.autoharvestTimestamp(configuration);
         let prng = seedrandom(this.currentSeed + '/' + autoharvestTime);
         let lumpPools: LumpType[][] = [['normal'], ['normal'], ['normal'], ['normal']];
@@ -133,7 +133,7 @@ export class PlannerRelevantState {
             default:
                 rigidelPower = 0;
         }
-        let configuration: EffectivePlannerConfiguration = {
+        let configuration: DistilledPlannerConfiguration = {
             effectiveGrandmaCount: rigidelPower + Math.min(600, this.currentGrandmaCount),
             hasDragonsCurve: this.currentHasDragonsCurve,
             hasRealityBending: this.currentHasRealityBending,

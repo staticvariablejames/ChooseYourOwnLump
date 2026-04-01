@@ -2,11 +2,11 @@
  * and filtering the "good" configurations.
  */
 
-import { EffectivePlannerConfiguration, PlannerRelevantState } from './core';
+import { DistilledPlannerConfiguration, PlannerRelevantState } from './core';
 
 export function* makeConfigurationsIterator(planner: PlannerRelevantState) {
     let startGrandmaCount = planner.hasSugarAgingProcess ? 1200 : 600;
-    let configurations: EffectivePlannerConfiguration[] = [
+    let configurations: DistilledPlannerConfiguration[] = [
         {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: false, hasRealityBending: false},
         {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: false, hasRealityBending: true},
         {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: true,  hasRealityBending: false},

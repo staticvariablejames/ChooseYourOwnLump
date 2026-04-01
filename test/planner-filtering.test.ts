@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PlannerRelevantState, EffectivePlannerConfiguration } from '../src/planner/core';
+import { PlannerRelevantState, DistilledPlannerConfiguration } from '../src/planner/core';
 import { makeConfigurationsIterator } from '../src/planner/filtering';
 
 test.describe('Iteration', () => {
@@ -43,7 +43,7 @@ test.describe('Iteration', () => {
 
     test('produces configurations in ascending overripeAge order', () => {
         function firstFailure(...plannerState: ConstructorParameters<typeof PlannerRelevantState>) {
-            let previousConfiguration: EffectivePlannerConfiguration | null = null;
+            let previousConfiguration: DistilledPlannerConfiguration | null = null;
             let planner = new PlannerRelevantState(...plannerState);
             for(let configuration of makeConfigurationsIterator(planner)) {
                 if(previousConfiguration) {
