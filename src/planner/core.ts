@@ -34,6 +34,24 @@ export type DistilledPlannerConfiguration = {
     hasRealityBending: boolean;
 };
 
+/* The power of Rigidel,
+ * in terms of the number of grandmas it is equivalent to.
+ */
+export function rigidelPower(rigidelSlot: PantheonSlot, hasSupremeIntellect: boolean) {
+    switch(rigidelSlot) {
+        case 'diamond':
+            return 600;
+        case 'ruby':
+            if(hasSupremeIntellect) return 600;
+            else return 400;
+        case 'jade':
+            if(hasSupremeIntellect) return 400;
+            else return 200;
+        default:
+            return 0;
+    }
+}
+
 /* Everything about the game state that is relevant for the planner.
  */
 export class PlannerRelevantState {
@@ -117,24 +135,9 @@ export class PlannerRelevantState {
     }
 
     public currentPrediction(): LumpType {
-        let rigidelPower;
-        switch(this.currentRigidelSlot) {
-            case 'diamond':
-                rigidelPower = 600;
-                break;
-            case 'ruby':
-                if(this.currentHasSupremeIntellect) rigidelPower = 600;
-                else rigidelPower = 400;
-                break;
-            case 'jade':
-                if(this.currentHasSupremeIntellect) rigidelPower = 400;
-                else rigidelPower = 200;
-                break;
-            default:
-                rigidelPower = 0;
-        }
+        let myRigidelPower = rigidelPower(this.currentRigidelSlot, this.currentHasSupremeIntellect);
         let configuration: DistilledPlannerConfiguration = {
-            effectiveGrandmaCount: rigidelPower + Math.min(600, this.currentGrandmaCount),
+            effectiveGrandmaCount: myRigidelPower + Math.min(600, this.currentGrandmaCount),
             hasDragonsCurve: this.currentHasDragonsCurve,
             hasRealityBending: this.currentHasRealityBending,
         };

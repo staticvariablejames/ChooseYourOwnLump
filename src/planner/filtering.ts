@@ -2,7 +2,8 @@
  * and filtering the "good" configurations.
  */
 
-import { DistilledPlannerConfiguration, PlannerRelevantState } from './core';
+import { LumpType, PantheonSlot } from './types';
+import { DistilledPlannerConfiguration, rigidelPower, PlannerRelevantState } from './core';
 
 export function* makeConfigurationsIterator(planner: PlannerRelevantState) {
     let startGrandmaCount = planner.hasSugarAgingProcess ? 1200 : 600;
@@ -29,3 +30,60 @@ export function* makeConfigurationsIterator(planner: PlannerRelevantState) {
             configurations.splice(earliest, 1);
     }
 }
+
+export const canonicalIndicesCount = 2*2*1201;
+export function canonicalIndex(configuration: DistilledPlannerConfiguration) {
+    return 1201*((configuration.hasDragonsCurve ? 2 : 0) + (configuration.hasRealityBending ? 1 : 0))
+        + configuration.effectiveGrandmaCount;
+}
+
+export type PartialConfiguration = {
+    grandmaCount: number;
+    hasDragonsCurve: boolean;
+    hasRealityBending: boolean;
+    hasSupremeIntellect: boolean;
+    rigidelSlot: PantheonSlot;
+}
+export type PlannerConfiguration = PartialConfiguration & {
+    grandmapocalypseStage: [boolean, boolean, boolean, boolean],
+    lumpType: LumpType,
+};
+
+export const precomputedPartialConfigurations: PartialConfiguration[][] =
+(() => {
+    function distill(configuration: PartialConfiguration): DistilledPlannerConfiguration {
+        let myRigidelPower = rigidelPower(configuration.rigidelSlot, configuration.hasSupremeIntellect);
+        return {
+            effectiveGrandmaCount: myRigidelPower + Math.min(600, configuration.grandmaCount),
+            hasDragonsCurve: configuration.hasDragonsCurve,
+            hasRealityBending: configuration.hasRealityBending,
+        };
+    }
+
+    let partialConfigurations: PartialConfiguration[][]
+        // Why don't Array.map works with undefined values? :(
+        = Array(canonicalIndicesCount).fill([]).map(() => []);
+    for(let grandmaCount = 0; grandmaCount <= 600; grandmaCount++) {
+        for(let rigidelSlot of ['diamond', 'ruby', 'jade', 'none'] as PantheonSlot[]) {
+            for(let hasDragonsCurve of [false, true]) {
+                for(let hasRealityBending of [false, true]) {
+                    for(let hasSupremeIntellect of [false, true]) {
+                        if(hasDragonsCurve && hasRealityBending && hasSupremeIntellect)
+                            continue;
+
+                        let configuration = {
+                            grandmaCount,
+                            rigidelSlot,
+                            hasDragonsCurve,
+                            hasRealityBending,
+                            hasSupremeIntellect
+                        };
+                        partialConfigurations[canonicalIndex(distill(configuration))].push(configuration);
+                    }
+                }
+            }
+        }
+    }
+
+    return partialConfigurations;
+})();
