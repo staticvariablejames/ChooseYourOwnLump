@@ -20,6 +20,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
             currentLumpT: 1.6e12,
             currentSeed: 'james',
             currentRigidelSlot: 'none',
+            currentGrandmaCount: 542,
             currentGrandmapocalypseStage: gpocState as number,
             currentHasDragonsCurve: true,
             currentHasRealityBending: false,

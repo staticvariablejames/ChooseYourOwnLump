@@ -6,6 +6,11 @@ import {
     canonicalIndicesCount,
     PartialConfiguration,
     precomputedPartialConfigurations,
+    makeTrivialConfigurationFilter,
+    makeDragonPreservingConfigurationFilter,
+    makePantheonPreservingConfigurationFilter,
+    makeIntersectionFilter,
+    CachedConfigurationsProcessor,
 } from '../src/planner/filtering';
 
 test.describe('Iteration', () => {
@@ -188,5 +193,302 @@ test.describe('precomputedPartialConfigurations is correctly initialized', () =>
             .toEqual(expect.arrayContaining(partialConfigurations));
         expect(precomputedPartialConfigurations[canonicalIndex(distilledConfiguration)].length)
             .toEqual(partialConfigurations.length);
+    });
+});
+
+test.describe('CachedConfigurationsProcessor', () => {
+    let gameState = new PlannerRelevantState({
+        hasSugarAgingProcess: true,
+        currentSeed: 'james',
+        currentLumpT: 1.6e12+298939,
+    });
+    test('The test itself works', () => {
+        /* Check that the first three iterations of the iterator produce what we expect it produces.
+         * This is the first currentLumpT after 1.6e12 with
+         *  - two different lump types for the earliest possible configuration;
+         *  - three different lump types for the second earliest possible configuration: and
+         *  - caramelized lump type is an outcome for the second earliest configuration.
+         */
+        let iterator = makeConfigurationsIterator(gameState);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 600 grandmas
+            .toEqual(['normal', 'meaty', 'meaty', 'meaty']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 599 grandmas
+            .toEqual(['bifurcated', 'caramelized', 'meaty', 'meaty']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 598 grandmas
+            .toEqual(['normal', 'normal', 'normal', 'normal']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 597 grandmas
+            .toEqual(['normal', 'normal', 'normal', 'normal']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 596
+            .toEqual(['normal', 'normal', 'normal', 'normal']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 595
+            .toEqual(['normal', 'normal', 'normal', 'normal']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 594
+            .toEqual(['normal', 'normal', 'normal', 'normal']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 593
+            .toEqual(['normal', 'normal', 'normal', 'normal']);
+        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 592
+            .toEqual(['normal', 'normal', 'normal', 'meaty']); // third meaty
+    });
+
+    test('cacheNextPredictionSet works', () => {
+        let cachedProcessor = new CachedConfigurationsProcessor(gameState);
+        cachedProcessor.cacheNextPredictionSet();
+        expect(cachedProcessor.cache['normal'].length).toEqual(1);
+        expect(cachedProcessor.cache['normal'][0]).toEqual([
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'normal'}
+        ]);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(0);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(1);
+        expect(cachedProcessor.cache['meaty'][0]).toEqual([
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, true, true], lumpType: 'meaty'}
+        ]);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(0);
+
+        cachedProcessor.cacheNextPredictionSet();
+        expect(cachedProcessor.cache['normal'].length).toEqual(1);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
+        expect(cachedProcessor.cache['bifurcated'][0]).toEqual([
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'bifurcated'}
+        ]);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(2);
+        expect(cachedProcessor.cache['meaty'][1]).toEqual([
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, true, true], lumpType: 'meaty'}
+        ]);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
+        expect(cachedProcessor.cache['caramelized'][0]).toEqual([
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, false, false], lumpType: 'caramelized'}
+        ]);
+
+        cachedProcessor.cacheNextPredictionSet();
+        expect(cachedProcessor.cache['normal'].length).toEqual(2);
+        expect(cachedProcessor.cache['normal'][1]).toEqual([
+            {grandmaCount: 598, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'}
+        ]);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(2);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
+    });
+
+    test('makeConfigurationsIterator lazily walks through configurations', () => {
+        let cachedProcessor = new CachedConfigurationsProcessor(gameState);
+        let meatyIterator = cachedProcessor.makePlannerConfigurationIterator('meaty');
+        let value, done;
+        ({ value, done } = meatyIterator.next());
+        expect(done).toBeFalsy();
+        expect(value).toEqual([
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, true, true], lumpType: 'meaty'}
+        ]);
+        expect(cachedProcessor.cache['normal'].length).toEqual(1);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(0);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(1);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(0);
+
+        ({ value, done } = meatyIterator.next());
+        expect(done).toBeFalsy();
+        expect(cachedProcessor.cache['normal'].length).toEqual(1);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(2);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
+        expect(value).toEqual([
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, true, true], lumpType: 'meaty'}
+        ]);
+
+        for(let caramelizedConfiguration of cachedProcessor.makePlannerConfigurationIterator('caramelized')) {
+            // It should skip the first partialConfiguration and stop at the second
+            expect(caramelizedConfiguration).toEqual([
+                {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, false, false], lumpType: 'caramelized'}
+            ]);
+            expect(cachedProcessor.cache['normal'].length).toEqual(1);
+            expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
+            expect(cachedProcessor.cache['golden'].length).toEqual(0);
+            expect(cachedProcessor.cache['meaty'].length).toEqual(2);
+            expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
+            break; // Important not to advance cachedProcessor further
+        }
+
+        // Suspend a 'normal' lump type iterator
+        let normalIterator = cachedProcessor.makePlannerConfigurationIterator('normal');
+        ({ value, done } = normalIterator.next());
+        expect(value).toEqual([
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'normal'}
+        ]);
+        expect(cachedProcessor.cache['normal'].length).toEqual(1);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(2);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
+
+        // Step till the next meaty lump
+        ({ value, done } = meatyIterator.next());
+        expect(done).toBeFalsy();
+        expect(value).toEqual([
+            {grandmaCount: 592, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, false, true], lumpType: 'meaty'}
+        ]);
+        expect(cachedProcessor.cache['normal'].length).toEqual(8);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(3);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
+
+        // Check normalIterator is still good
+        ({ value, done } = normalIterator.next());
+        expect(done).toBeFalsy();
+        expect(value).toEqual([
+            {grandmaCount: 598, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'}
+        ]);
+        expect(cachedProcessor.cache['normal'].length).toEqual(8);
+        expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
+        expect(cachedProcessor.cache['golden'].length).toEqual(0);
+        expect(cachedProcessor.cache['meaty'].length).toEqual(3);
+        expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
+
+        // Exhausting the cache
+        let goldenLumpsCount = 0;
+        for(let _ of cachedProcessor.makePlannerConfigurationIterator('golden'))
+            goldenLumpsCount++;
+        expect(goldenLumpsCount).toBe(11); // There are 11 distilled configurations for golden lumps
+    });
+
+    test.describe('getConfigurations', () => {
+        test('works without options.requirements', () => {
+            let gameState = new PlannerRelevantState({
+                hasSugarAgingProcess: true,
+                currentSeed: 'james',
+                currentLumpT: 1.6e12,
+            });
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
+            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+                targetLump: 'normal',
+                requirements: [],
+                goals: [
+                    makeTrivialConfigurationFilter(),
+                    dragonPreservingFilter,
+                    pantheonPreservingFilter,
+                    makeIntersectionFilter(dragonPreservingFilter, pantheonPreservingFilter),
+                ]
+            });
+            expect(failures).toEqual([]);
+            expect(successes).toEqual([ // order of returned values matters
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+            ]);
+        });
+
+        test('does not repeat configurations satisfying multiple requirements', () => {
+            let gameState = new PlannerRelevantState({
+                hasSugarAgingProcess: true,
+                currentSeed: 'james',
+                currentLumpT: 1.6e12,
+                currentHasDragonsCurve: true,
+                currentHasRealityBending: true,
+            });
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
+            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+                targetLump: 'normal',
+                requirements: [],
+                goals: [
+                    makeTrivialConfigurationFilter(),
+                    dragonPreservingFilter,
+                    pantheonPreservingFilter,
+                    makeIntersectionFilter(dragonPreservingFilter, pantheonPreservingFilter),
+                ]
+            });
+            expect(failures).toEqual([]);
+            expect(successes).toEqual([
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+            ]);
+        });
+
+        test('respects options.requirements', () => {
+            let gameState = new PlannerRelevantState({
+                hasSugarAgingProcess: true,
+                currentSeed: 'james',
+                currentLumpT: 1.6e12,
+            });
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
+            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+                targetLump: 'normal',
+                requirements: [
+                    dragonPreservingFilter,
+                ],
+                goals: [
+                    makeTrivialConfigurationFilter(),
+                    pantheonPreservingFilter,
+                ]
+            });
+            expect(failures).toEqual([]);
+            expect(successes).toEqual([
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+            ]);
+        });
+
+        test('reports failures', () => {
+            let gameState = new PlannerRelevantState({
+                hasSugarAgingProcess: true,
+                currentSeed: 'james',
+                currentLumpT: 1.6e12+4, // First currentLumpT after 1.6e12 without golden lumps with no dragon auras
+            });
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
+            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+                targetLump: 'golden',
+                requirements: [
+                ],
+                goals: [
+                    makeTrivialConfigurationFilter(),
+                    dragonPreservingFilter,
+                    pantheonPreservingFilter,
+                ]
+            });
+            expect(failures).toEqual([
+                dragonPreservingFilter,
+            ]);
+            expect(successes).toEqual([
+                {grandmaCount: 234, hasDragonsCurve: true, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'golden'},
+                {grandmaCount: 476, hasDragonsCurve: true, hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true,  true,  true],  lumpType: 'golden'},
+            ]);
+        });
+
+        test('reports multiple failures', () => {
+            let gameState = new PlannerRelevantState({
+                hasSugarAgingProcess: true,
+                currentSeed: 'james',
+                currentLumpT: 1.6e12+26799, // First currentLumpT after 1.6e12 without golden lumps
+            });
+            let trivialConfigurationFilter = makeTrivialConfigurationFilter();
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
+            let intersectionFilter = makeIntersectionFilter(dragonPreservingFilter, pantheonPreservingFilter);
+            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+                targetLump: 'golden',
+                requirements: [
+                ],
+                goals: [
+                    trivialConfigurationFilter,
+                    dragonPreservingFilter,
+                    pantheonPreservingFilter,
+                    intersectionFilter,
+                ]
+            });
+            expect(failures).toEqual([
+                trivialConfigurationFilter,
+                dragonPreservingFilter,
+                pantheonPreservingFilter,
+                intersectionFilter,
+            ]);
+            expect(successes).toEqual([]);
+        });
     });
 });
