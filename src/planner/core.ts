@@ -11,7 +11,7 @@
  */
 
 import seedrandom from 'seedrandom';
-import { LumpType, PantheonSlot } from './types';
+import { LumpType, PantheonSlot, PlannerRelevantState } from './types';
 import { ConstructorData } from '../utilTypes';
 
 /* This type distills the relevant parts of the game state
@@ -52,9 +52,9 @@ export function rigidelPower(rigidelSlot: PantheonSlot, hasSupremeIntellect: boo
     }
 }
 
-/* Everything about the game state that is relevant for the planner.
+/* This class essentially just encapsulates the algorithm for choosing lump types.
  */
-export class PlannerRelevantState {
+export class PlannerCore implements PlannerRelevantState {
     public discrepancy: number = 0;
     public hasSteviaCaelestis: boolean = false;
     public hasSucralosiaInutilis: boolean = false;
@@ -64,17 +64,17 @@ export class PlannerRelevantState {
      * without first getting "Stevia Caelestis",
      * but the planner works regardless.
      */
-    public currentLumpT: number = 1.6e12; // Time the current lump started coalescing; always an integer
+    public currentLumpT: number = 1.6e12;
     public currentSeed: string = 'aaaaa';
 
     public currentRigidelSlot: PantheonSlot = 'none';
     public currentGrandmaCount: number = 0;
-    public currentGrandmapocalypseStage: number = 0; // Always 0, 1, 2, 3
+    public currentGrandmapocalypseStage: number = 0;
     public currentHasDragonsCurve: boolean = false;
     public currentHasRealityBending: boolean = false;
     public currentHasSupremeIntellect: boolean = false;
 
-    constructor(data: ConstructorData<PlannerRelevantState>) {
+    constructor(data: ConstructorData<PlannerCore>) {
         Object.assign(this, data);
     };
 

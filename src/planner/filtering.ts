@@ -2,12 +2,12 @@
  * and filtering the "good" configurations.
  */
 
-import { LumpType, PantheonSlot, BudgetInfo } from './types';
-import { DistilledPlannerConfiguration, rigidelPower, PlannerRelevantState } from './core';
+import { LumpType, PantheonSlot, BudgetInfo, PlannerRelevantState } from './types';
+import { DistilledPlannerConfiguration, rigidelPower, PlannerCore } from './core';
 
 export const distilledConfigurationsCount = 2*2*1201;
-export function* makeConfigurationsIterator(planner: PlannerRelevantState) {
-    let startGrandmaCount = planner.hasSugarAgingProcess ? 1200 : 600;
+export function* makeConfigurationsIterator(core: PlannerCore) {
+    let startGrandmaCount = core.hasSugarAgingProcess ? 1200 : 600;
     let configurations: DistilledPlannerConfiguration[] = [
         {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: false, hasRealityBending: false},
         {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: false, hasRealityBending: true},
@@ -17,12 +17,12 @@ export function* makeConfigurationsIterator(planner: PlannerRelevantState) {
     while(configurations.length != 0) {
         let earliest = 0;
         for(let i = 1; i < configurations.length; i++) {
-            if(planner.overripeAge(configurations[i]) < planner.overripeAge(configurations[earliest]))
+            if(core.overripeAge(configurations[i]) < core.overripeAge(configurations[earliest]))
                 earliest = i;
         }
         yield {...configurations[earliest]};
 
-        if(planner.hasSugarAgingProcess) {
+        if(core.hasSugarAgingProcess) {
             configurations[earliest].effectiveGrandmaCount--;
         } else {
             configurations[earliest].effectiveGrandmaCount -= 200;
@@ -161,28 +161,28 @@ export function makeIntersectionFilter(...filters: ConfigurationFilter[]): Confi
 }
 
 export class CachedConfigurationsProcessor {
-    constructor(gameState: PlannerRelevantState) {
-        this.gameState = gameState;
-        this.iterator = makeConfigurationsIterator(gameState);
+    constructor(plannerCore: PlannerCore) {
+        this.plannerCore = plannerCore;
+        this.iterator = makeConfigurationsIterator(plannerCore);
     }
 
-    /* Tells whether the given gameState is compatible with this object's PlannerRelevantState,
+    /* Tells whether the given plannerCore is compatible with this object's PlannerCore,
      * for configuration processing purposes.
      */
-    public isCacheCompatible(gameState: PlannerRelevantState) {
-        return gameState.discrepancy == this.gameState.discrepancy &&
-               gameState.hasSteviaCaelestis == this.gameState.hasSteviaCaelestis &&
-               gameState.hasSucralosiaInutilis == this.gameState.hasSucralosiaInutilis &&
-               gameState.hasSugarAgingProcess == this.gameState.hasSugarAgingProcess &&
-               gameState.currentLumpT == this.gameState.currentLumpT &&
-               gameState.currentSeed == this.gameState.currentSeed;
+    public isCacheCompatible(plannerCore: PlannerCore) {
+        return plannerCore.discrepancy == this.plannerCore.discrepancy &&
+               plannerCore.hasSteviaCaelestis == this.plannerCore.hasSteviaCaelestis &&
+               plannerCore.hasSucralosiaInutilis == this.plannerCore.hasSucralosiaInutilis &&
+               plannerCore.hasSugarAgingProcess == this.plannerCore.hasSugarAgingProcess &&
+               plannerCore.currentLumpT == this.plannerCore.currentLumpT &&
+               plannerCore.currentSeed == this.plannerCore.currentSeed;
     }
 
     // The attributes are public mainly for testing
-    public gameState: PlannerRelevantState;
+    public plannerCore: PlannerCore;
 
     /* Suspended iterator.
-     * It will navigate through all distilled configurations of gameState exactly once.
+     * It will navigate through all distilled configurations of plannerCore exactly once.
      * We will lazily call lumpTypePredictionSet for each of those configurations,
      * and store the results in `this.cache`.
      * Set to null when finished.
@@ -206,7 +206,7 @@ export class CachedConfigurationsProcessor {
             this.iterator = null;
             return false;
         }
-        let predictionSet = this.gameState.lumpTypePredictionSet(next.value);
+        let predictionSet = this.plannerCore.lumpTypePredictionSet(next.value);
         for(let lumpType of new Set(predictionSet)) {
             let matchingGrandmapocalypseStages = predictionSet.map(type => type == lumpType);
             let configurations = precomputedPartialConfigurations[canonicalIndex(next.value)]
@@ -239,7 +239,7 @@ export class CachedConfigurationsProcessor {
     }
 
     /* This is the main public-facing function of this class.
-     * It scans all the `PlannerConfiguration`s for the PlannerRelevantState given in the constructor
+     * It scans all the `PlannerConfiguration`s for the PlannerCore given in the constructor
      * and returns a list of successes, satisfying the following properties:
      *  - All filters in `options.requirements` accept all returned configurations.
      *  - Each filter in `options.goals` accepts at least one configuration.

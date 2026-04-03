@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PlannerRelevantState, DistilledPlannerConfiguration } from '../src/planner/core';
+import { PlannerCore, DistilledPlannerConfiguration } from '../src/planner/core';
 import {
     makeConfigurationsIterator,
     canonicalIndex,
@@ -15,9 +15,9 @@ import {
 
 test.describe('Iteration', () => {
     test('produces the correct number of configurations', () => {
-        function configurationCount(...plannerState: ConstructorParameters<typeof PlannerRelevantState>) {
+        function configurationCount(...plannerState: ConstructorParameters<typeof PlannerCore>) {
             let count = 0;
-            let planner = new PlannerRelevantState(...plannerState);
+            let planner = new PlannerCore(...plannerState);
             for(let _configuration of makeConfigurationsIterator(planner)) {
                 count++;
             }
@@ -53,9 +53,9 @@ test.describe('Iteration', () => {
     });
 
     test('produces configurations in ascending overripeAge order', () => {
-        function firstFailure(...plannerState: ConstructorParameters<typeof PlannerRelevantState>) {
+        function firstFailure(...plannerState: ConstructorParameters<typeof PlannerCore>) {
             let previousConfiguration: DistilledPlannerConfiguration | null = null;
-            let planner = new PlannerRelevantState(...plannerState);
+            let planner = new PlannerCore(...plannerState);
             for(let configuration of makeConfigurationsIterator(planner)) {
                 if(previousConfiguration) {
                     let previousOverripeAge = planner.overripeAge(previousConfiguration);
@@ -93,7 +93,7 @@ test.describe('Iteration', () => {
 
 test('canonicalIndex is a bijection', () => {
     let indices = new Array(canonicalIndicesCount).fill(false);
-    let plannerState = new PlannerRelevantState({hasSugarAgingProcess: true});
+    let plannerState = new PlannerCore({hasSugarAgingProcess: true});
     for(let configuration of makeConfigurationsIterator(plannerState)) {
         indices[canonicalIndex(configuration)] = true;
     }
@@ -197,7 +197,7 @@ test.describe('precomputedPartialConfigurations is correctly initialized', () =>
 });
 
 test.describe('CachedConfigurationsProcessor', () => {
-    let gameState = new PlannerRelevantState({
+    let plannerCore = new PlannerCore({
         hasSugarAgingProcess: true,
         currentSeed: 'james',
         currentLumpT: 1.6e12+298939,
@@ -209,29 +209,29 @@ test.describe('CachedConfigurationsProcessor', () => {
          *  - three different lump types for the second earliest possible configuration: and
          *  - caramelized lump type is an outcome for the second earliest configuration.
          */
-        let iterator = makeConfigurationsIterator(gameState);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 600 grandmas
+        let iterator = makeConfigurationsIterator(plannerCore);
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 600 grandmas
             .toEqual(['normal', 'meaty', 'meaty', 'meaty']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 599 grandmas
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 599 grandmas
             .toEqual(['bifurcated', 'caramelized', 'meaty', 'meaty']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 598 grandmas
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 598 grandmas
             .toEqual(['normal', 'normal', 'normal', 'normal']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 597 grandmas
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 597 grandmas
             .toEqual(['normal', 'normal', 'normal', 'normal']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 596
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 596
             .toEqual(['normal', 'normal', 'normal', 'normal']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 595
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 595
             .toEqual(['normal', 'normal', 'normal', 'normal']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 594
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 594
             .toEqual(['normal', 'normal', 'normal', 'normal']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 593
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 593
             .toEqual(['normal', 'normal', 'normal', 'normal']);
-        expect(gameState.lumpTypePredictionSet(iterator.next().value!)) // 592
+        expect(plannerCore.lumpTypePredictionSet(iterator.next().value!)) // 592
             .toEqual(['normal', 'normal', 'normal', 'meaty']); // third meaty
     });
 
     test('cacheNextPredictionSet works', () => {
-        let cachedProcessor = new CachedConfigurationsProcessor(gameState);
+        let cachedProcessor = new CachedConfigurationsProcessor(plannerCore);
         cachedProcessor.cacheNextPredictionSet();
         expect(cachedProcessor.cache['normal'].length).toEqual(1);
         expect(cachedProcessor.cache['normal'][0]).toEqual([
@@ -273,7 +273,7 @@ test.describe('CachedConfigurationsProcessor', () => {
     });
 
     test('makeConfigurationsIterator lazily walks through configurations', () => {
-        let cachedProcessor = new CachedConfigurationsProcessor(gameState);
+        let cachedProcessor = new CachedConfigurationsProcessor(plannerCore);
         let meatyIterator = cachedProcessor.makePlannerConfigurationIterator('meaty');
         let value, done;
         ({ value, done } = meatyIterator.next());
@@ -356,14 +356,14 @@ test.describe('CachedConfigurationsProcessor', () => {
 
     test.describe('getConfigurations', () => {
         test('works without options.requirements', () => {
-            let gameState = new PlannerRelevantState({
+            let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
                 currentSeed: 'james',
                 currentLumpT: 1.6e12,
             });
-            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
-            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
-            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(plannerCore);
+            let { successes, failures } = new CachedConfigurationsProcessor(plannerCore).getConfigurations({
                 targetLump: 'normal',
                 requirements: [],
                 goals: [
@@ -383,16 +383,16 @@ test.describe('CachedConfigurationsProcessor', () => {
         });
 
         test('does not repeat configurations satisfying multiple requirements', () => {
-            let gameState = new PlannerRelevantState({
+            let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
                 currentSeed: 'james',
                 currentLumpT: 1.6e12,
                 currentHasDragonsCurve: true,
                 currentHasRealityBending: true,
             });
-            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
-            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
-            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(plannerCore);
+            let { successes, failures } = new CachedConfigurationsProcessor(plannerCore).getConfigurations({
                 targetLump: 'normal',
                 requirements: [],
                 goals: [
@@ -410,14 +410,14 @@ test.describe('CachedConfigurationsProcessor', () => {
         });
 
         test('respects options.requirements', () => {
-            let gameState = new PlannerRelevantState({
+            let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
                 currentSeed: 'james',
                 currentLumpT: 1.6e12,
             });
-            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
-            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
-            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(plannerCore);
+            let { successes, failures } = new CachedConfigurationsProcessor(plannerCore).getConfigurations({
                 targetLump: 'normal',
                 requirements: [
                     dragonPreservingFilter,
@@ -435,14 +435,14 @@ test.describe('CachedConfigurationsProcessor', () => {
         });
 
         test('reports failures', () => {
-            let gameState = new PlannerRelevantState({
+            let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
                 currentSeed: 'james',
                 currentLumpT: 1.6e12+4, // First currentLumpT after 1.6e12 without golden lumps with no dragon auras
             });
-            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
-            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
-            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(plannerCore);
+            let { successes, failures } = new CachedConfigurationsProcessor(plannerCore).getConfigurations({
                 targetLump: 'golden',
                 requirements: [
                 ],
@@ -462,16 +462,16 @@ test.describe('CachedConfigurationsProcessor', () => {
         });
 
         test('reports multiple failures', () => {
-            let gameState = new PlannerRelevantState({
+            let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
                 currentSeed: 'james',
                 currentLumpT: 1.6e12+26799, // First currentLumpT after 1.6e12 without golden lumps
             });
             let trivialConfigurationFilter = makeTrivialConfigurationFilter();
-            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(gameState);
-            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(gameState);
+            let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
+            let pantheonPreservingFilter = makePantheonPreservingConfigurationFilter(plannerCore);
             let intersectionFilter = makeIntersectionFilter(dragonPreservingFilter, pantheonPreservingFilter);
-            let { successes, failures } = new CachedConfigurationsProcessor(gameState).getConfigurations({
+            let { successes, failures } = new CachedConfigurationsProcessor(plannerCore).getConfigurations({
                 targetLump: 'golden',
                 requirements: [
                 ],

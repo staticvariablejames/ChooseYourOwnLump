@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PlannerRelevantState } from '../src/planner/core';
+import { PlannerCore } from '../src/planner/core';
 import { PantheonSlot } from '../src/planner/types';
 import seedrandom from 'seedrandom';
 
@@ -12,9 +12,9 @@ test('Seedrandom works', () => {
      */
 });
 
-test('PlannerRelevantState.currentPrediction() works', () => {
+test('PlannerCore.currentPrediction() works', () => {
     for(let [gpocState, lump] of [[0, 'caramelized'], [1, 'caramelized'], [2, 'meaty'], [3, 'meaty']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 0,
             hasSugarAgingProcess: false,
             currentLumpT: 1.6e12,
@@ -29,7 +29,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
     }
 
     for(let [gpocState, lump] of [[0, 'golden'], [1, 'meaty'], [2, 'meaty'], [3, 'meaty']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 1,
             hasSugarAgingProcess: true,
             currentLumpT: 1.6e12,
@@ -44,7 +44,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
     }
 
     for(let [gpocState, lump] of [[0, 'normal'], [1, 'normal'], [2, 'golden'], [3, 'meaty']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 1,
             hasSugarAgingProcess: true,
             currentLumpT: 1.6e12,
@@ -59,7 +59,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
     }
 
     for(let [grandmas, lump] of [[528, 'caramelized'], [575, 'bifurcated'], [595, 'bifurcated'], [600, 'caramelized'], [601, 'caramelized'], [602, 'caramelized']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 1,
             hasSugarAgingProcess: true,
             currentLumpT: 1.6e12,
@@ -74,7 +74,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
     }
 
     for(let [slot, lump] of [['none', 'normal'], ['jade', 'golden'], ['ruby', 'normal'], ['diamond', 'bifurcated']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 0,
             hasSugarAgingProcess: true,
             hasSteviaCaelestis: true,
@@ -90,7 +90,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
     }
 
     for(let [slot, lump] of [['none', 'normal'], ['jade', 'normal'], ['ruby', 'bifurcated'], ['diamond', 'bifurcated']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 0,
             hasSugarAgingProcess: true,
             hasSteviaCaelestis: true,
@@ -106,7 +106,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
     }
 
     for(let [gpocState, lump] of [[0, 'golden'], [1, 'golden'], [2, 'golden'], [3, 'meaty']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 1,
             hasSugarAgingProcess: true,
             hasSteviaCaelestis: true,
@@ -122,7 +122,7 @@ test('PlannerRelevantState.currentPrediction() works', () => {
     }
 
     for(let [hasSucralosia, lump] of [[false, 'golden'], [true, 'bifurcated']]) {
-        expect(new PlannerRelevantState({
+        expect(new PlannerCore({
             discrepancy: 1,
             hasSugarAgingProcess: true,
             hasSteviaCaelestis: true,
