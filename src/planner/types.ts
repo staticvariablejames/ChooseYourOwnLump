@@ -2,6 +2,9 @@ export type LumpType = 'normal' | 'bifurcated' | 'golden' | 'meaty' | 'carameliz
 export type PantheonSlot = 'diamond' | 'ruby' | 'jade' | 'none';
 
 /* Everything about the game state that is relevant for the planner.
+ *
+ * Note that, although technically a user preference,
+ * the discrepancy is part of the PlannerRelevantState.
  */
 export type PlannerRelevantState = {
     discrepancy: number;
@@ -31,6 +34,8 @@ export type PlannerRelevantState = {
     currentHasSupremeIntellect: boolean;
 };
 
+/* Information needed by the budget-conscious filter.
+ */
 export type BudgetInfo = {
     maxGrandmas: number,
     unlockedPantheon: boolean,
@@ -38,4 +43,20 @@ export type BudgetInfo = {
     unlockedRealityBending: boolean,
     unlockedSupremeIntellect: boolean,
     unlockedSecondAura: boolean,
+};
+
+type ConditionSetting = 'require' | 'observe' | 'ignore';
+
+/* All user settings that are relevant for the planner.
+ *
+ * Note that, although technically a user preference,
+ * the discrepancy is part of the PlannerRelevantState.
+ */
+export type PlannerPreferences = {
+    conditions: {
+        preserveDragon: ConditionSetting;
+        preservePantheon: ConditionSetting;
+        preserveGrandmapocalypseStage: ConditionSetting;
+        respectBudget: ConditionSetting;
+    };
 };
