@@ -12,7 +12,6 @@
 
 import seedrandom from 'seedrandom';
 import { LumpType, PantheonSlot, PlannerRelevantState } from './types';
-import { ConstructorData } from '../utilTypes';
 
 /* This type distills the relevant parts of the game state
  * which affect lump autoharvest time and which the player can change easily,
@@ -74,7 +73,7 @@ export class PlannerCore implements PlannerRelevantState {
     public currentHasRealityBending: boolean = false;
     public currentHasSupremeIntellect: boolean = false;
 
-    constructor(data: ConstructorData<PlannerCore>) {
+    constructor(data: Partial<PlannerRelevantState>) {
         Object.assign(this, data);
     };
 
