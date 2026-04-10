@@ -199,7 +199,7 @@ test.describe('precomputedPartialConfigurations is correctly initialized', () =>
 test.describe('CachedConfigurationsProcessor', () => {
     let plannerCore = new PlannerCore({
         hasSugarAgingProcess: true,
-        currentSeed: 'james',
+        seed: 'james',
         currentLumpT: 1.6e12+298939,
     });
     test('The test itself works', () => {
@@ -358,7 +358,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         test('works without options.requirements', () => {
             let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
-                currentSeed: 'james',
+                seed: 'james',
                 currentLumpT: 1.6e12,
             });
             let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
@@ -385,7 +385,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         test('does not repeat configurations satisfying multiple requirements', () => {
             let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
-                currentSeed: 'james',
+                seed: 'james',
                 currentLumpT: 1.6e12,
                 currentHasDragonsCurve: true,
                 currentHasRealityBending: true,
@@ -412,7 +412,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         test('respects options.requirements', () => {
             let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
-                currentSeed: 'james',
+                seed: 'james',
                 currentLumpT: 1.6e12,
             });
             let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
@@ -437,7 +437,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         test('reports failures', () => {
             let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
-                currentSeed: 'james',
+                seed: 'james',
                 currentLumpT: 1.6e12+4, // First currentLumpT after 1.6e12 without golden lumps with no dragon auras
             });
             let dragonPreservingFilter = makeDragonPreservingConfigurationFilter(plannerCore);
@@ -464,7 +464,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         test('reports multiple failures', () => {
             let plannerCore = new PlannerCore({
                 hasSugarAgingProcess: true,
-                currentSeed: 'james',
+                seed: 'james',
                 currentLumpT: 1.6e12+26799, // First currentLumpT after 1.6e12 without golden lumps
             });
             let trivialConfigurationFilter = makeTrivialConfigurationFilter();

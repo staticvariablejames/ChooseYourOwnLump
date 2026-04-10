@@ -58,14 +58,14 @@ export class PlannerCore implements PlannerRelevantState {
     public hasSteviaCaelestis: boolean = false;
     public hasSucralosiaInutilis: boolean = false;
     public hasSugarAgingProcess: boolean = false;
+    public seed: string = 'aaaaa';
 
     /* In natural gameplay, it is impossible to get "Sugar aging process" or "Sucralosia Inutilis"
      * without first getting "Stevia Caelestis",
      * but the planner works regardless.
      */
-    public currentLumpT: number = 1.6e12;
-    public currentSeed: string = 'aaaaa';
 
+    public currentLumpT: number = 1.6e12;
     public currentRigidelSlot: PantheonSlot = 'none';
     public currentGrandmaCount: number = 0;
     public currentGrandmapocalypseStage: number = 0;
@@ -101,7 +101,7 @@ export class PlannerCore implements PlannerRelevantState {
 
     public lumpTypePredictionSet(configuration: DistilledPlannerConfiguration): LumpType[] {
         let autoharvestTime = this.autoharvestTimestamp(configuration);
-        let prng = seedrandom(this.currentSeed + '/' + autoharvestTime);
+        let prng = seedrandom(this.seed + '/' + autoharvestTime);
         let lumpPools: LumpType[][] = [['normal'], ['normal'], ['normal'], ['normal']];
 
         let randomFloorPrngCall = prng();

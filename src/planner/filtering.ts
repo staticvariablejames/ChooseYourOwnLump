@@ -175,7 +175,7 @@ export class CachedConfigurationsProcessor {
                plannerCore.hasSucralosiaInutilis == this.plannerCore.hasSucralosiaInutilis &&
                plannerCore.hasSugarAgingProcess == this.plannerCore.hasSugarAgingProcess &&
                plannerCore.currentLumpT == this.plannerCore.currentLumpT &&
-               plannerCore.currentSeed == this.plannerCore.currentSeed;
+               plannerCore.seed == this.plannerCore.seed;
     }
 
     // The attributes are public mainly for testing
