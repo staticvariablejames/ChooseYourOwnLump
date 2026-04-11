@@ -7,7 +7,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "build": "npx rollup -c",
+    "build": "tsc && vite build",
     "test": "npx playwright test"
   },
   "repository": {
@@ -21,19 +21,15 @@
   },
   "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme",
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "@rollup/plugin-commonjs": "^29.0.2",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-typescript": "^8.5.0",
+    "@playwright/test": "1.57",
     "@types/cookieclicker": "^2.52.5",
     "@types/node": "^25.5.0",
     "@types/seedrandom": "^3.0.8",
     "ccse-ts": "github:staticvariablejames/CCSE-ts#semver:^0.1.1",
     "cookie-connoisseur": "^0.4.1",
-    "playwright": "^1.57.0",
-    "rollup": "^2.80.0",
-    "typescript": "^4.9.5"
+    "playwright": "1.57",
+    "typescript": "5.9",
+    "vite": "^8.0.8"
   },
   "dependencies": {
     "seedrandom": "^3.0.5"

@@ -27,7 +27,7 @@ import { loadSettingsFrom, exportSettings } from './UI/settings';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu } from './UI/optionsMenu';
 import { rewriteCode } from './util';
-import * as UI from './UI';
+import * as UI from './UI/index';
 
 let CYOL = {
     // Basic information about the mod

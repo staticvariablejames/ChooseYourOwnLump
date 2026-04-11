@@ -6,6 +6,8 @@
 - **Removed**: legacy support for loading CYOL saves from versions 1.2.7 and earlier.
     (CYOL 1.3.2 has been around for 4.5 years,
     nobody should be using any other version.)
+- (internal) Changed: the bundler to Vite,
+    due to its native support to web workers.
 
 ## 1.3.2 - 2021-09-08
 - Changed: Update to CCSE 2.026.
