@@ -5,13 +5,13 @@ import { settings } from './settings';
  */
 
 export function discrepancyCallback() {
-    let value = (document.getElementById('CYOLdiscrepancySlider') as HTMLInputElement).value ?? 1;
+    let value = (document.getElementById('CYOLdiscrepancySlider') as HTMLInputElement).value ?? '1';
     settings.discrepancy = Number(value);
     document.getElementById('CYOLdiscrepancySliderRightText')!.innerHTML = value;
 }
 
 export function rowsToDisplayCallback() {
-    let value = (document.getElementById('CYOLrowsToDisplaySlider') as HTMLInputElement).value ?? 10;
+    let value = (document.getElementById('CYOLrowsToDisplaySlider') as HTMLInputElement).value ?? '10';
     settings.rowsToDisplay = Number(value);
     document.getElementById('CYOLrowsToDisplaySliderRightText')!.innerHTML = value;
 }
