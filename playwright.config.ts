@@ -5,7 +5,7 @@ import { PlaywrightTestConfig } from '@playwright/test';
  */
 let plannerRelatedTests = [
     'test/planner-core.test.ts',
-    'test/planner-filtering.test.ts',
+    'test/planner-processing.test.ts',
 ];
 
 const config: PlaywrightTestConfig = {

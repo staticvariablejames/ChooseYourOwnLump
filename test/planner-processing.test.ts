@@ -11,7 +11,7 @@ import {
     makePantheonPreservingConfigurationFilter,
     makeIntersectionFilter,
     CachedConfigurationsProcessor,
-} from '../src/planner/filtering';
+} from '../src/planner/processing';
 
 test.describe('Iteration', () => {
     test('produces the correct number of configurations', () => {
