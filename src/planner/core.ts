@@ -133,15 +133,18 @@ export class PlannerCore implements PlannerRelevantState {
         return predictionSet;
     }
 
-    public currentPrediction(): LumpType {
+    public currentDistilledConfiguration(): DistilledPlannerConfiguration {
         let myRigidelPower = rigidelPower(this.currentRigidelSlot, this.currentHasSupremeIntellect);
         let myGrandmaPower = this.hasSugarAgingProcess ? Math.min(600, this.currentGrandmaCount) : 0;
-        let configuration: DistilledPlannerConfiguration = {
+        return {
             effectiveGrandmaCount: myRigidelPower + myGrandmaPower,
             hasDragonsCurve: this.currentHasDragonsCurve,
             hasRealityBending: this.currentHasRealityBending,
         };
-        let predictionSet = this.lumpTypePredictionSet(configuration);
+    }
+
+    public currentPrediction(): LumpType {
+        let predictionSet = this.lumpTypePredictionSet(this.currentDistilledConfiguration());
         return predictionSet[this.currentGrandmapocalypseStage];
     }
 }
