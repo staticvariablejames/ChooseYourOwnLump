@@ -302,13 +302,13 @@ export class CachedConfigurationsProcessor {
     /* Tells whether the given plannerCore is compatible with this object's PlannerCore,
      * for configuration processing purposes.
      */
-    public isCacheCompatible(plannerCore: PlannerCore) {
-        return plannerCore.discrepancy == this.plannerCore.discrepancy &&
-               plannerCore.hasSteviaCaelestis == this.plannerCore.hasSteviaCaelestis &&
-               plannerCore.hasSucralosiaInutilis == this.plannerCore.hasSucralosiaInutilis &&
-               plannerCore.hasSugarAgingProcess == this.plannerCore.hasSugarAgingProcess &&
-               plannerCore.currentLumpT == this.plannerCore.currentLumpT &&
-               plannerCore.seed == this.plannerCore.seed;
+    public isCacheCompatible(gameState: PlannerRelevantState) {
+        return gameState.discrepancy == this.plannerCore.discrepancy &&
+               gameState.hasSteviaCaelestis == this.plannerCore.hasSteviaCaelestis &&
+               gameState.hasSucralosiaInutilis == this.plannerCore.hasSucralosiaInutilis &&
+               gameState.hasSugarAgingProcess == this.plannerCore.hasSugarAgingProcess &&
+               gameState.currentLumpT == this.plannerCore.currentLumpT &&
+               gameState.seed == this.plannerCore.seed;
     }
 
     // The attributes are public mainly for testing
