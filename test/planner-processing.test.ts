@@ -6,6 +6,7 @@ import {
     canonicalIndicesCount,
     PartialConfiguration,
     precomputedPartialConfigurations,
+    makeReportEntry,
     makeTrivialConfigurationFilter,
     makeDragonPreservingConfigurationFilter,
     makePantheonPreservingConfigurationFilter,
@@ -193,6 +194,230 @@ test.describe('precomputedPartialConfigurations is correctly initialized', () =>
             .toEqual(expect.arrayContaining(partialConfigurations));
         expect(precomputedPartialConfigurations[canonicalIndex(distilledConfiguration)].length)
             .toEqual(partialConfigurations.length);
+    });
+});
+
+test.describe('makeReportEntry', () => {
+    test('works with normal values', () => {
+        expect(makeReportEntry({
+            configuration: {
+                grandmaCount: 255, grandmapocalypseStages: [false, true, false, true], lumpType: 'caramelized',
+                rigidelSlot: 'none',
+                hasDragonsCurve: true,
+                hasRealityBending: false,
+                hasSupremeIntellect: true,
+            },
+            plannerCore: new PlannerCore({
+                currentGrandmaCount: 254,
+                currentRigidelSlot: 'ruby',
+                currentHasDragonsCurve: true,
+                currentHasRealityBending: true,
+                currentHasSupremeIntellect: false,
+                currentGrandmapocalypseStage: 1,
+            }),
+            threeColumnDragonAuras: true,
+        })).toEqual({
+            selectedEntry: false,
+            lumpType: 'caramelized',
+            grandmaCount: 255,
+            grandmaCountNote: '',
+            grandmapocalypseStages: [false, true, false, true],
+            grandmapocalypseNote: 'checkmark',
+            dragonAuras: [
+                {aura: "Dragon's Curve",    style: 'normal', note: 'checkmark'},
+                {aura: "Reality Bending",   style: 'faded', note: ''},
+                {aura: "Supreme Intellect", style: 'normal', note: ''},
+            ],
+            rigidelSlot: 'none',
+            rigidelNote: '',
+        });
+
+        expect(makeReportEntry({
+            configuration: {
+                grandmaCount: 255, grandmapocalypseStages: [false, true, false, true], lumpType: 'golden',
+                rigidelSlot: 'ruby',
+                hasDragonsCurve: false,
+                hasRealityBending: true,
+                hasSupremeIntellect: true,
+            },
+            plannerCore: new PlannerCore({
+                currentGrandmaCount: 255,
+                currentRigidelSlot: 'ruby',
+                currentHasDragonsCurve: false,
+                currentHasRealityBending: true,
+                currentHasSupremeIntellect: true,
+                currentGrandmapocalypseStage: 1,
+            }),
+            threeColumnDragonAuras: false,
+        })).toEqual({
+            selectedEntry: true,
+            lumpType: 'golden',
+            grandmaCount: 255,
+            grandmaCountNote: 'checkmark',
+            grandmapocalypseStages: [false, true, false, true],
+            grandmapocalypseNote: 'checkmark',
+            dragonAuras: [
+                {aura: "Reality Bending",   style: 'normal', note: 'checkmark'},
+                {aura: "Supreme Intellect", style: 'normal', note: 'checkmark'},
+            ],
+            rigidelSlot: 'ruby',
+            rigidelNote: 'checkmark',
+        });
+    });
+
+    test('properly compressing entries', () => {
+        let baseConfiguration = {
+            grandmaCount: 0,
+            grandmapocalypseStages: [false, false, false, false] as [boolean, boolean, boolean, boolean],
+            lumpType: 'normal' as 'normal',
+            hasDragonsCurve: false,
+            hasRealityBending: false,
+            hasSupremeIntellect: false,
+            rigidelSlot: 'ruby' as 'ruby',
+        };
+
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasDragonsCurve: true,
+                hasSupremeIntellect: true,
+            },
+            plannerCore: new PlannerCore({
+                currentHasRealityBending: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Dragon's Curve", style: 'normal', note: ''},
+            {aura: "Supreme Intellect", style: 'normal', note: ''},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasRealityBending: true,
+                hasSupremeIntellect: true,
+            },
+            plannerCore: new PlannerCore({
+                currentHasRealityBending: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Reality Bending", style: 'normal', note: 'checkmark'},
+            {aura: "Supreme Intellect", style: 'normal', note: ''},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasSupremeIntellect: true,
+            },
+            plannerCore: new PlannerCore({
+                currentHasSupremeIntellect: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Supreme Intellect", style: 'normal', note: 'checkmark'},
+            {aura: "Dragon's Curve", style: 'faded', note: 'checkmark'},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasRealityBending: true,
+            },
+            plannerCore: new PlannerCore({
+                currentHasDragonsCurve: true,
+                currentHasSupremeIntellect: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Reality Bending", style: 'normal', note: ''},
+            {aura: "Dragon's Curve", style: 'faded', note: 'warn'},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasRealityBending: true,
+            },
+            plannerCore: new PlannerCore({
+                currentHasSupremeIntellect: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Reality Bending", style: 'normal', note: ''},
+            {aura: "Supreme Intellect", style: 'faded', note: 'warn'},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasDragonsCurve: true,
+            },
+            plannerCore: new PlannerCore({
+                currentHasSupremeIntellect: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Dragon's Curve", style: 'normal', note: ''},
+            {aura: "Supreme Intellect", style: 'faded', note: 'warn'},
+        ]);
+
+        // Should not warn about Supreme Intellect with unslotted Rigidel
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasDragonsCurve: true,
+                rigidelSlot: 'none',
+            },
+            plannerCore: new PlannerCore({
+                currentHasSupremeIntellect: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Dragon's Curve", style: 'normal', note: ''},
+            {aura: "Reality Bending", style: 'faded', note: 'checkmark'},
+        ]);
+
+        // Nor with diamond-slotted rigidel
+        expect(makeReportEntry({
+            configuration: {...baseConfiguration,
+                hasDragonsCurve: true,
+                rigidelSlot: 'diamond',
+            },
+            plannerCore: new PlannerCore({
+                currentHasSupremeIntellect: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Dragon's Curve", style: 'normal', note: ''},
+            {aura: "Reality Bending", style: 'faded', note: 'checkmark'},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: baseConfiguration,
+            plannerCore: new PlannerCore({
+                currentHasSupremeIntellect: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Supreme Intellect", style: 'faded', note: 'warn'},
+            {aura: "Dragon's Curve", style: 'faded', note: 'checkmark'},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: baseConfiguration,
+            plannerCore: new PlannerCore({
+                currentHasRealityBending: true,
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Reality Bending", style: 'faded', note: 'warn'},
+            {aura: "Dragon's Curve", style: 'faded', note: 'checkmark'},
+        ]);
+
+        expect(makeReportEntry({
+            configuration: baseConfiguration,
+            plannerCore: new PlannerCore({
+            }),
+            threeColumnDragonAuras: false,
+        }).dragonAuras).toEqual([
+            {aura: "Dragon's Curve", style: 'faded', note: 'checkmark'},
+            {aura: "Reality Bending", style: 'faded', note: 'checkmark'},
+        ]);
     });
 });
 

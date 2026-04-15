@@ -2,7 +2,15 @@
  * and filtering the "good" configurations.
  */
 
-import { LumpType, PantheonSlot, BudgetInfo, PlannerRelevantState } from './types';
+import {
+    LumpType,
+    PantheonSlot,
+    BudgetInfo,
+    PlannerRelevantState,
+    DragonAuraReportEntry,
+    PlannerReportEntry,
+} from './types';
+
 import { DistilledPlannerConfiguration, rigidelPower, PlannerCore } from './core';
 
 export const distilledConfigurationsCount = 2*2*1201;
@@ -91,6 +99,131 @@ export const precomputedPartialConfigurations: PartialConfiguration[][] =
 
     return partialConfigurations;
 })();
+
+export function makeReportEntry(options: {
+    configuration: PlannerConfiguration,
+    plannerCore: PlannerCore,
+    threeColumnDragonAuras: boolean
+}) {
+    let { configuration, plannerCore, threeColumnDragonAuras } = options;
+    function check(condition: boolean): 'checkmark' | '' {
+        return condition ? 'checkmark' : '';
+    }
+    let selectedEntry = configuration.grandmaCount == plannerCore.currentGrandmaCount
+        && configuration.hasDragonsCurve == plannerCore.currentHasDragonsCurve
+        && configuration.hasRealityBending == plannerCore.currentHasRealityBending
+        && configuration.hasSupremeIntellect == plannerCore.currentHasSupremeIntellect
+        && configuration.rigidelSlot == plannerCore.currentRigidelSlot
+        && configuration.grandmapocalypseStages[plannerCore.currentGrandmapocalypseStage];
+    let lumpType = configuration.lumpType;
+    let grandmaCount = configuration.grandmaCount;
+    let grandmaCountNote = check(configuration.grandmaCount == plannerCore.currentGrandmaCount);
+    let grandmapocalypseStages = configuration.grandmapocalypseStages;
+    let grandmapocalypseNote = check(configuration.grandmapocalypseStages[plannerCore.currentGrandmapocalypseStage]);
+    let rigidelSlot = configuration.rigidelSlot;
+    let rigidelNote = check(configuration.rigidelSlot == plannerCore.currentRigidelSlot);
+
+    let dragonAuras: DragonAuraReportEntry[] = [];
+    if(threeColumnDragonAuras) { // Easy
+        dragonAuras.push({
+            aura: "Dragon's Curve",
+            style: configuration.hasDragonsCurve ? 'normal' : 'faded',
+            note: check(configuration.hasDragonsCurve == plannerCore.currentHasDragonsCurve),
+        });
+        dragonAuras.push({
+            aura: "Reality Bending",
+            style: configuration.hasRealityBending? 'normal' : 'faded',
+            note: check(configuration.hasRealityBending == plannerCore.currentHasRealityBending),
+        });
+        dragonAuras.push({
+            aura: "Supreme Intellect",
+            style: configuration.hasSupremeIntellect? 'normal' : 'faded',
+            note: check(configuration.hasSupremeIntellect == plannerCore.currentHasSupremeIntellect),
+        });
+    } else { // Oh no
+        if(configuration.hasDragonsCurve) {
+            dragonAuras.push({
+                aura: "Dragon's Curve",
+                style: 'normal',
+                note: check(configuration.hasDragonsCurve == plannerCore.currentHasDragonsCurve),
+            });
+        }
+        if(configuration.hasRealityBending) {
+            dragonAuras.push({
+                aura: "Reality Bending",
+                style: 'normal',
+                note: check(configuration.hasRealityBending == plannerCore.currentHasRealityBending),
+            });
+        }
+        if(configuration.hasSupremeIntellect) {
+            dragonAuras.push({
+                aura: "Supreme Intellect",
+                style: 'normal',
+                note: check(configuration.hasSupremeIntellect == plannerCore.currentHasSupremeIntellect),
+            });
+        }
+
+        if(dragonAuras.length <= 1) {
+            // There's still space left, let's try warning the player about wrongly placed auras
+            if(!configuration.hasDragonsCurve && plannerCore.currentHasDragonsCurve) {
+                dragonAuras.push({
+                    aura: "Dragon's Curve",
+                    style: 'faded',
+                    note: 'warn',
+                });
+            }
+            if(!configuration.hasRealityBending && plannerCore.currentHasRealityBending) {
+                dragonAuras.push({
+                    aura: "Reality Bending",
+                    style: 'faded',
+                    note: 'warn',
+                });
+            }
+            if(!configuration.hasSupremeIntellect && plannerCore.currentHasSupremeIntellect
+                && configuration.rigidelSlot != 'none' && configuration.rigidelSlot != 'diamond')
+            {
+                // Supreme Intellect is displacing Rigidel
+                dragonAuras.push({
+                    aura: "Supreme Intellect",
+                    style: 'faded',
+                    note: 'warn',
+                });
+            }
+            dragonAuras = dragonAuras.slice(0, 2);
+        }
+
+        if(dragonAuras.length <= 1) {
+            // Nothing to warn, nothing to display, so we pad with faded Dragon's Curve & Reality Bending
+            if(dragonAuras.length == 0 || dragonAuras[0].aura != "Dragon's Curve") {
+                dragonAuras.push({
+                    aura: "Dragon's Curve",
+                    style: 'faded',
+                    note: 'checkmark',
+                });
+            }
+            if(dragonAuras[0].aura == "Dragon's Curve") {
+                dragonAuras.push({
+                    aura: "Reality Bending",
+                    style: 'faded',
+                    note: 'checkmark',
+                });
+            }
+        }
+    }
+
+    let report: PlannerReportEntry = {
+        selectedEntry,
+        lumpType,
+        grandmaCount,
+        grandmaCountNote,
+        grandmapocalypseStages,
+        grandmapocalypseNote,
+        dragonAuras,
+        rigidelSlot,
+        rigidelNote,
+    };
+    return report;
+}
 
 /* The brute-forcing part of finding appropriate configurations
  * will produce, for each sought-after lump type,

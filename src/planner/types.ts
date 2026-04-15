@@ -1,5 +1,6 @@
 export type LumpType = 'normal' | 'bifurcated' | 'golden' | 'meaty' | 'caramelized';
 export type PantheonSlot = 'diamond' | 'ruby' | 'jade' | 'none';
+export type DragonAura = "none" | "Dragon's Curve" | "Reality Bending" | "Supreme Intellect";
 
 /* Everything about the game state that is relevant for the planner.
  *
@@ -53,10 +54,30 @@ type ConditionSetting = 'require' | 'observe' | 'ignore';
  * the discrepancy is part of the PlannerRelevantState.
  */
 export type PlannerPreferences = {
+    threeColumnDragonAuras: boolean,
     conditions: {
         preserveDragon: ConditionSetting;
         preservePantheon: ConditionSetting;
         preserveGrandmapocalypseStage: ConditionSetting;
         respectBudget: ConditionSetting;
     };
+};
+
+export type DragonAuraReportEntry = {
+    aura: DragonAura,
+    style: 'normal' | 'faded',
+    note: 'checkmark' | 'warn' | '',
+};
+
+export type PlannerReportEntry = {
+    selectedEntry: boolean;
+    lumpType: LumpType;
+    grandmaCount: number;
+    grandmaCountNote: 'checkmark' | '';
+    grandmapocalypseStages: [boolean, boolean, boolean, boolean];
+    grandmapocalypseNote: 'checkmark' | '';
+    // TODO: add information about changing stages, like mid-pledge, and recently-bought upgrades
+    dragonAuras: DragonAuraReportEntry[],
+    rigidelSlot: PantheonSlot;
+    rigidelNote: 'checkmark' | '';
 };

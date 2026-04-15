@@ -5,6 +5,7 @@ import { PlannerRelevantState, BudgetInfo, PlannerPreferences } from './types';
 export function getCurrentPlannerPreferences(): PlannerPreferences {
     // FIXME: actually get it from the settings
     return {
+        threeColumnDragonAuras: false,
         conditions: {
             preserveDragon: 'observe',
             preservePantheon: 'observe',
