@@ -7,7 +7,9 @@
     "doc": "doc"
   },
   "scripts": {
-    "build": "tsc && vite build",
+    "build-mod": "tsc --project ./tsconfig.json && vite build --config vite.mod.config.js",
+    "build-bin": "tsc --project ./script-src/tsconfig.json && vite build --config vite.bin.config.js",
+    "build": "npm run build-mod && npm run build-bin",
     "test": "npx playwright test"
   },
   "repository": {
