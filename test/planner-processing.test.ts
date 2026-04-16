@@ -201,7 +201,7 @@ test.describe('makeReportEntry', () => {
     test('works with normal values', () => {
         expect(makeReportEntry({
             configuration: {
-                grandmaCount: 255, grandmapocalypseStages: [false, true, false, true], lumpType: 'caramelized',
+                grandmaCount: 255, grandmapocalypseStages: [false, true, false, true], lumpType: 'caramelized', autoharvestTimestamp: 1.6e12,
                 rigidelSlot: 'none',
                 hasDragonsCurve: true,
                 hasRealityBending: false,
@@ -219,6 +219,7 @@ test.describe('makeReportEntry', () => {
         })).toEqual({
             selectedEntry: false,
             lumpType: 'caramelized',
+            autoharvestTimestamp: 1.6e12,
             grandmaCount: 255,
             grandmaCountNote: '',
             grandmapocalypseStages: [false, true, false, true],
@@ -234,7 +235,7 @@ test.describe('makeReportEntry', () => {
 
         expect(makeReportEntry({
             configuration: {
-                grandmaCount: 255, grandmapocalypseStages: [false, true, false, true], lumpType: 'golden',
+                grandmaCount: 255, grandmapocalypseStages: [false, true, false, true], lumpType: 'golden', autoharvestTimestamp: 1.6e12,
                 rigidelSlot: 'ruby',
                 hasDragonsCurve: false,
                 hasRealityBending: true,
@@ -252,6 +253,7 @@ test.describe('makeReportEntry', () => {
         })).toEqual({
             selectedEntry: true,
             lumpType: 'golden',
+            autoharvestTimestamp: 1.6e12,
             grandmaCount: 255,
             grandmaCountNote: 'checkmark',
             grandmapocalypseStages: [false, true, false, true],
@@ -270,6 +272,7 @@ test.describe('makeReportEntry', () => {
             grandmaCount: 0,
             grandmapocalypseStages: [false, false, false, false] as [boolean, boolean, boolean, boolean],
             lumpType: 'normal' as 'normal',
+            autoharvestTimestamp: 1.6e12,
             hasDragonsCurve: false,
             hasRealityBending: false,
             hasSupremeIntellect: false,
@@ -460,13 +463,13 @@ test.describe('CachedConfigurationsProcessor', () => {
         cachedProcessor.cacheNextPredictionSet();
         expect(cachedProcessor.cache['normal'].length).toEqual(1);
         expect(cachedProcessor.cache['normal'][0]).toEqual([
-            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'normal'}
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'normal', autoharvestTimestamp: 1600075557706.7725}
         ]);
         expect(cachedProcessor.cache['bifurcated'].length).toEqual(0);
         expect(cachedProcessor.cache['golden'].length).toEqual(0);
         expect(cachedProcessor.cache['meaty'].length).toEqual(1);
         expect(cachedProcessor.cache['meaty'][0]).toEqual([
-            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, true, true], lumpType: 'meaty'}
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, true, true], lumpType: 'meaty', autoharvestTimestamp: 1600075557706.7725}
         ]);
         expect(cachedProcessor.cache['caramelized'].length).toEqual(0);
 
@@ -474,22 +477,22 @@ test.describe('CachedConfigurationsProcessor', () => {
         expect(cachedProcessor.cache['normal'].length).toEqual(1);
         expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
         expect(cachedProcessor.cache['bifurcated'][0]).toEqual([
-            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'bifurcated'}
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'bifurcated', autoharvestTimestamp: 1600075563393.9763}
         ]);
         expect(cachedProcessor.cache['golden'].length).toEqual(0);
         expect(cachedProcessor.cache['meaty'].length).toEqual(2);
         expect(cachedProcessor.cache['meaty'][1]).toEqual([
-            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, true, true], lumpType: 'meaty'}
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, true, true], lumpType: 'meaty', autoharvestTimestamp: 1600075563393.9763}
         ]);
         expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
         expect(cachedProcessor.cache['caramelized'][0]).toEqual([
-            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, false, false], lumpType: 'caramelized'}
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, false, false], lumpType: 'caramelized', autoharvestTimestamp: 1600075563393.9763}
         ]);
 
         cachedProcessor.cacheNextPredictionSet();
         expect(cachedProcessor.cache['normal'].length).toEqual(2);
         expect(cachedProcessor.cache['normal'][1]).toEqual([
-            {grandmaCount: 598, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'}
+            {grandmaCount: 598, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600075569081.1802}
         ]);
         expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
         expect(cachedProcessor.cache['golden'].length).toEqual(0);
@@ -504,7 +507,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         ({ value, done } = meatyIterator.next());
         expect(done).toBeFalsy();
         expect(value).toEqual([
-            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, true, true], lumpType: 'meaty'}
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, true, true], lumpType: 'meaty', autoharvestTimestamp: 1600075557706.7725}
         ]);
         expect(cachedProcessor.cache['normal'].length).toEqual(1);
         expect(cachedProcessor.cache['bifurcated'].length).toEqual(0);
@@ -520,13 +523,13 @@ test.describe('CachedConfigurationsProcessor', () => {
         expect(cachedProcessor.cache['meaty'].length).toEqual(2);
         expect(cachedProcessor.cache['caramelized'].length).toEqual(1);
         expect(value).toEqual([
-            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, true, true], lumpType: 'meaty'}
+            {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, true, true], lumpType: 'meaty', autoharvestTimestamp: 1600075563393.9763}
         ]);
 
         for(let caramelizedConfiguration of cachedProcessor.makePlannerConfigurationIterator('caramelized')) {
             // It should skip the first partialConfiguration and stop at the second
             expect(caramelizedConfiguration).toEqual([
-                {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, false, false], lumpType: 'caramelized'}
+                {grandmaCount: 599, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, true, false, false], lumpType: 'caramelized', autoharvestTimestamp: 1600075563393.9763}
             ]);
             expect(cachedProcessor.cache['normal'].length).toEqual(1);
             expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
@@ -540,7 +543,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         let normalIterator = cachedProcessor.makePlannerConfigurationIterator('normal');
         ({ value, done } = normalIterator.next());
         expect(value).toEqual([
-            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'normal'}
+            {grandmaCount: 600, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'normal', autoharvestTimestamp: 1600075557706.7725}
         ]);
         expect(cachedProcessor.cache['normal'].length).toEqual(1);
         expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
@@ -552,7 +555,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         ({ value, done } = meatyIterator.next());
         expect(done).toBeFalsy();
         expect(value).toEqual([
-            {grandmaCount: 592, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, false, true], lumpType: 'meaty'}
+            {grandmaCount: 592, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [false, false, false, true], lumpType: 'meaty', autoharvestTimestamp: 1600075603204.4028}
         ]);
         expect(cachedProcessor.cache['normal'].length).toEqual(8);
         expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
@@ -564,7 +567,7 @@ test.describe('CachedConfigurationsProcessor', () => {
         ({ value, done } = normalIterator.next());
         expect(done).toBeFalsy();
         expect(value).toEqual([
-            {grandmaCount: 598, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'}
+            {grandmaCount: 598, hasDragonsCurve: true, hasRealityBending: true, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600075569081.1802}
         ]);
         expect(cachedProcessor.cache['normal'].length).toEqual(8);
         expect(cachedProcessor.cache['bifurcated'].length).toEqual(1);
@@ -600,10 +603,10 @@ test.describe('CachedConfigurationsProcessor', () => {
             });
             expect(failures).toEqual([]);
             expect(successes).toEqual([ // order of returned values matters
-                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
-                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
-                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
-                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600075258767.7725},
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600078671090.0474},
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600079200000},
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600082800000},
             ]);
         });
 
@@ -629,8 +632,8 @@ test.describe('CachedConfigurationsProcessor', () => {
             });
             expect(failures).toEqual([]);
             expect(successes).toEqual([
-                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
-                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600075258767.7725},
+                {grandmaCount: 600, hasDragonsCurve: true,  hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600078671090.0474},
             ]);
         });
 
@@ -654,8 +657,8 @@ test.describe('CachedConfigurationsProcessor', () => {
             });
             expect(failures).toEqual([]);
             expect(successes).toEqual([
-                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
-                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal'},
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600079200000},
+                {grandmaCount: 600, hasDragonsCurve: false, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true, true, true], lumpType: 'normal', autoharvestTimestamp: 1600082800000},
             ]);
         });
 
@@ -681,8 +684,8 @@ test.describe('CachedConfigurationsProcessor', () => {
                 dragonPreservingFilter,
             ]);
             expect(successes).toEqual([
-                {grandmaCount: 234, hasDragonsCurve: true, hasRealityBending: false, hasSupremeIntellect: true,  rigidelSlot: 'ruby', grandmapocalypseStages: [true, false, false, false], lumpType: 'golden'},
-                {grandmaCount: 476, hasDragonsCurve: true, hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none', grandmapocalypseStages: [true, true,  true,  true],  lumpType: 'golden'},
+                {grandmaCount: 234, hasDragonsCurve: true, hasRealityBending: false, hasSupremeIntellect: true,  rigidelSlot: 'ruby', grandmapocalypseStages: [true, false, false, false], lumpType: 'golden', autoharvestTimestamp: 1600077691432.5715},
+                {grandmaCount: 476, hasDragonsCurve: true, hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none', grandmapocalypseStages: [true, true,  true,  true],  lumpType: 'golden', autoharvestTimestamp: 1600079376307.3176},
             ]);
         });
 

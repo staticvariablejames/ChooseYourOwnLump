@@ -56,6 +56,7 @@ export type PartialConfiguration = {
 export type PlannerConfiguration = PartialConfiguration & {
     grandmapocalypseStages: [boolean, boolean, boolean, boolean],
     lumpType: LumpType,
+    autoharvestTimestamp: number,
 };
 
 /* Maps the canonicalIndex of a distilled configuration
@@ -104,7 +105,7 @@ export function makeReportEntry(options: {
     configuration: PlannerConfiguration,
     plannerCore: PlannerCore,
     threeColumnDragonAuras: boolean
-}) {
+}): PlannerReportEntry {
     let { configuration, plannerCore, threeColumnDragonAuras } = options;
     function check(condition: boolean): 'checkmark' | '' {
         return condition ? 'checkmark' : '';
@@ -116,6 +117,7 @@ export function makeReportEntry(options: {
         && configuration.rigidelSlot == plannerCore.currentRigidelSlot
         && configuration.grandmapocalypseStages[plannerCore.currentGrandmapocalypseStage];
     let lumpType = configuration.lumpType;
+    let autoharvestTimestamp = configuration.autoharvestTimestamp;
     let grandmaCount = configuration.grandmaCount;
     let grandmaCountNote = check(configuration.grandmaCount == plannerCore.currentGrandmaCount);
     let grandmapocalypseStages = configuration.grandmapocalypseStages;
@@ -211,9 +213,10 @@ export function makeReportEntry(options: {
         }
     }
 
-    let report: PlannerReportEntry = {
+    return {
         selectedEntry,
         lumpType,
+        autoharvestTimestamp,
         grandmaCount,
         grandmaCountNote,
         grandmapocalypseStages,
@@ -222,7 +225,6 @@ export function makeReportEntry(options: {
         rigidelSlot,
         rigidelNote,
     };
-    return report;
 }
 
 /* The brute-forcing part of finding appropriate configurations
@@ -339,6 +341,7 @@ export class CachedConfigurationsProcessor {
             this.iterator = null;
             return false;
         }
+        let autoharvestTimestamp = this.plannerCore.autoharvestTimestamp(next.value);
         let predictionSet = this.plannerCore.lumpTypePredictionSet(next.value);
         for(let lumpType of new Set(predictionSet)) {
             let matchingGrandmapocalypseStages = predictionSet.map(type => type == lumpType);
@@ -346,6 +349,7 @@ export class CachedConfigurationsProcessor {
                 .map((partialConfiguration:PartialConfiguration): PlannerConfiguration => ({
                         ...partialConfiguration,
                         lumpType,
+                        autoharvestTimestamp,
                         grandmapocalypseStages: matchingGrandmapocalypseStages as [boolean, boolean, boolean, boolean],
                 }));
             this.cache[lumpType].push(configurations);

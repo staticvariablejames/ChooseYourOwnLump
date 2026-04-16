@@ -72,6 +72,7 @@ export type DragonAuraReportEntry = {
 export type PlannerReportEntry = {
     selectedEntry: boolean;
     lumpType: LumpType;
+    autoharvestTimestamp: number;
     grandmaCount: number;
     grandmaCountNote: 'checkmark' | '';
     grandmapocalypseStages: [boolean, boolean, boolean, boolean];
