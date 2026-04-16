@@ -322,6 +322,53 @@ export function makeIntersectionFilter(...filters: ConfigurationFilter[]): Confi
     }
 }
 
+export function makeFilterCollection(fullState: FullGameState):
+    {requirements: ConfigurationFilter[], goals: ConfigurationFilter[]}
+{
+    let requirements = [] as ConfigurationFilter[];
+    let goals = [] as ConfigurationFilter[];
+    let conditions = fullState.preferences.conditions;
+    let dragonPreserver = makeDragonPreservingConfigurationFilter(fullState.gameState);
+    let pantheonPreserver = makePantheonPreservingConfigurationFilter(fullState.gameState);
+    let grandmapocalypsePreserver = makeGrandmapocalypseStagePreservingFilter(fullState.gameState);
+    let budgetRespecter = makeBudgetConsciousFilter(fullState.budget);
+
+    if(conditions.preserveDragon == 'require') {
+        requirements.push(dragonPreserver);
+    }
+    if(conditions.preservePantheon == 'require') {
+        requirements.push(pantheonPreserver);
+    }
+    if(conditions.preserveGrandmapocalypseStage == 'require') {
+        requirements.push(grandmapocalypsePreserver);
+    }
+    if(conditions.respectBudget == 'require') {
+        requirements.push(budgetRespecter);
+    }
+
+    if(conditions.preserveDragon == 'observe') {
+        goals.push(dragonPreserver);
+    }
+    if(conditions.preservePantheon == 'observe') {
+        goals.push(pantheonPreserver);
+    }
+    if(conditions.preserveGrandmapocalypseStage == 'observe') {
+        goals.push(grandmapocalypsePreserver);
+    }
+    if(conditions.respectBudget == 'observe') {
+        goals.push(budgetRespecter);
+    }
+
+    /* Additionally, add condition to try to preserve both
+     * TODO: document this somewhere
+     */
+    if(conditions.preserveDragon == 'observe' && conditions.preservePantheon == 'observe') {
+        goals.push(makeIntersectionFilter(dragonPreserver, pantheonPreserver));
+    }
+
+    return {requirements, goals};
+}
+
 export class CachedConfigurationsProcessor {
     constructor(plannerCore: PlannerCore) {
         this.plannerCore = plannerCore;
@@ -452,5 +499,70 @@ export class CachedConfigurationsProcessor {
             }
         }
         return {successes, failures: goals};
+    }
+
+    public getFilteredPlannerReport(fullGameState: FullGameState): FilteredPlannerReport {
+        if(!this.isCacheCompatible(fullGameState.gameState)) {
+            throw new Error('fullGameState.gameState is not compatible with this.plannerCore');
+        }
+        let report: FilteredPlannerReport = {};
+        let { requirements, goals } = makeFilterCollection(fullGameState);
+        let lumpType: LumpType;
+        for(lumpType in fullGameState.preferences.includeType) {
+            if(fullGameState.preferences.includeType[lumpType]) {
+                let out = this.getConfigurations({ targetLump: lumpType, requirements, goals });
+                report[lumpType] = out.successes.map(configuration => makeReportEntry({
+                    configuration,
+                    plannerCore: this.plannerCore,
+                    threeColumnDragonAuras: fullGameState.preferences.threeColumnDragonAuras
+                }));
+            }
+        }
+        return report;
+    }
+
+    public getFullListPlannerReport(fullGameState: FullGameState): FullListPlannerReport {
+        if(!this.isCacheCompatible(fullGameState.gameState)) {
+            throw new Error('fullGameState.gameState is not compatible with this.plannerCore');
+        }
+        while(this.cacheNextPredictionSet()) {
+            // Who needs lazy computation??
+        }
+
+        let self = this;
+        let { requirements } = makeFilterCollection(fullGameState);
+        function* makeIterator(lumpType: LumpType) {
+            for(let configurationSet of self.makePlannerConfigurationIterator(lumpType)) {
+                let configurations = [];
+                outerLoop: for(let configuration of configurationSet) {
+                    for(let filter of requirements) {
+                        if(!filter(configuration))
+                            continue outerLoop;
+                    }
+                    configurations.push(configuration);
+                }
+                // TODO these configurations are all equivalent and could be filtered using goals
+                for(let configuration of configurations) {
+                    yield configuration;
+                }
+            }
+        }
+
+        let iterators: Iterator<PlannerConfiguration>[] = [];
+        let lumpType: LumpType;
+        for(lumpType in fullGameState.preferences.includeType) {
+            if(fullGameState.preferences.includeType[lumpType]) {
+                iterators.push(makeIterator(lumpType));
+            }
+        }
+        let report: FullListPlannerReport = [];
+        for(let configuration of mergeIterators(iterators, (x, y) => x.autoharvestTimestamp - y.autoharvestTimestamp)) {
+            report.push(makeReportEntry({
+                configuration,
+                plannerCore: this.plannerCore,
+                threeColumnDragonAuras: fullGameState.preferences.threeColumnDragonAuras,
+            }));
+        }
+        return report;
     }
 };

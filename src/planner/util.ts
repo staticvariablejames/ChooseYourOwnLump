@@ -5,12 +5,20 @@ import { PlannerRelevantState, BudgetInfo, PlannerPreferences } from './types';
 export function getCurrentPlannerPreferences(): PlannerPreferences {
     // FIXME: actually get it from the settings
     return {
+        reportType: 'filtered',
         threeColumnDragonAuras: false,
         conditions: {
             preserveDragon: 'observe',
             preservePantheon: 'observe',
             preserveGrandmapocalypseStage: 'observe',
             respectBudget: 'observe',
+        },
+        includeType: {
+            normal: false,
+            bifurcated: false,
+            golden: true,
+            meaty: false,
+            caramelized: true,
         },
     };
 };
@@ -60,3 +68,11 @@ export function getCurrentBudget(): BudgetInfo {
         unlockedSecondAura: maximumPurchases(Game.Objects['You'], 200) >= 200,
     };
 };
+
+export function getCurrentFullGameState() {
+    return {
+        gameState: getCurrentGameState(),
+        preferences: getCurrentPlannerPreferences(),
+        budget: getCurrentBudget()
+    };
+}

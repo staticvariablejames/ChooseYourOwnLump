@@ -54,13 +54,24 @@ type ConditionSetting = 'require' | 'observe' | 'ignore';
  * the discrepancy is part of the PlannerRelevantState.
  */
 export type PlannerPreferences = {
+    reportType: 'filtered' | 'fullList';
     threeColumnDragonAuras: boolean,
     conditions: {
         preserveDragon: ConditionSetting;
         preservePantheon: ConditionSetting;
         preserveGrandmapocalypseStage: ConditionSetting;
         respectBudget: ConditionSetting;
-    };
+    },
+    includeType: {
+        [lump in LumpType]: boolean;
+    },
+};
+
+// TODO: better name
+export type FullGameState = {
+    gameState: PlannerRelevantState,
+    preferences: PlannerPreferences,
+    budget: BudgetInfo,
 };
 
 export type DragonAuraReportEntry = {
@@ -82,3 +93,10 @@ export type PlannerReportEntry = {
     rigidelSlot: PantheonSlot;
     rigidelNote: 'checkmark' | '';
 };
+
+export type FilteredPlannerReport = {
+    [lumpType in LumpType]?: PlannerReportEntry[];
+};
+
+// "Classic" planner report
+export type FullListPlannerReport = PlannerReportEntry[];
