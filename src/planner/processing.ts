@@ -76,7 +76,7 @@ export const precomputedPartialConfigurations: PartialConfiguration[][] =
         // Why don't Array.map works with undefined values? :(
         = Array(canonicalIndicesCount).fill([]).map(() => []);
     for(let grandmaCount = 0; grandmaCount <= 600; grandmaCount++) {
-        for(let rigidelSlot of ['diamond', 'ruby', 'jade', 'none'] as PantheonSlot[]) {
+        for(let rigidelSlot of ['none', 'jade', 'ruby', 'diamond'] as PantheonSlot[]) {
             for(let hasDragonsCurve of [false, true]) {
                 for(let hasRealityBending of [false, true]) {
                     for(let hasSupremeIntellect of [false, true]) {

@@ -681,8 +681,8 @@ test.describe('CachedConfigurationsProcessor', () => {
                 dragonPreservingFilter,
             ]);
             expect(successes).toEqual([
-                {grandmaCount: 234, hasDragonsCurve: true, hasRealityBending: false, hasSupremeIntellect: false, rigidelSlot: 'diamond', grandmapocalypseStages: [true, false, false, false], lumpType: 'golden'},
-                {grandmaCount: 476, hasDragonsCurve: true, hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none',    grandmapocalypseStages: [true, true,  true,  true],  lumpType: 'golden'},
+                {grandmaCount: 234, hasDragonsCurve: true, hasRealityBending: false, hasSupremeIntellect: true,  rigidelSlot: 'ruby', grandmapocalypseStages: [true, false, false, false], lumpType: 'golden'},
+                {grandmaCount: 476, hasDragonsCurve: true, hasRealityBending: true,  hasSupremeIntellect: false, rigidelSlot: 'none', grandmapocalypseStages: [true, true,  true,  true],  lumpType: 'golden'},
             ]);
         });
 
