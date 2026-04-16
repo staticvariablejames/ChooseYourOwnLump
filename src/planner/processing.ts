@@ -9,35 +9,62 @@ import {
     PlannerRelevantState,
     DragonAuraReportEntry,
     PlannerReportEntry,
+    FilteredPlannerReport,
+    FullListPlannerReport,
+    FullGameState,
 } from './types';
 
 import { DistilledPlannerConfiguration, rigidelPower, PlannerCore } from './core';
 
-export const distilledConfigurationsCount = 2*2*1201;
-export function* makeConfigurationsIterator(core: PlannerCore) {
-    let startGrandmaCount = core.hasSugarAgingProcess ? 1200 : 600;
-    let configurations: DistilledPlannerConfiguration[] = [
-        {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: false, hasRealityBending: false},
-        {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: false, hasRealityBending: true},
-        {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: true,  hasRealityBending: false},
-        {effectiveGrandmaCount: startGrandmaCount, hasDragonsCurve: true,  hasRealityBending: true},
-    ];
-    while(configurations.length != 0) {
+export function* mergeIterators<T>(iterators: Iterator<T>[], compare: (x: T, y: T) => number) {
+    // We assume the iterators don't start out dead
+    let values: T[] = [];
+    let validIterators: Iterator<T>[] = [];
+    for(let i = 0; i < iterators.length; i++) {
+        let { value, done } = iterators[i].next();
+        if(!done) {
+            values[i] = value;
+            validIterators.push(iterators[i]);
+        }
+    }
+
+    while(validIterators.length != 0) {
         let earliest = 0;
-        for(let i = 1; i < configurations.length; i++) {
-            if(core.overripeAge(configurations[i]) < core.overripeAge(configurations[earliest]))
+        for(let i = 1; i < validIterators.length; i++) {
+            if(compare(values[i], values[earliest]) < 0)
                 earliest = i;
         }
-        yield {...configurations[earliest]};
+        yield values[earliest];
 
-        if(core.hasSugarAgingProcess) {
-            configurations[earliest].effectiveGrandmaCount--;
+        let { value, done } = iterators[earliest].next();
+        if(done) {
+            values.splice(earliest, 1);
+            validIterators.splice(earliest, 1);
         } else {
-            configurations[earliest].effectiveGrandmaCount -= 200;
+            values[earliest] = value;
         }
-        if(configurations[earliest].effectiveGrandmaCount < 0)
-            configurations.splice(earliest, 1);
     }
+}
+
+export const distilledConfigurationsCount = 2*2*1201;
+export function makeConfigurationsIterator(core: PlannerCore) {
+    let startGrandmaCount = core.hasSugarAgingProcess ? 1200 : 600;
+    let step = core.hasSugarAgingProcess ? 1 : 200;
+    function* makeIterator(hasDragonsCurve: boolean, hasRealityBending: boolean) {
+        for(let i = startGrandmaCount; i >= 0; i -= step) {
+            yield {effectiveGrandmaCount: i, hasDragonsCurve, hasRealityBending};
+        }
+    }
+    let compare = (x: DistilledPlannerConfiguration, y: DistilledPlannerConfiguration) => {
+        return core.overripeAge(x) - core.overripeAge(y);
+    }
+
+    return mergeIterators([
+        makeIterator(false, false),
+        makeIterator(false, true),
+        makeIterator(true, false),
+        makeIterator(true, true),
+    ], compare);
 }
 
 export const canonicalIndicesCount = 2*2*1201;
