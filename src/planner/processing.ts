@@ -387,6 +387,15 @@ export class CachedConfigurationsProcessor {
                gameState.seed == this.plannerCore.seed;
     }
 
+    public updateCoreIfCompatible(newPlannerCore: PlannerCore) {
+        if(this.isCacheCompatible(newPlannerCore)) {
+            this.plannerCore = newPlannerCore;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // The attributes are public mainly for testing
     public plannerCore: PlannerCore;
 
