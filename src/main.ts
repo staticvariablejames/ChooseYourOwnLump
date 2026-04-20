@@ -21,6 +21,7 @@
  */
 import { name, version, GameVersion } from './modInfo';
 import { planner } from './planner/planner';
+import { preferences } from './preferences';
 import { PersistentState } from './persistentState';
 import { TransientState } from './transientState';
 import { DragonAuras } from './dragonAuras';
@@ -37,6 +38,7 @@ let CYOL = {
     isLoaded: false,
 
     // Global variables, not really part of the public API but useful for testing
+    preferences,
     planner,
 
     // Mainly used for testing

@@ -1,31 +1,16 @@
 /* Utilities to grab the current state of the game.
  */
 import { PlannerRelevantState, BudgetInfo, FilteringPreferences } from './types';
+import { preferences } from '../preferences';
 
 export function getCurrentFilteringPreferences(): FilteringPreferences {
-    // FIXME: actually get it from the settings
-    return {
-        threeColumnDragonAuras: false,
-        conditions: {
-            preserveDragon: 'observe',
-            preservePantheon: 'observe',
-            preserveGrandmapocalypseStage: 'observe',
-            respectBudget: 'observe',
-        },
-        includeType: {
-            normal: false,
-            bifurcated: false,
-            golden: true,
-            meaty: false,
-            caramelized: true,
-        },
-    };
+    return preferences.filtering;
 };
 
 export function getCurrentGameState(): PlannerRelevantState {
     // FIXME: actually get it from the game state
     return {
-        discrepancy: 0,
+        discrepancy: preferences.discrepancy,
         hasSteviaCaelestis: false,
         hasSucralosiaInutilis: false,
         hasSugarAgingProcess: false,
