@@ -1,9 +1,14 @@
-/* Class that represents CYOL's lump planner.
+/* CYOL's lump planner.
  *
+ * The main export of this file is the global object `planner`,
+ * which is of the class `CoalesingLumpsPlanner` (also exported by this file).
  * On construction,
  * this class instantiates a web worker which handles all planner-related computation.
  * Results from the web worker are cached,
  * and are served using a stale-while-revalidate caching strategy.
+ *
+ * (In theory, users of this class could have their own instances of CoalescingLumpsPlanner,
+ * but these instances would not share the cache.)
  *
  * For example, if the currently cached lump type is valid (does not need an update),
  * the method CoalescingLumpsPlanner.prototype.getAndUpdateLumpTypePrediction() returns
@@ -173,3 +178,10 @@ export class CoalescingLumpsPlanner {
         return isCurrent;
     }
 }
+
+/* The planner itself.
+ * This is actually the only "global" element of this file.
+ * Users could very well create their own instances of CoalescingLumpsPlanner,
+ * they just wouldn't share the cache.
+ */
+export let planner = new CoalescingLumpsPlanner();

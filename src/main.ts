@@ -20,6 +20,7 @@
  * used by Game.registerMod.
  */
 import { name, version, GameVersion } from './modInfo';
+import { planner } from './planner/planner';
 import { PersistentState } from './persistentState';
 import { TransientState } from './transientState';
 import { DragonAuras } from './dragonAuras';
@@ -34,6 +35,9 @@ let CYOL = {
     name: name,
     version: version,
     isLoaded: false,
+
+    // Global variables, not really part of the public API but useful for testing
+    planner,
 
     // Mainly used for testing
     PersistentState: PersistentState,
