@@ -11,15 +11,35 @@ import {
 } from './types';
 
 export type PlannerComputationID = number;
+export type RequestType = 'lumpType' | 'filteredReport' | 'fullListReport';
 
 export type MessageToTheWorker = {
+    request: RequestType;
     computationId: PlannerComputationID,
     fullGameState: FullGameState, // Currently we always inform everything
 };
 
-export type ResponseFromTheWorker = {
-    computationId: PlannerComputationID,
-    lumpType: LumpType, // Currently we always update the lump type
-    filteredReport: FilteredPlannerReport, // Might be {}
-    fullListReport: FullListPlannerReport, // Might be []
+type ResponseBase = {
+    request: RequestType;
+    computationId: PlannerComputationID;
+    lumpType: LumpType; // Currently we always provide the lump type on any request
 };
+
+type LumpTypeResponse = ResponseBase & {
+    request: 'lumpType';
+}
+
+type FilteredReportResponse = ResponseBase & {
+    request: 'filteredReport';
+    report: FilteredPlannerReport;
+}
+
+type FullListReportResponse = ResponseBase & {
+    request: 'fullListReport';
+    report: FullListPlannerReport;
+}
+
+export type ResponseFromTheWorker =
+    LumpTypeResponse |
+    FilteredReportResponse |
+    FullListReportResponse;

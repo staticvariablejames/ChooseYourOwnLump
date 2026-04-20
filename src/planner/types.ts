@@ -54,7 +54,6 @@ type ConditionSetting = 'require' | 'observe' | 'ignore';
  * the discrepancy is part of the PlannerRelevantState.
  */
 export type PlannerPreferences = {
-    reportType: 'filtered' | 'fullList';
     threeColumnDragonAuras: boolean,
     conditions: {
         preserveDragon: ConditionSetting;

@@ -3,6 +3,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *      Communication protocol
  *
+ * TODO: update this description
  * Whenever the game state changes in a way relevant to the planner
  * (e.g. changing the seed, or a setting),
  * the CoalescingLumpsPlanner owning this worker posts a message passing the new game state.
@@ -18,7 +19,6 @@
  */
 
 import { PlannerCore } from './core';
-import { FilteredPlannerReport, FullListPlannerReport } from './types';
 import { CachedConfigurationsProcessor } from './processing';
 import { MessageToTheWorker, ResponseFromTheWorker } from './workerMessages';
 
@@ -32,12 +32,9 @@ import { MessageToTheWorker, ResponseFromTheWorker } from './workerMessages';
 let cache: CachedConfigurationsProcessor[] = [];
 
 self.onmessage = (ev: MessageEvent<MessageToTheWorker>) => {
-    let { computationId, fullGameState } = ev.data;
+    let { request, computationId, fullGameState } = ev.data;
 
     let plannerCore = new PlannerCore(fullGameState.gameState);
-    let filteredReport: FilteredPlannerReport = {};
-    let fullListReport: FullListPlannerReport = [];
-
     let processor: CachedConfigurationsProcessor = (() => {
         for(let processor of cache) {
             if(processor.updateCoreIfCompatible(plannerCore)) {
@@ -45,25 +42,27 @@ self.onmessage = (ev: MessageEvent<MessageToTheWorker>) => {
             }
         }
         let processor = new CachedConfigurationsProcessor(plannerCore);
-        cache.push(processor);
+        // unshift instead of push because I expect new entries to be used more often
+        cache.unshift(processor);
         return processor;
     })();
 
-    // TODO: perhaps here is not the best place to do this branch
-    switch(fullGameState.preferences.reportType) {
-        case 'filtered':
-            filteredReport = processor.getFilteredPlannerReport(fullGameState);
-            break;
-        case 'fullList':
-            fullListReport = processor.getFullListPlannerReport(fullGameState);
-            break;
-    }
+    let lumpType = plannerCore.currentPrediction();
 
-    let response: ResponseFromTheWorker = {
-        computationId,
-        lumpType: plannerCore.currentPrediction(),
-        filteredReport,
-        fullListReport,
-    };
+    let response: ResponseFromTheWorker;
+    switch(request) {
+        case 'lumpType':
+            response = { request, computationId, lumpType };
+            break;
+        case 'filteredReport':
+            response = { request, computationId, lumpType,
+                report: processor.getFilteredPlannerReport(fullGameState),
+            };
+            break;
+        case 'fullListReport':
+            response = { request, computationId, lumpType,
+                report: processor.getFullListPlannerReport(fullGameState),
+            };
+    }
     self.postMessage(response);
 };
