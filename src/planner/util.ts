@@ -1,8 +1,8 @@
 /* Utilities to grab the current state of the game.
  */
-import { PlannerRelevantState, BudgetInfo, PlannerPreferences } from './types';
+import { PlannerRelevantState, BudgetInfo, FilteringPreferences } from './types';
 
-export function getCurrentPlannerPreferences(): PlannerPreferences {
+export function getCurrentFilteringPreferences(): FilteringPreferences {
     // FIXME: actually get it from the settings
     return {
         threeColumnDragonAuras: false,
@@ -71,7 +71,7 @@ export function getCurrentBudget(): BudgetInfo {
 export function getCurrentFullGameState() {
     return {
         gameState: getCurrentGameState(),
-        preferences: getCurrentPlannerPreferences(),
+        preferences: getCurrentFilteringPreferences(),
         budget: getCurrentBudget()
     };
 }

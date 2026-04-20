@@ -53,7 +53,7 @@ type ConditionSetting = 'require' | 'observe' | 'ignore';
  * Note that, although technically a user preference,
  * the discrepancy is part of the PlannerRelevantState.
  */
-export type PlannerPreferences = {
+export type FilteringPreferences = {
     threeColumnDragonAuras: boolean,
     conditions: {
         preserveDragon: ConditionSetting;
@@ -69,7 +69,7 @@ export type PlannerPreferences = {
 // TODO: better name
 export type FullGameState = {
     gameState: PlannerRelevantState,
-    preferences: PlannerPreferences,
+    preferences: FilteringPreferences,
     budget: BudgetInfo,
 };
 
