@@ -29,7 +29,8 @@ import { loadSettingsFrom, exportSettings } from './UI/settings';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu } from './UI/optionsMenu';
 import { rewriteCode } from './util';
-import * as UI from './UI/index';
+import { sneakySaveDataRetrieval } from './UI/preAutoharvestDataRetrieval';
+import { discrepancyCallback, rowsToDisplayCallback, toggleSettings } from './UI/optionsMenu';
 
 let CYOL = {
     // Basic information about the mod
@@ -47,7 +48,12 @@ let CYOL = {
     DragonAuras: DragonAuras,
 
     // UI; needs to be here for the UI callbacks to work, but not quite part of the public API
-    UI: UI,
+    UI: {
+        sneakySaveDataRetrieval,
+        discrepancyCallback,
+        rowsToDisplayCallback,
+        toggleSettings,
+    },
 
     // Used by Game.registerMod
     init: function() {
