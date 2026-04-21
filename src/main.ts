@@ -27,10 +27,9 @@ import { TransientState } from './transientState';
 import { DragonAuras } from './dragonAuras';
 import { loadSettingsFrom, exportSettings } from './UI/settings';
 import { customLumpTooltip } from './UI/lumpTooltip';
-import { customOptionsMenu } from './UI/optionsMenu';
+import { customOptionsMenu, onSliderUpdate, onButtonClick } from './UI/optionsMenu';
 import { rewriteCode } from './util';
 import { sneakySaveDataRetrieval } from './UI/preAutoharvestDataRetrieval';
-import { discrepancyCallback, rowsToDisplayCallback, toggleSettings } from './UI/optionsMenu';
 
 let CYOL = {
     // Basic information about the mod
@@ -47,12 +46,14 @@ let CYOL = {
     TransientState: TransientState,
     DragonAuras: DragonAuras,
 
-    // UI; needs to be here for the UI callbacks to work, but not quite part of the public API
+    /* UI callbacks.
+     * These need to be here for the buttons in the options menu to work,
+     * but are not part of the public API.
+     */
     UI: {
         sneakySaveDataRetrieval,
-        discrepancyCallback,
-        rowsToDisplayCallback,
-        toggleSettings,
+        onSliderUpdate,
+        onButtonClick,
     },
 
     // Used by Game.registerMod

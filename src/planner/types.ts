@@ -46,7 +46,7 @@ export type BudgetInfo = {
     unlockedSecondAura: boolean,
 };
 
-type ConditionSetting = 'require' | 'observe' | 'ignore';
+export type ConditionSetting = 'require' | 'observe' | 'ignore';
 
 /* All user settings that are relevant for the planner.
  *

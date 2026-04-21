@@ -1,57 +1,67 @@
 import { test, expect } from '@playwright/test';
 import { setupCookieClickerPage } from 'cookie-connoisseur';
+import { getDefaultPreferences } from '../src/preferences';
 
-test('Changing settings updates the CYOL.UI.settings object', async ({page}) => {
+test('Changing preferences updates the CYOL.preferences object', async ({page}) => {
     page = await setupCookieClickerPage(page);
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
-    let expectedSettings = {
-        discrepancy: 1,
-        includeNormal: false,
-        includeBifurcated: false,
-        includeGolden: true,
-        includeMeaty: false,
-        includeCaramelized: false,
-        preserveGrandmapocalypseStage: false,
-        preserveDragon: false,
-        preservePantheon: false,
-        rowsToDisplay: 10,
-    }
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    let expectedPreferences = getDefaultPreferences();
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Options').click();
-    await page.getByText('Hiding normal lumps').click();
-    expectedSettings.includeNormal = true;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.getByText('Options', {exact: true}).click();
+    await page.getByText('Normal OFF').click();
+    expectedPreferences.filtering.includeType.normal = true;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Any grandmapocalypse stage').click();
-    expectedSettings.preserveGrandmapocalypseStage = true;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.locator('#CYOL-slider-preserveGrandmapocalypseStage').fill('0');
+    expectedPreferences.filtering.conditions.preserveGrandmapocalypseStage = 'require';
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Any pantheon configuration').click();
-    expectedSettings.preservePantheon = true;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.locator('#CYOL-slider-preservePantheon').fill('2');
+    expectedPreferences.filtering.conditions.preservePantheon = 'ignore';
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Showing golden lumps').click();
-    expectedSettings.includeGolden = false;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.getByText('Golden ON').click();
+    expectedPreferences.filtering.includeType.golden = false;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Hiding caramelized lumps').click();
-    expectedSettings.includeCaramelized = true;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.getByText('Caramelized ON').click();
+    expectedPreferences.filtering.includeType.caramelized = false;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Hiding meaty lumps').click();
-    expectedSettings.includeMeaty = true;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.getByText('Meaty OFF').click();
+    expectedPreferences.filtering.includeType.meaty = true;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.locator('#CYOLdiscrepancySlider').fill('3');
-    expectedSettings.discrepancy = 3;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.getByText('Bifurcated OFF').click();
+    expectedPreferences.filtering.includeType.bifurcated = true;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.locator('#CYOLrowsToDisplaySlider').fill('15');
-    expectedSettings.rowsToDisplay = 15;
-    expect(await page.evaluate(() => window.CYOL.UI.settings)).toEqual(expectedSettings);
+    await page.locator('#CYOL-slider-preserveDragon').fill('0');
+    expectedPreferences.filtering.conditions.preserveDragon = 'require';
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
+
+    await page.locator('#CYOL-slider-respectBudget').fill('2');
+    expectedPreferences.filtering.conditions.respectBudget = 'ignore';
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
+
+    await page.locator('#CYOL-slider-discrepancy').fill('3');
+    expectedPreferences.discrepancy = 3;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
+
+    await page.locator('#CYOL-slider-rowsToDisplay').fill('15');
+    expectedPreferences.rowsToDisplay = 15;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
+
+    await page.getByText('Filtered display ON').click();
+    expectedPreferences.reportType = 'fullList';
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
+
+    await page.getByText('Display dragon auras in three').click();
+    expectedPreferences.filtering.threeColumnDragonAuras = true;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 });
 
 test('The lump tooltip displays the predictions without grandmas', async ({page}) => {
