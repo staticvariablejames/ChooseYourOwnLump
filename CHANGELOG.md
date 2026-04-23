@@ -6,6 +6,8 @@
 - **Removed**: legacy support for loading CYOL saves from versions 1.2.7 and earlier.
     (CYOL 1.3.2 has been around for 4.5 years,
     nobody should be using any other version.)
+- **Removed**: compatibility with Spiced Cookies.
+    It will be re-added in a future update.
 - (internal) Changed: the bundler to Vite,
     due to its native support to web workers.
 

@@ -45,15 +45,6 @@ export function exportSettings() {
     });
 }
 
-/* Returns the discrepancy,
- * unless the Spiced Cookies discrepancy patch is detected,
- * in which it returns 0.
- */
-export function effectiveDiscrepancy() {
-    if(typeof Spice !== 'undefined' && Spice?.settings?.patchDiscrepancy) return 0;
-    return settings.discrepancy;
-}
-
 export function targetTypes() {
     let types = [];
     if(settings.includeNormal) types.push('normal');

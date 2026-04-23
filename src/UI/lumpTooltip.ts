@@ -1,5 +1,6 @@
+import { preferences } from '../preferences';
 import { TransientState } from '../transientState';
-import { settings, effectiveDiscrepancy, targetTypes } from './settings';
+import { settings, targetTypes } from './settings';
 import { makeIcon, makeGrandmaIcon, makeRigidelIcon } from './icons';
 import { currentLumpType, currentRigidelSlot } from './util';
 import { previousAutoharvestTime, previousLumpT, warnPantheonNotLoaded } from './preAutoharvestDataRetrieval';
@@ -15,12 +16,12 @@ export function discrepancyTooltip() {
      * so this function tries to remind the user to load the save game
      * only after a lump is autoharvested.
      *
-     * Another example: if the actual discrepancy differs from effectiveDiscrepancy(),
+     * Another example: if the actual discrepancy differs from the expected discrepancy,
      * then the lump type is probably not what the user wanted,
      * so there is a reminder to try to reload the game again.
      * (This is also the reason why the current lump type is shown here.)
      */
-    let str = '<div>Expected discrepancy: ' + effectiveDiscrepancy() + 'ms.</div>';
+    let str = '<div>Expected discrepancy: ' + preferences.discrepancy + 'ms.</div>';
     str += '<div>Current lump type: ' + makeIcon('lump_' + currentLumpType()) +
         ' ' + currentLumpType() + '.</div>';
 
@@ -52,17 +53,17 @@ export function discrepancyTooltip() {
             // The threshold is 100 because it is the highest the slider can go in the options menu
         } else {
             str += "<div>The actual discrepancy was ";
-            if(discrepancy === effectiveDiscrepancy()) {
+            if(discrepancy === preferences.discrepancy) {
                 str += '<div style="display:inline; color:green">' + discrepancy + ' milliseconds</div>,';
                 str += ' precisely what we expected!<br />';
             } else {
                 str += '<div style="display:inline; color:red">' + discrepancy + ' milliseconds</div>,';
-                if(discrepancy < effectiveDiscrepancy())
+                if(discrepancy < preferences.discrepancy)
                     str += ' less than what we expected.';
                 else
                     str += ' more than what we expected.';
             }
-            if(discrepancy !== effectiveDiscrepancy())
+            if(discrepancy !== preferences.discrepancy)
                 str += ' Try reloading the save if the lump has the wrong type.';
             str += '</div>';
         }
@@ -163,7 +164,7 @@ export function customLumpTooltip(str: string, _phase: number) {
     str += '<div class="line"></div>';
 
     // Next lump type
-    let type = predictNextLumpType(effectiveDiscrepancy());
+    let type = predictNextLumpType(preferences.discrepancy);
     str += 'Predicted next lump type: ' + makeIcon('lump_' + type) + ' ' + type + '.';
     if(Game.hasGod && Game.BuildingsOwned%10!==0 && Game.hasGod('order')) {
         str += ' Rigidel not active!';
