@@ -28,9 +28,6 @@ import {
     retrieveDataFromLegacySave,
     clearModState,
 } from './saveDataManagement';
-import { PersistentState } from './persistentState';
-import { TransientState } from './transientState';
-import { DragonAuras } from './dragonAuras';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu, onSliderUpdate, onButtonClick } from './UI/optionsMenu';
 import { rewriteCode } from './util';
@@ -45,11 +42,6 @@ let CYOL = {
     // Global variables, not really part of the public API but useful for testing
     preferences, // See preferences.ts
     planner,
-
-    // Mainly used for testing
-    PersistentState: PersistentState,
-    TransientState: TransientState,
-    DragonAuras: DragonAuras,
 
     /* UI callbacks.
      * These need to be here for the buttons in the options menu to work,
