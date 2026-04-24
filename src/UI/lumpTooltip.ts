@@ -1,11 +1,96 @@
+import { LumpType, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
+import { planner } from '../planner/planner';
 import { preferences } from '../preferences';
-import { TransientState } from '../transientState';
-import { settings, targetTypes } from './settings';
-import { makeIcon, makeGrandmaIcon, makeRigidelIcon } from './icons';
-import { currentLumpType, currentRigidelSlot } from './util';
 import { previousAutoharvestTime, previousLumpT, warnPantheonNotLoaded } from './preAutoharvestDataRetrieval';
-import { computePredictions, cachedPredictions } from './predictionsCache';
-import { predictNextLumpType } from '../util';
+
+function currentLumpType(): LumpType | 'unknown' {
+    switch(Game.lumpCurrentType) {
+        case 0: return 'normal';
+        case 1: return 'bifurcated';
+        case 2: return 'golden';
+        case 3: return 'meaty';
+        case 4: return 'caramelized';
+        default: return 'unknown';
+    }
+}
+
+function makeLumpIcon(lumpType: LumpType) {
+    let background = '';
+    switch(lumpType) {
+        case 'normal':      background = 'background-position: -1392px -672px;'; break;
+        case 'bifurcated':  background = 'background-position: -1392px -720px;'; break;
+        case 'golden':      background = 'background-position: -1344px -768px;'; break;
+        case 'meaty':       background = 'background-position: -1392px -816px;'; break;
+        case 'caramelized': background = 'background-position: -1392px -1296px;'; break;
+    }
+    return `<div class="icon" style="vertical-align: middle; margin: 0 -4px; ${background}"></div>`;
+}
+
+/* Returns a string for a <div> tag that displays the given dragon aura icon. */
+function makeDragonAuraIcon(dragonAura: DragonAuraReportEntry) {
+    let noteCharacter = '', noteColor = '';
+    if(dragonAura.note == 'checkmark') {
+        noteCharacter = '✔';
+        noteColor = 'color:darkgreen';
+    }
+    if(dragonAura.note == 'warn') {
+        noteCharacter = '⚠️';
+    }
+    let noteDiv = `<div style="width:12px;height:12px; position:absolute; top: 0px; right: 0px; ${noteColor}">${noteCharacter}</div>`;
+
+    let transparency = '';
+    if(dragonAura.style == 'faded') {
+        transparency += 'opacity: 0.2;';
+    }
+    let background = '';
+    switch(dragonAura.aura) {
+        case "Dragon's Curve":    background = 'background-position: -960px -1200px;'; break;
+        case "Reality Bending":   background = 'background-position: -1536px -1200px;'; break;
+        case "Supreme Intellect": background = 'background-position: -1632px -1200px;'; break;
+        case "none":              background = 'background-position:48px 48px;'; break;
+    }
+    let dragonDiv = '<div class="icon" style="vertical-align: middle; margin: 0 -4px;' + background + transparency + '"></div>';
+
+    return '<div style="height: 48px; position:relative; display:inline-block; vertical-align:middle;">' + dragonDiv + noteDiv + '</div>';
+}
+
+/* Same as above but for buildings instead. */
+function makeGrandmaIcon(type: string, transparent: boolean) {
+    let background = "background-image: url('img/buildings.png?v=5');";
+    let transparency = '';
+    if(type === 'appeased') background += 'background-position: 0px -64px;';
+    if(type === 'awoken') background += 'background-position: 0px -128px;';
+    if(type === 'displeased') background += 'background-position: -64px -128px;';
+    if(type === 'angered') background += 'background-position: -128px -128px;';
+    if(transparent) transparency += 'opacity: 0.2;';
+    return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + transparency + '"></div>';
+}
+
+/* Similar as above, but builds a Rigidel with a pantheon icon instead.
+ * slot === 0 means unslotted, slot === 1 means jade slot, 2 is ruby and 3 is diamond. */
+function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
+    let rigidel = '<div class="icon" style="background-position:-1056px -912px"></div>';
+    let gem_background = '';
+    switch(slot) {
+        case 'diamond': gem_background = 'background-position: -1104px -720px;'; break;
+        case 'ruby':    gem_background = 'background-position: -1128px -720px;'; break;
+        case 'jade':    gem_background = 'background-position: -1104px -744px;'; break;
+        case 'none':    gem_background = 'background-position: -1128px -744px;'; // No background
+    }
+    let gem = '<div class="icon" style="width:24px;height:24px; position:absolute; top: 36px; left: 12px;' + gem_background + '"></div>';
+
+    let noteCharacter = '', noteColor = '';
+    if(note == 'checkmark') {
+        noteCharacter = '✔';
+        noteColor = 'color:darkgreen';
+    }
+    if(note == 'warn') {
+        noteCharacter = '⚠️';
+    }
+    let noteDiv = `<div style="width:12px;height:12px; position:absolute; top: 0px; right: 0px; ${noteColor}">${noteCharacter}</div>`;
+
+    return '<div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;' + (slot=='none' ? 'opacity:0.2' : '') + '">' + rigidel + gem + noteDiv + '</div>';
+}
 
 // Builds a string that displays the discrepancy and the current lump type.
 export function discrepancyTooltip() {
@@ -22,8 +107,16 @@ export function discrepancyTooltip() {
      * (This is also the reason why the current lump type is shown here.)
      */
     let str = '<div>Expected discrepancy: ' + preferences.discrepancy + 'ms.</div>';
-    str += '<div>Current lump type: ' + makeIcon('lump_' + currentLumpType()) +
-        ' ' + currentLumpType() + '.</div>';
+    let lumpType = currentLumpType();
+    if(lumpType == 'unknown') {
+        str += `<div>CYOL does not know about this lump type.
+            You might be in a future version of Cookie Clicker that adds more lump types,
+            or using a mod which adds lump types,
+            or something is wrong with your save data.
+        </div>`;
+    } else {
+        str += `<div>Current lump type: ${makeLumpIcon(lumpType)} ${lumpType}.</div>`;
+    }
 
     if(Game.hasGod && warnPantheonNotLoaded) {
         str += '<div style="color:red">' +
@@ -76,102 +169,67 @@ export function discrepancyTooltip() {
     return str;
 }
 
-/* Decides whether the given prediction is desirable
- * based on current user preferences.
- */
-export function isDesirablePrediction(
-    prediction: TransientState,
-    additionalGrandmapocalypseStages: boolean[]
-) {
-    if(targetTypes().indexOf(prediction.lumpType!) === -1) return false;
-    let current = TransientState.current();
-    if(settings.preserveGrandmapocalypseStage) {
-        if(!additionalGrandmapocalypseStages[current.grandmapocalypseStage])
-            return false;
-    }
-    if(settings.preserveDragon) {
-        if(!current.dragon.equal(prediction.dragon))
-            return false;
-    }
-
-    // Last thing: the pantheon
-    if(settings.preservePantheon) {
-        if(prediction.rigidelSlot === 0) return true;
-        // If CYOL.TransientState.init generated 'prediction' with a slotted Rigidel,
-        // then we absolutely need it.
-        let currentSlot = currentRigidelSlot();
-        // We cannot use current.rigidelSlot because it considers inactive Rigidel as slot 0
-        if(!prediction.grandmaCount) return currentSlot === prediction.rigidelSlot;
-
-        let extraGrandmas = 200*(prediction.rigidelSlot - currentSlot); // make up the difference
-        return prediction.grandmaCount + extraGrandmas <= 600
-            && prediction.grandmaCount + extraGrandmas >= 0;
-    }
-
-    // Passed all tests!
-    return true;
-}
-
 // Constructs a fancy table of predictions
-export function predictionTable() {
-    computePredictions();
+export function makeFullListReport(report: FullListPlannerReport) {
     let str = '';
-    let rows = 0, i = 0;
-    while(rows < settings.rowsToDisplay && i < cachedPredictions!.length) {
-        let grandmapocalypseStages = [false, false, false, false];
-        let prediction = cachedPredictions![i];
-        while(prediction.almostEqual(cachedPredictions![i])) {
-            grandmapocalypseStages[cachedPredictions![i].grandmapocalypseStage] = true;
-            i++;
-        }
-
-        if(!isDesirablePrediction(prediction, grandmapocalypseStages)) {
-            continue;
-        } else {
-            rows++; // This is a valid row
-        }
-
-        str += makeIcon('lump_' + prediction.lumpType) + ':';
-        if(prediction.grandmaCount) {
-            str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + prediction.grandmaCount + 'x</div>';
-        } else {
+    let i;
+    for(i = 0; i < report.length && i < preferences.rowsToDisplay; i++) {
+        str += makeLumpIcon(report[i].lumpType) + ':';
+        if(report[i].grandmaCount === null) {
             str += '&nbsp;&nbsp;&nbsp;'; // kludge
+        } else {
+            str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + report[i].grandmaCount + 'x</div>';
         }
+
+        let grandmapocalypseStages = report[i].grandmapocalypseStages;
         str += makeGrandmaIcon('appeased', !grandmapocalypseStages[0]);
         str += makeGrandmaIcon('awoken', !grandmapocalypseStages[1]);
         str += makeGrandmaIcon('displeased', !grandmapocalypseStages[2]);
         str += makeGrandmaIcon('angered', !grandmapocalypseStages[3]);
-        str += makeIcon('aura_dragons_curve', !prediction.dragon.hasDragonsCurve);
-        str += makeIcon('aura_reality_bending', !prediction.dragon.hasRealityBending);
-        str += makeRigidelIcon(prediction.rigidelSlot);
+        for(let dragonAura of report[i].dragonAuras) {
+            str += makeDragonAuraIcon(dragonAura);
+        }
+        str += makeRigidelIcon(report[i].rigidelSlot, report[i].rigidelNote);
         str += '<br />';
     }
-    if(rows < settings.rowsToDisplay) {
+    if(i < preferences.rowsToDisplay) {
         str += 'No other matching predictions found.';
-        if(rows === 0) {
+        if(i == 0) {
             str += '<br />Try displaying more lump types in the settings!';
         }
     }
     return str;
 }
 
+/* This function is pushed to CCSE's `Game.customLumpTooltip` on init by main.ts.
+ */
 export function customLumpTooltip(str: string, _phase: number) {
-    computePredictions();
-    str = str.replace('width:400px','width:475px'); // FIXME kludge; widens the tooltip box
+    str = str.replace('width:400px','width:500px'); // FIXME kludge; widens the tooltip box
     str += '<div class="line"></div>';
 
     str += discrepancyTooltip();
     str += '<div class="line"></div>';
 
     // Next lump type
-    let type = predictNextLumpType(preferences.discrepancy);
-    str += 'Predicted next lump type: ' + makeIcon('lump_' + type) + ' ' + type + '.';
+    let prediction, isCurrent;
+    ({ prediction, isCurrent } = planner.getAndUpdateLumpTypePrediction());
+    str += 'Predicted next lump type: ' + makeLumpIcon(prediction) + ' ' + prediction + '.';
     if(Game.hasGod && Game.BuildingsOwned%10!==0 && Game.hasGod('order')) {
         str += ' Rigidel not active!';
     }
+    if(!isCurrent) {
+        str += ' (recalculating...)';
+    }
     str += '<br />';
 
-    str += 'Predictions: <br />';
-    str += predictionTable();
+    // TODO: if(preferences.reportType == 'filtered') ...
+    let report;
+    ({ report, isCurrent } = planner.getAndUpdateFullListReport());
+    if(isCurrent) {
+        str += 'Predictions: <br />';
+    } else {
+        str += 'Predictions (recalculating...): <br />';
+    }
+    str += makeFullListReport(report);
     return str;
 }
