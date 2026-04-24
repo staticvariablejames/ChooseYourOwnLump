@@ -22,10 +22,15 @@
 import { name, version, GameVersion } from './modInfo';
 import { planner } from './planner/planner';
 import { preferences } from './preferences';
+import {
+    loadSaveData,
+    serializeSaveData,
+    retrieveDataFromLegacySave,
+    clearModState,
+} from './saveDataManagement';
 import { PersistentState } from './persistentState';
 import { TransientState } from './transientState';
 import { DragonAuras } from './dragonAuras';
-import { loadSettingsFrom, exportSettings } from './UI/settings';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu, onSliderUpdate, onButtonClick } from './UI/optionsMenu';
 import { rewriteCode } from './util';
@@ -38,7 +43,7 @@ let CYOL = {
     isLoaded: false,
 
     // Global variables, not really part of the public API but useful for testing
-    preferences,
+    preferences, // See preferences.ts
     planner,
 
     // Mainly used for testing
@@ -56,7 +61,24 @@ let CYOL = {
         onButtonClick,
     },
 
-    // Used by Game.registerMod
+    /* This function is not part of Cookie Clicker's modding API,
+     * we inject a call to this in the beginning of Game.LoadMod ourselves.
+     */
+    preload: function() {
+        /* Vanilla bug:
+         * Cookie Clicker does not erase `Game.modSaveData` when `Game.LoadSave` is run.
+         * This means that,
+         * if the previous save had data in `Game.modSaveData["Choose Your Own Lump"]`
+         * and the new save has not,
+         * the mod save data from the previous save leaks onto the new save.
+         *
+         * So we delete `Game.modSaveData[name]` before the next save is loaded.
+         */
+        delete Game.modSaveData[name];
+    },
+
+    // The following attributes are used by Game.registerMod
+    id: name, // Overwritten by Game.registerMod anyway, but here for documentation
     init: function() {
         Game.customLumpTooltip.push(customLumpTooltip);
         Game.customOptionsMenu.push(customOptionsMenu);
@@ -64,18 +86,49 @@ let CYOL = {
             CCSE.AppendStatsVersionNumber(name, version);
         });
 
-        rewriteCode('Game.loadLumps', "Game.computeLumpTimes();", "$& CYOL.UI.sneakySaveDataRetrieval();");
+        rewriteCode(
+            'Game.loadLumps',
+            "Game.computeLumpTimes();",
+            "$& CYOL.UI.sneakySaveDataRetrieval();"
+        );
+        rewriteCode(
+            'Game.LoadSave',
+            '{', // Opening brace
+            '{\nCYOL.preload(); // Injected by Choose Your Own Lump\n'
+        );
+        rewriteCode(
+            'Game.loadModData',
+            '{', // Opening brace
+            `{\nif(!("${name}" in Game.modSaveData)) CYOL.load(); // Injected by Choose Your Own Lump\n`
+        );
+
+        Game.modHooks['reset'].push((hard?: boolean) => {
+            if(hard) {
+                clearModState();
+            }
+        });
+
+        retrieveDataFromLegacySave();
 
         CYOL.isLoaded = true;
         Game.Notify('Choose Your Own Lump loaded!', '', undefined, 1, true);
     },
 
     save: function() {
-        return exportSettings();
+        return serializeSaveData();
     },
 
-    load: function(str: string) {
-        loadSettingsFrom(str);
+    /* Cookie Clicker always calls this method passing a string,
+     * the "undefined" is injected by us,
+     * to run this function even if `Game.modSaveData[name]` does not exist.
+     */
+    load: function(str?: string) {
+        retrieveDataFromLegacySave();
+        if(str === undefined) {
+            clearModState();
+        } else {
+            loadSaveData(str);
+        }
     },
 };
 
@@ -90,16 +143,15 @@ window.CYOL = CYOL;
 if(typeof CCSE == 'undefined') Game.LoadMod('https://klattmose.github.io/CookieClicker/CCSE.js');
 
 if(!CYOL.isLoaded){
-    let id = 'Choose your own lump'; // TODO: change this to CYOL.name
     if(window.CCSE && window.CCSE.isLoaded){
-        Game.registerMod(id, CYOL);
+        Game.registerMod(CYOL.id, CYOL);
     }
     else {
         if(!window.CCSE) window.CCSE = ({} as (typeof CCSE));
         if(!window.CCSE.postLoadHooks) window.CCSE.postLoadHooks = [];
         window.CCSE.postLoadHooks.push(function() {
             if(window.CCSE.ConfirmGameVersion(name, version, GameVersion)) {
-                Game.registerMod(id, CYOL);
+                Game.registerMod(CYOL.id, CYOL);
             }
         });
     }

@@ -8,6 +8,9 @@
     nobody should be using any other version.)
 - **Removed**: compatibility with Spiced Cookies.
     It will be re-added in a future update.
+- (internal) Changed: the mod ID to "Choose Your Own Lump" (with capital letters).
+    The mod retrieves data from the old ID "Choose your own lump",
+    so players should not notice this change.
 - (internal) Changed: the bundler to Vite,
     due to its native support to web workers.
 
