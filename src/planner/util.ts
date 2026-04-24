@@ -1,27 +1,43 @@
 /* Utilities to grab the current state of the game.
  */
-import { PlannerRelevantState, BudgetInfo, FilteringPreferences } from './types';
+import { PlannerRelevantState, BudgetInfo, FilteringPreferences, PantheonSlot } from './types';
 import { preferences } from '../preferences';
 
+/* Returns a copy of the current filtering preferences.
+ * Being a copy means that the returned object won't change
+ * even if the actual preferences do.
+ */
 export function getCurrentFilteringPreferences(): FilteringPreferences {
-    return preferences.filtering;
+    return structuredClone(preferences.filtering);
 };
 
 export function getCurrentGameState(): PlannerRelevantState {
-    // FIXME: actually get it from the game state
+    let currentRigidelSlot: PantheonSlot = 'none';
+    let slots = Game?.Objects['Temple']?.minigame?.slot ?? null;
+    if(slots) {
+        // Cannot use Game.hasGod because that function takes Supreme Intellect into account
+        let rigidelId = Game.Objects['Temple'].minigame.gods['order'].id;
+        if(slots[0] == rigidelId) currentRigidelSlot = 'diamond';
+        if(slots[1] == rigidelId) currentRigidelSlot = 'ruby';
+        if(slots[2] == rigidelId) currentRigidelSlot = 'jade';
+    }
+    if(Game.BuildingsOwned % 10 != 0) {
+        currentRigidelSlot = 'none';
+    }
+
     return {
         discrepancy: preferences.discrepancy,
-        hasSteviaCaelestis: false,
-        hasSucralosiaInutilis: false,
-        hasSugarAgingProcess: false,
-        seed: 'aaaaa',
-        currentLumpT: 1.6e12,
-        currentRigidelSlot: 'none',
-        currentGrandmaCount: 0,
-        currentGrandmapocalypseStage: 0,
-        currentHasDragonsCurve: false,
-        currentHasRealityBending: false,
-        currentHasSupremeIntellect: false,
+        hasSteviaCaelestis: Boolean(Game.Has('Stevia Caelestis')),
+        hasSucralosiaInutilis: Boolean(Game.Has('Sucralosia Inutilis')),
+        hasSugarAgingProcess: Boolean(Game.Has('Sugar aging process')),
+        seed: Game.seed,
+        currentLumpT: Game.lumpT,
+        currentRigidelSlot,
+        currentGrandmaCount: Game.Objects['Grandma'].amount,
+        currentGrandmapocalypseStage: Game.elderWrath,
+        currentHasDragonsCurve: Game.hasAura("Dragon's Curve"),
+        currentHasRealityBending: Game.hasAura("Reality Bending"),
+        currentHasSupremeIntellect: Game.hasAura("Supreme Intellect"),
     };
 }
 
