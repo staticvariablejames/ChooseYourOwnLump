@@ -171,25 +171,26 @@ export function discrepancyTooltip() {
 
 // Constructs a fancy table of predictions
 export function makeFullListReport(report: FullListPlannerReport) {
+    let configurations = report.flat(); // TODO: Print this prettier
     let str = '';
     let i;
-    for(i = 0; i < report.length && i < preferences.rowsToDisplay; i++) {
-        str += makeLumpIcon(report[i].lumpType) + ':';
-        if(report[i].grandmaCount === null) {
+    for(i = 0; i < configurations.length && i < preferences.rowsToDisplay; i++) {
+        str += makeLumpIcon(configurations[i].lumpType) + ':';
+        if(configurations[i].grandmaCount === null) {
             str += '&nbsp;&nbsp;&nbsp;'; // kludge
         } else {
-            str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + report[i].grandmaCount + 'x</div>';
+            str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + configurations[i].grandmaCount + 'x</div>';
         }
 
-        let grandmapocalypseStages = report[i].grandmapocalypseStages;
+        let grandmapocalypseStages = configurations[i].grandmapocalypseStages;
         str += makeGrandmaIcon('appeased', !grandmapocalypseStages[0]);
         str += makeGrandmaIcon('awoken', !grandmapocalypseStages[1]);
         str += makeGrandmaIcon('displeased', !grandmapocalypseStages[2]);
         str += makeGrandmaIcon('angered', !grandmapocalypseStages[3]);
-        for(let dragonAura of report[i].dragonAuras) {
+        for(let dragonAura of configurations[i].dragonAuras) {
             str += makeDragonAuraIcon(dragonAura);
         }
-        str += makeRigidelIcon(report[i].rigidelSlot, report[i].rigidelNote);
+        str += makeRigidelIcon(configurations[i].rigidelSlot, configurations[i].rigidelNote);
         str += '<br />';
     }
     if(i < preferences.rowsToDisplay) {

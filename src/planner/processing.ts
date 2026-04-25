@@ -128,6 +128,10 @@ export const precomputedPartialConfigurations: PartialConfiguration[][] =
     return partialConfigurations;
 })();
 
+/* Translates the configuration into a PlannerReportEntry,
+ * adding notes according to whether the elements in the configuration
+ * match the current game state of the given plannerCore.
+ */
 export function makeReportEntry(options: {
     configuration: PlannerConfiguration,
     plannerCore: PlannerCore,
@@ -145,12 +149,27 @@ export function makeReportEntry(options: {
         && configuration.grandmapocalypseStages[plannerCore.currentGrandmapocalypseStage];
     let lumpType = configuration.lumpType;
     let autoharvestTimestamp = configuration.autoharvestTimestamp;
-    let grandmaCount = configuration.grandmaCount;
-    let grandmaCountNote = check(configuration.grandmaCount == plannerCore.currentGrandmaCount);
     let grandmapocalypseStages = configuration.grandmapocalypseStages;
     let grandmapocalypseNote = check(configuration.grandmapocalypseStages[plannerCore.currentGrandmapocalypseStage]);
     let rigidelSlot = configuration.rigidelSlot;
     let rigidelNote = check(configuration.rigidelSlot == plannerCore.currentRigidelSlot);
+
+    let grandmaCount: number | null;
+    let grandmaCountNote: 'checkmark' | 'warn' | '';
+    if(plannerCore.hasSugarAgingProcess) {
+        grandmaCount = configuration.grandmaCount;
+        grandmaCountNote = check(configuration.grandmaCount == plannerCore.currentGrandmaCount);
+    } else if(configuration.grandmaCount == 0) {
+        grandmaCount = null;
+        grandmaCountNote = '';
+    } else {
+        grandmaCount = configuration.grandmaCount;
+        grandmaCountNote = 'warn';
+        /* NOTE: Currently,
+         * CachedConfigurationsProcessor.prototype.cacheNextPredictionSet() filters those out,
+         * so this case should never happen.
+         */
+    }
 
     let dragonAuras: DragonAuraReportEntry[] = [];
     if(threeColumnDragonAuras) { // Easy
@@ -369,6 +388,41 @@ export function makeFilterCollection(fullState: FullGameState):
     return {requirements, goals};
 }
 
+/* Returns a list (satisfyingConfigurations, unsatisfiedGoals) with the following properties:
+ * - unsatisfiedGoals is the sublist of goals which are not satisfied by any configuration;
+ * - every configuration in satisfyingConfigurations satisfy at least one goal;
+ * - a greedy algorithm is used to minimize the length of satisfyingConfigurations.
+ */
+export function matchConfigurationsToGoals(
+    configurations: PlannerConfiguration[],
+    goals: ConfigurationFilter[]
+): {
+    satisfyingConfigurations: PlannerConfiguration[],
+    unsatisfiedGoals: ConfigurationFilter[],
+} {
+    let satisfyingConfigurations: PlannerConfiguration[] = [];
+    let needsFurtherProcessing = true;
+    while(needsFurtherProcessing) {
+        let countOfGoalsAccepting = configurations.map(configuration => {
+            return goals.map(goal => Number(goal(configuration))).reduce((x,y) => x+y, 0);
+        });
+        if(Math.max(...countOfGoalsAccepting) == 0) {
+            needsFurtherProcessing = false;
+        } else {
+            let index = countOfGoalsAccepting.indexOf(Math.max(...countOfGoalsAccepting));
+            satisfyingConfigurations.push(configurations[index]);
+            goals = goals.filter(goal => !goal(configurations[index]));
+            /* We added to successes one of the configurations satisfying the most goals,
+             * and removed from goals the ones which are already satisfied.
+             * It is possible that some goal is satisfied by some acceptable configuration,
+             * but not by the one we just pushed to `successes`,
+             * so we still need another round of processing for this list of configurations.
+             */
+        }
+    }
+    return {satisfyingConfigurations, unsatisfiedGoals: goals};
+}
+
 export class CachedConfigurationsProcessor {
     constructor(plannerCore: PlannerCore) {
         this.plannerCore = plannerCore;
@@ -403,7 +457,7 @@ export class CachedConfigurationsProcessor {
      * It will navigate through all distilled configurations of plannerCore exactly once.
      * We will lazily call lumpTypePredictionSet for each of those configurations,
      * and store the results in `this.cache`.
-     * Set to null when finished.
+     * It is set to null when finished.
      */
     public iterator: ReturnType<typeof makeConfigurationsIterator> | null;
 
@@ -426,10 +480,14 @@ export class CachedConfigurationsProcessor {
         }
         let autoharvestTimestamp = this.plannerCore.autoharvestTimestamp(next.value);
         let predictionSet = this.plannerCore.lumpTypePredictionSet(next.value);
+        let hasSugarAgingProcess = this.plannerCore.hasSugarAgingProcess;
         for(let lumpType of new Set(predictionSet)) {
             let matchingGrandmapocalypseStages = predictionSet.map(type => type == lumpType);
             let configurations = precomputedPartialConfigurations[canonicalIndex(next.value)]
-                .map((partialConfiguration:PartialConfiguration): PlannerConfiguration => ({
+                .filter((partialConfiguration:PartialConfiguration) => {
+                    if(hasSugarAgingProcess) return true;
+                    else return partialConfiguration.grandmaCount == 0;
+                }).map((partialConfiguration:PartialConfiguration): PlannerConfiguration => ({
                         ...partialConfiguration,
                         lumpType,
                         autoharvestTimestamp,
@@ -442,7 +500,7 @@ export class CachedConfigurationsProcessor {
 
     /* Makes an iterator that iterates through all PlannerConfiguration sets
      * matching the given lump type.
-     * It makes use and extends this object's cache.
+     * It uses and extends this object's cache.
      */
     public *makePlannerConfigurationIterator(lumpType: LumpType): Generator<PlannerConfiguration[]> {
         for(let configurationSet of this.cache[lumpType]) {
@@ -481,31 +539,15 @@ export class CachedConfigurationsProcessor {
         let acceptable = makeIntersectionFilter(...options.requirements);
         let successes: PlannerConfiguration[] = [];
         let goals = [...options.goals];
-    loop:
         for(let configurationSet of this.makePlannerConfigurationIterator(options.targetLump)) {
             let acceptableConfigurations = configurationSet.filter(acceptable);
             if(acceptableConfigurations.length == 0) continue;
-            let needsFurtherProcessing = true;
-            while(needsFurtherProcessing) {
-                let countOfGoalsAccepting = acceptableConfigurations.map(configuration => {
-                    return goals.map(goal => Number(goal(configuration))).reduce((x,y) => x+y);
-                });
-                if(Math.max(...countOfGoalsAccepting) == 0) {
-                    needsFurtherProcessing = false;
-                } else {
-                    let index = countOfGoalsAccepting.indexOf(Math.max(...countOfGoalsAccepting));
-                    successes.push(acceptableConfigurations[index]);
-                    goals = goals.filter(goal => !goal(acceptableConfigurations[index]));
-                    /* We added to successes one of the configurations satisfying the most goals,
-                     * and removed from goals the ones which are already satisfied.
-                     * It is possible that some goal is satisfied by some acceptable configuration,
-                     * but not by the one we just pushed to `successes`,
-                     * so we still need another round of processing for this list of configurations.
-                     */
-                }
-                if(goals.length == 0)
-                    break loop;
-            }
+            let { satisfyingConfigurations, unsatisfiedGoals } =
+                matchConfigurationsToGoals(acceptableConfigurations, goals);
+            goals = unsatisfiedGoals;
+            successes = successes.concat(satisfyingConfigurations);
+            if(goals.length == 0)
+                break;
         }
         return {successes, failures: goals};
     }
@@ -539,25 +581,21 @@ export class CachedConfigurationsProcessor {
         }
 
         let self = this;
-        let { requirements } = makeFilterCollection(fullGameState);
+        let { requirements, goals } = makeFilterCollection(fullGameState);
+        let acceptable = makeIntersectionFilter(...requirements);
         function* makeIterator(lumpType: LumpType) {
             for(let configurationSet of self.makePlannerConfigurationIterator(lumpType)) {
-                let configurations = [];
-                outerLoop: for(let configuration of configurationSet) {
-                    for(let filter of requirements) {
-                        if(!filter(configuration))
-                            continue outerLoop;
-                    }
-                    configurations.push(configuration);
-                }
-                // TODO these configurations are all equivalent and could be filtered using goals
-                for(let configuration of configurations) {
-                    yield configuration;
-                }
+                let configurations = configurationSet.filter(acceptable);
+                if(configurations.length == 0) continue;
+                // Prioritize satisfying configurations, but if there are none, pick one arbitrarily
+                let { satisfyingConfigurations } = matchConfigurationsToGoals(configurations, goals);
+                if(satisfyingConfigurations.length == 0)
+                    satisfyingConfigurations.push(configurations[0]);
+                yield satisfyingConfigurations;
             }
         }
 
-        let iterators: Iterator<PlannerConfiguration>[] = [];
+        let iterators: Iterator<PlannerConfiguration[]>[] = [];
         let lumpType: LumpType;
         for(lumpType in fullGameState.preferences.includeType) {
             if(fullGameState.preferences.includeType[lumpType]) {
@@ -565,12 +603,12 @@ export class CachedConfigurationsProcessor {
             }
         }
         let report: FullListPlannerReport = [];
-        for(let configuration of mergeIterators(iterators, (x, y) => x.autoharvestTimestamp - y.autoharvestTimestamp)) {
-            report.push(makeReportEntry({
+        for(let configurationSet of mergeIterators(iterators, (x, y) => x[0].autoharvestTimestamp - y[0].autoharvestTimestamp)) {
+            report.push(configurationSet.map(configuration => makeReportEntry({
                 configuration,
                 plannerCore: this.plannerCore,
                 threeColumnDragonAuras: fullGameState.preferences.threeColumnDragonAuras,
-            }));
+            })));
         }
         return report;
     }

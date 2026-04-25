@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import type { FullGameState } from '../src/planner/types';
+import { getDefaultPreferences } from '../src/preferences';
 import { PlannerCore, DistilledPlannerConfiguration } from '../src/planner/core';
 import {
     makeConfigurationsIterator,
@@ -208,6 +210,7 @@ test.describe('makeReportEntry', () => {
                 hasSupremeIntellect: true,
             },
             plannerCore: new PlannerCore({
+                hasSugarAgingProcess: true,
                 currentGrandmaCount: 254,
                 currentRigidelSlot: 'ruby',
                 currentHasDragonsCurve: true,
@@ -242,6 +245,7 @@ test.describe('makeReportEntry', () => {
                 hasSupremeIntellect: true,
             },
             plannerCore: new PlannerCore({
+                hasSugarAgingProcess: true,
                 currentGrandmaCount: 255,
                 currentRigidelSlot: 'ruby',
                 currentHasDragonsCurve: false,
@@ -718,5 +722,106 @@ test.describe('CachedConfigurationsProcessor', () => {
             ]);
             expect(successes).toEqual([]);
         });
+    });
+});
+
+test.describe('CachedConfigurationsProcessor reports', () => {
+    let defaultState: FullGameState = {
+        gameState: {
+            discrepancy: 0,
+            hasSteviaCaelestis: false,
+            hasSucralosiaInutilis: false,
+            hasSugarAgingProcess: false,
+            seed: 'aaaaa',
+            currentLumpT: 1.6e12,
+            currentRigidelSlot: 'none',
+            currentGrandmaCount: 0,
+            currentGrandmapocalypseStage: 0,
+            currentHasDragonsCurve: false,
+            currentHasRealityBending: false,
+            currentHasSupremeIntellect: false,
+        },
+        preferences: getDefaultPreferences().filtering,
+        budget: {
+            maxGrandmas: 600,
+            unlockedPantheon: true,
+            unlockedDragonsCurve: true,
+            unlockedRealityBending: true,
+            unlockedSupremeIntellect: true,
+            unlockedSecondAura: true,
+        },
+    };
+
+    test('a correct fullListReport', () => {
+        // adversarially-constructed-states.ts: grandmaless-sad-seed-search
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'mesad';
+        state.gameState.currentLumpT = 1.6e12 + 57;
+        state.preferences.conditions.preserveDragon = 'ignore';
+        state.preferences.conditions.preservePantheon = 'ignore';
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        let report = processor.getFullListPlannerReport(state);
+        expect(report).toEqual([]);
+        state.preferences.includeType.normal = true;
+        report = processor.getFullListPlannerReport(state);
+        expect(new Set(report.flat().map(c => c.lumpType))).toEqual(new Set(['normal']));
+        expect(new Set(report.flat().map(c => c.grandmaCount))).toEqual(new Set([null]));
+        expect(new Set(report.flat().map(c => c.grandmaCountNote))).toEqual(new Set(['']));
+        expect(new Set(report.flat().map(c => c.grandmapocalypseStages).flat())).toEqual(new Set([true]));
+        expect(new Set(report.flat().map(c => c.grandmapocalypseNote))).toEqual(new Set(['checkmark']));
+        expect(report).toMatchObject([
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 78671090.0474, rigidelSlot: 'diamond', rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 79028571.4285, rigidelSlot: 'ruby',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Supreme Intellect", note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 79808530.8057, rigidelSlot: 'ruby',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 80171428.5715, rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Supreme Intellect", note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 80945971.564,  rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 81314285.7144, rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82083412.3223, rigidelSlot: 'none',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82405970.1492, rigidelSlot: 'ruby',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: '',          style: 'normal'}, {aura: "Supreme Intellect", note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82457142.8572, rigidelSlot: 'none',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82800000,      rigidelSlot: 'ruby',    rigidelNote: '',          dragonAuras: [{aura: "Supreme Intellect", note: '',          style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 83600000,      rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: '',          style: 'normal'}, {aura: "Supreme Intellect", note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 84000000,      rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Supreme Intellect", note: '',          style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 84794029.8508, rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: '',          style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 85200000,      rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'},  {aura: "Reality Bending",   note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 85988059.7014, rigidelSlot: 'none',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Reality Bending",   note: '',          style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: true,  autoharvestTimestamp: 1.6e12+57 + 86400000,      rigidelSlot: 'none',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'},  {aura: "Reality Bending",   note: 'checkmark', style: 'faded'}]}],
+        ]);
+    });
+
+    test('a correct fullListReport with some longer sublists', () => {
+        // adversarially-constructed-states.ts: grandmaless-sad-seed-search
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'mesad';
+        state.gameState.currentLumpT = 1.6e12 + 57;
+        state.gameState.currentRigidelSlot = 'ruby';
+        state.gameState.currentHasRealityBending = true;
+        state.preferences.includeType.normal = true;
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        let report = processor.getFullListPlannerReport(state);
+        expect(new Set(report.flat().map(c => c.lumpType))).toEqual(new Set(['normal']));
+        expect(new Set(report.flat().map(c => c.grandmaCount))).toEqual(new Set([null]));
+        expect(new Set(report.flat().map(c => c.grandmaCountNote))).toEqual(new Set(['']));
+        expect(new Set(report.flat().map(c => c.grandmapocalypseStages).flat())).toEqual(new Set([true]));
+        expect(new Set(report.flat().map(c => c.grandmapocalypseNote))).toEqual(new Set(['checkmark']));
+        expect(report).toMatchObject([
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 78671090.0474, rigidelSlot: 'diamond', rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'checkmark', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 79028571.4285, rigidelSlot: 'ruby',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Supreme Intellect", note: '', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 79808530.8057, rigidelSlot: 'ruby',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'checkmark', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 80171428.5715, rigidelSlot: 'ruby',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'warn', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 80945971.564,  rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'checkmark', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 81314285.7144, rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'warn', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82083412.3223, rigidelSlot: 'none',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'checkmark', style: 'normal'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82405970.1492, rigidelSlot: 'ruby',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Reality Bending",   note: 'checkmark', style: 'normal'}, {aura: "Supreme Intellect", note: '', style: 'normal'}]},
+             {selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82405970.1492, rigidelSlot: 'diamond', rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: 'checkmark', style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82457142.8572, rigidelSlot: 'none',    rigidelNote: '',          dragonAuras: [{aura: "Dragon's Curve",    note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'warn', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 82800000,      rigidelSlot: 'ruby',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Supreme Intellect", note: '',          style: 'normal'}, {aura: "Reality Bending",   note: 'warn', style: 'faded'}]}],
+            [{selectedEntry: true,  autoharvestTimestamp: 1.6e12+57 + 83600000,      rigidelSlot: 'ruby',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Reality Bending",   note: 'checkmark', style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 84000000,      rigidelSlot: 'ruby',    rigidelNote: 'checkmark', dragonAuras: [{aura: "Reality Bending",   note: 'warn',      style: 'faded'},  {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 84794029.8508, rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: 'checkmark', style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 85200000,      rigidelSlot: 'jade',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: 'warn',      style: 'faded'},  {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 85988059.7014, rigidelSlot: 'none',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: 'checkmark', style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+            [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 86400000,      rigidelSlot: 'none',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: 'warn',      style: 'faded'},  {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
+        ]);
     });
 });
