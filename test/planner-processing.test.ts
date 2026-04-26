@@ -3,6 +3,7 @@ import type { FullGameState } from '../src/planner/types';
 import { getDefaultPreferences } from '../src/preferences';
 import { PlannerCore, DistilledPlannerConfiguration } from '../src/planner/core';
 import {
+    mergeIterators,
     makeConfigurationsIterator,
     canonicalIndex,
     canonicalIndicesCount,
@@ -15,6 +16,26 @@ import {
     makeIntersectionFilter,
     CachedConfigurationsProcessor,
 } from '../src/planner/processing';
+
+test('mergeIterators', () => {
+    function* yieldsOnce() {
+        yield 17;
+    }
+    function* yieldsTwice() {
+        yield 10; yield 100;
+    }
+    function* yieldsThreeTimes() {
+        yield 42; yield 42; yield 42;
+    }
+    function* neverYields() {
+    }
+    expect(Array.from(mergeIterators([yieldsOnce(), yieldsTwice()], (x, y) => x-y))).toEqual([10, 17, 100]);
+    expect(Array.from(mergeIterators([yieldsOnce(), yieldsThreeTimes()], (x, y) => x-y))).toEqual([17, 42, 42, 42]);
+    expect(Array.from(mergeIterators([yieldsOnce(), yieldsThreeTimes()], (x, y) => y-x))).toEqual([42, 42, 42, 17]);
+    expect(Array.from(mergeIterators([yieldsOnce(), neverYields()], (x, y) => y-x))).toEqual([17]);
+    expect(Array.from(mergeIterators([neverYields(), yieldsOnce()], (x, y) => y-x))).toEqual([17]);
+    expect(Array.from(mergeIterators([neverYields(), neverYields(), yieldsOnce(), yieldsOnce(), neverYields(), neverYields()], (x, y) => y-x))).toEqual([17, 17]);
+});
 
 test.describe('Iteration', () => {
     test('produces the correct number of configurations', () => {

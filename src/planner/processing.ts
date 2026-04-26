@@ -17,13 +17,13 @@ import {
 import { DistilledPlannerConfiguration, rigidelPower, PlannerCore } from './core';
 
 export function* mergeIterators<T>(iterators: Iterator<T>[], compare: (x: T, y: T) => number) {
-    // We assume the iterators don't start out dead
+    // We ignore the return value (from the first past-the-end iterator result)
     let values: T[] = [];
     let validIterators: Iterator<T>[] = [];
     for(let i = 0; i < iterators.length; i++) {
         let { value, done } = iterators[i].next();
         if(!done) {
-            values[i] = value;
+            values.push(value);
             validIterators.push(iterators[i]);
         }
     }
@@ -36,7 +36,7 @@ export function* mergeIterators<T>(iterators: Iterator<T>[], compare: (x: T, y: 
         }
         yield values[earliest];
 
-        let { value, done } = iterators[earliest].next();
+        let { value, done } = validIterators[earliest].next();
         if(done) {
             values.splice(earliest, 1);
             validIterators.splice(earliest, 1);
@@ -503,16 +503,19 @@ export class CachedConfigurationsProcessor {
      * It uses and extends this object's cache.
      */
     public *makePlannerConfigurationIterator(lumpType: LumpType): Generator<PlannerConfiguration[]> {
-        for(let configurationSet of this.cache[lumpType]) {
-            yield configurationSet;
-        }
-        let nextIndex = this.cache[lumpType].length;
-        while(this.cacheNextPredictionSet()) {
-            // A "while" instead of an "if" allows this iterator to be suspended and continued later
-            while(nextIndex < this.cache[lumpType].length) {
-                yield this.cache[lumpType][nextIndex];
-                nextIndex++;
+        let i = 0;
+        let cacheMightHaveBeenLengthened = true;
+        while(cacheMightHaveBeenLengthened) {
+            while(i < this.cache[lumpType].length) {
+                yield this.cache[lumpType][i];
+                i++;
+                /* The cache length might be longer than just one extra value in two situations:
+                 * 1. as soon as the iterator starts, if the cache already has some values;
+                 * 2. if, after some yield, this iterator is suspended
+                 *    and some other iterator lengthens the cache.
+                 */
             }
+            cacheMightHaveBeenLengthened = this.cacheNextPredictionSet();
         }
     }
 
