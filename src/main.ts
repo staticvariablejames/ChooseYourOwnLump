@@ -28,6 +28,7 @@ import {
     retrieveDataFromLegacySave,
     clearModState,
 } from './saveDataManagement';
+import { registerLumpIconWheelEventListener } from './UI/lumpIconScrolling';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu, onSliderUpdate, onButtonClick } from './UI/optionsMenu';
 import { rewriteCode } from './util';
@@ -101,6 +102,7 @@ let CYOL = {
         });
 
         retrieveDataFromLegacySave();
+        registerLumpIconWheelEventListener();
 
         CYOL.isLoaded = true;
         Game.Notify('Choose Your Own Lump loaded!', '', undefined, 1, true);

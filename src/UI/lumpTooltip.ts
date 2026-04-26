@@ -1,6 +1,7 @@
 import { LumpType, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
 import { planner } from '../planner/planner';
 import { preferences } from '../preferences';
+import { scrolledRows, capScrolledRows } from './lumpIconScrolling';
 import { previousAutoharvestTime, previousLumpT, warnPantheonNotLoaded } from './preAutoharvestDataRetrieval';
 
 function currentLumpType(): LumpType | 'unknown' {
@@ -176,9 +177,12 @@ export function discrepancyTooltip() {
 // Constructs a fancy table of predictions
 export function makeFullListReport(report: FullListPlannerReport) {
     let configurations = report.flat(); // TODO: Print this prettier
+
+    // The +1 ensures we display the "no other predictions found" if the player scrolls too far
+    capScrolledRows(configurations.length - preferences.rowsToDisplay + 1);
     let str = '';
-    let i;
-    for(i = 0; i < configurations.length && i < preferences.rowsToDisplay; i++) {
+    let i = scrolledRows, displayedRows = 0; // displayedRows == i + scrolledRows
+    for(; i < configurations.length && displayedRows < preferences.rowsToDisplay; i++, displayedRows++) {
         str += makeLumpIcon(configurations[i].lumpType) + ':';
         if(configurations[i].grandmaCount === null) {
             str += '&nbsp;&nbsp;&nbsp;'; // kludge
@@ -197,9 +201,10 @@ export function makeFullListReport(report: FullListPlannerReport) {
         str += makeRigidelIcon(configurations[i].rigidelSlot, configurations[i].rigidelNote);
         str += '<br />';
     }
-    if(i < preferences.rowsToDisplay) {
+
+    if(displayedRows < preferences.rowsToDisplay) {
         str += 'No other matching predictions found.';
-        if(i == 0) {
+        if(displayedRows == 0) {
             str += '<br />Try displaying more lump types in the settings!';
         }
     }

@@ -2,6 +2,8 @@
 
 ## Unreleased
 - Changed: Update to Cookie Clicker 2.058, CCSE 2.035.
+- Added: the ability to scroll the list of predictions.
+    (Scrolling is janky but it should work.)
 - Changed: The changelog now lives in its own file, rather than in `README.md`.
 - **Removed**: legacy support for loading CYOL saves from versions 1.2.7 and earlier.
     (CYOL 1.3.2 has been around for 4.5 years,
