@@ -129,9 +129,12 @@ function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
         case 'jade':    gem_background = 'background-position: -1104px -744px;'; break;
         case 'none':    gem_background = 'background-position: -1128px -744px;'; // No background
     }
-    let gem = '<div class="icon" style="width:24px;height:24px; position:absolute; top: 36px; left: 12px;' + gem_background + '"></div>';
+    let gem = '<div class="icon" style="width:24px; height:24px; position:absolute; top:36px; left:12px; margin:0;' + gem_background + '"></div>';
 
-    return '<div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;' + (slot=='none' ? 'opacity:0.2' : '') + '">' + rigidel + gem + makeNote(note) + '</div>';
+    return `<div style="height:60px; width:48px; position:relative">
+        <div style="${slot == 'none' ? 'opacity:0.2' : ''}">${rigidel}${gem}</div>
+        ${makeNote(note)}
+    </div>`;
 }
 
 export function makeConfigurationDiv(entry: PlannerReportEntry) {
