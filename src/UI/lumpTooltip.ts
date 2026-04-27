@@ -179,10 +179,10 @@ export function makeFullListReport(report: FullListPlannerReport) {
     let configurations = report.flat(); // TODO: Print this prettier
 
     // The +1 ensures we display the "no other predictions found" if the player scrolls too far
-    capScrolledRows(configurations.length - preferences.rowsToDisplay + 1);
+    capScrolledRows(configurations.length - preferences.display.rows + 1);
     let str = '';
     let i = scrolledRows, displayedRows = 0; // displayedRows == i + scrolledRows
-    for(; i < configurations.length && displayedRows < preferences.rowsToDisplay; i++, displayedRows++) {
+    for(; i < configurations.length && displayedRows < preferences.display.rows; i++, displayedRows++) {
         str += makeLumpIcon(configurations[i].lumpType) + ':';
         if(configurations[i].grandmaCount === null) {
             str += '&nbsp;&nbsp;&nbsp;'; // kludge
@@ -202,7 +202,7 @@ export function makeFullListReport(report: FullListPlannerReport) {
         str += '<br />';
     }
 
-    if(displayedRows < preferences.rowsToDisplay) {
+    if(displayedRows < preferences.display.rows) {
         str += 'No other matching predictions found.';
         if(displayedRows == 0) {
             str += '<br />Try displaying more lump types in the settings!';

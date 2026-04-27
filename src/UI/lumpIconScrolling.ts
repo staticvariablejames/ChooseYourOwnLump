@@ -24,7 +24,7 @@ export function registerLumpIconWheelEventListener() {
          */
         const pixelsPerRow = 64;
         const linesPerRow = 3;
-        const rowsPerPage = preferences.rowsToDisplay;
+        const rowsPerPage = preferences.display.rows;
         switch(ev.deltaMode) {
             case WheelEvent.DOM_DELTA_PIXEL:
                 scrolledPixels += ev.deltaY;

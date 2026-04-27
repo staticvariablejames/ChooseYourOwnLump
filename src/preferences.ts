@@ -8,17 +8,21 @@
 import type { FilteringPreferences } from './planner/types';
 
 export type CYOLPreferences = {
-    filtering: FilteringPreferences;
-    reportType: 'filtered' | 'fullList';
     discrepancy: number;
-    rowsToDisplay: number;
+    display: {
+        reportType: 'filtered' | 'fullList';
+        rows: number;
+    },
+    filtering: FilteringPreferences;
 };
 
 export function getDefaultPreferences(): CYOLPreferences {
     return {
         discrepancy: 1,
-        rowsToDisplay: 10,
-        reportType: 'fullList',
+        display: {
+            rows: 10,
+            reportType: 'fullList',
+        },
         filtering: {
             threeColumnDragonAuras: false,
             conditions: {

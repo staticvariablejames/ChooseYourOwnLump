@@ -29,8 +29,10 @@ test.describe('Can load a legacy save game', () => {
 
     let actualSettings = {
         discrepancy: 3,
-        rowsToDisplay: 15,
-        reportType: 'fullList',
+        display: {
+            rows: 15,
+            reportType: 'fullList',
+        },
         filtering: {
             conditions: {
                 preserveDragon: 'require',

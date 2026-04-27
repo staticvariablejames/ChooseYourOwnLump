@@ -52,11 +52,11 @@ test('Changing preferences updates the CYOL.preferences object', async ({page}) 
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
     await page.locator('#CYOL-slider-rowsToDisplay').fill('15');
-    expectedPreferences.rowsToDisplay = 15;
+    expectedPreferences.display.rows = 15;
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
     await page.getByText('Filtered display OFF').click();
-    expectedPreferences.reportType = 'filtered';
+    expectedPreferences.display.reportType = 'filtered';
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
     await page.getByText('Display dragon auras in three').click();

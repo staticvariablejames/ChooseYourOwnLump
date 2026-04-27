@@ -57,7 +57,7 @@ function loadSettingsFromLegacySave(legacyString: string) {
     if('preserveGrandmapocalypseStage' in settings) newPrefs.filtering.conditions.preserveGrandmapocalypseStage = settings.preserveGrandmapocalypseStage ? 'require' : 'observe';
     if('preserveDragon' in settings)                newPrefs.filtering.conditions.preserveDragon                = settings.preserveDragon                ? 'require' : 'observe';
     if('preservePantheon' in settings)              newPrefs.filtering.conditions.preservePantheon              = settings.preservePantheon              ? 'require' : 'observe';
-    if('rowsToDisplay' in settings) newPrefs.rowsToDisplay = Number(settings.rowsToDisplay);
+    if('rowsToDisplay' in settings) newPrefs.display.rows = Number(settings.rowsToDisplay);
 
     setPreferences(newPrefs);
 }

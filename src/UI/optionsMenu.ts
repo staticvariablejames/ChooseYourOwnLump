@@ -169,10 +169,10 @@ export function customOptionsMenu() {
     menuStr += '<div class="listing">' +
         makeButton({
             id: 'filteredReport',
-            getCurrentValue: () => {return preferences.reportType == 'filtered'},
+            getCurrentValue: () => {return preferences.display.reportType == 'filtered'},
             updateValue: (newValue: boolean) => {
-                if(newValue) preferences.reportType = 'filtered';
-                else preferences.reportType = 'fullList';
+                if(newValue) preferences.display.reportType = 'filtered';
+                else preferences.display.reportType = 'fullList';
             },
             buttonText: 'Filtered display',
         }) +
@@ -184,9 +184,9 @@ export function customOptionsMenu() {
     menuStr += '<div class="listing">' +
         makeSlider({
             id: 'rowsToDisplay',
-            updateValue: (newValue) => {preferences.rowsToDisplay = newValue},
+            updateValue: (newValue) => {preferences.display.rows = newValue},
             getDisplayText: (newValue) => String(newValue),
-            currentValue: preferences.rowsToDisplay,
+            currentValue: preferences.display.rows,
             sliderTitle: "Rows of predictions to display",
             maxValue: 100,
         }) +
