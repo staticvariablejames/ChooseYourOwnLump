@@ -193,6 +193,20 @@ export function customOptionsMenu() {
         `<label>Number of rows to be displayed, if showing the full list of predictions</label>` +
     '</div>';
 
+    menuStr += '<div class="listing">' +
+        makeButton({
+            id: 'showCheckmark',
+            getCurrentValue: () => {return preferences.display.showCheckmark},
+            updateValue: (newValue: boolean) => {
+                preferences.display.showCheckmark = newValue;
+            },
+            buttonText: 'Show checkmark',
+        }) +
+        `<label>Whether to show a checkmark (or sometimes a warning sign)
+                in the top right corner of the icons in the tooltip
+        </label>
+    </div>`;
+
     // Copy CSS styles from the info menu
     menuStr += '<div class="update small"><div class="title">Lump Types</div></div>';
 

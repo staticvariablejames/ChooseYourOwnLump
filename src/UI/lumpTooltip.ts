@@ -31,18 +31,25 @@ function makeLumpIcon(lumpType: LumpType) {
     return `<div class="icon" style="vertical-align: middle; margin: 0 -4px; ${background}"></div>`;
 }
 
+/* Returns a <div> displaying either a checkmark, a warning sign, or nothing.
+ * The div's position will be absolute and at the top right.
+ */
+function makeNote(note: '' | 'checkmark' | 'warn') {
+    let noteCharacter = '', noteColor = '';
+    if(preferences.display.showCheckmark) {
+        if(note == 'checkmark') {
+            noteCharacter = '✔';
+            noteColor = 'color:darkgreen';
+        }
+        if(note == 'warn') {
+            noteCharacter = '⚠️';
+        }
+    }
+    return `<div style="width:12px;height:12px; position:absolute; top: 0px; right: 0px; ${noteColor}">${noteCharacter}</div>`;
+}
+
 /* Returns a string for a <div> tag that displays the given dragon aura icon. */
 function makeDragonAuraIcon(dragonAura: DragonAuraReportEntry) {
-    let noteCharacter = '', noteColor = '';
-    if(dragonAura.note == 'checkmark') {
-        noteCharacter = '✔';
-        noteColor = 'color:darkgreen';
-    }
-    if(dragonAura.note == 'warn') {
-        noteCharacter = '⚠️';
-    }
-    let noteDiv = `<div style="width:12px;height:12px; position:absolute; top: 0px; right: 0px; ${noteColor}">${noteCharacter}</div>`;
-
     let transparency = '';
     if(dragonAura.style == 'faded') {
         transparency += 'opacity: 0.2;';
@@ -56,7 +63,7 @@ function makeDragonAuraIcon(dragonAura: DragonAuraReportEntry) {
     }
     let dragonDiv = '<div class="icon" style="vertical-align: middle; margin: 0 -4px;' + background + transparency + '"></div>';
 
-    return '<div style="height: 48px; position:relative; display:inline-block; vertical-align:middle;">' + dragonDiv + noteDiv + '</div>';
+    return '<div style="height: 48px; position:relative; display:inline-block; vertical-align:middle;">' + dragonDiv + makeNote(dragonAura.note) + '</div>';
 }
 
 /* Same as above but for buildings instead. */
@@ -84,17 +91,7 @@ function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
     }
     let gem = '<div class="icon" style="width:24px;height:24px; position:absolute; top: 36px; left: 12px;' + gem_background + '"></div>';
 
-    let noteCharacter = '', noteColor = '';
-    if(note == 'checkmark') {
-        noteCharacter = '✔';
-        noteColor = 'color:darkgreen';
-    }
-    if(note == 'warn') {
-        noteCharacter = '⚠️';
-    }
-    let noteDiv = `<div style="width:12px;height:12px; position:absolute; top: 0px; right: 0px; ${noteColor}">${noteCharacter}</div>`;
-
-    return '<div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;' + (slot=='none' ? 'opacity:0.2' : '') + '">' + rigidel + gem + noteDiv + '</div>';
+    return '<div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;' + (slot=='none' ? 'opacity:0.2' : '') + '">' + rigidel + gem + makeNote(note) + '</div>';
 }
 
 // Builds a string that displays the discrepancy and the current lump type.

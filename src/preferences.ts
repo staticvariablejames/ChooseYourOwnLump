@@ -12,6 +12,7 @@ export type CYOLPreferences = {
     display: {
         reportType: 'filtered' | 'fullList';
         rows: number;
+        showCheckmark: boolean,
     },
     filtering: FilteringPreferences;
 };
@@ -22,6 +23,7 @@ export function getDefaultPreferences(): CYOLPreferences {
         display: {
             rows: 10,
             reportType: 'fullList',
+            showCheckmark: true,
         },
         filtering: {
             threeColumnDragonAuras: false,
