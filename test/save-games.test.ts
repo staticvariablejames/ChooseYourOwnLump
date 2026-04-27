@@ -30,6 +30,7 @@ test.describe('Can load a legacy save game', () => {
     let actualSettings = {
         discrepancy: 3,
         display: {
+            compactGrandmapocalypseRepresentation: false,
             rows: 15,
             reportType: 'fullList',
         },

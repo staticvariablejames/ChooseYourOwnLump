@@ -1,4 +1,4 @@
-import { LumpType, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
+import type { LumpType, PlannerReportEntry, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
 import { planner } from '../planner/planner';
 import { preferences } from '../preferences';
 import { scrolledRows, capScrolledRows } from './lumpIconScrolling';
@@ -66,16 +66,56 @@ function makeDragonAuraIcon(dragonAura: DragonAuraReportEntry) {
     return '<div style="height: 48px; position:relative; display:inline-block; vertical-align:middle;">' + dragonDiv + makeNote(dragonAura.note) + '</div>';
 }
 
-/* Same as above but for buildings instead. */
-function makeGrandmaIcon(type: string, transparent: boolean) {
-    let background = "background-image: url('img/buildings.png?v=5');";
-    let transparency = '';
-    if(type === 'appeased') background += 'background-position: 0px -64px;';
-    if(type === 'awoken') background += 'background-position: 0px -128px;';
-    if(type === 'displeased') background += 'background-position: -64px -128px;';
-    if(type === 'angered') background += 'background-position: -128px -128px;';
-    if(transparent) transparency += 'opacity: 0.2;';
-    return '<div style="display: inline-block; width:64px; height:64px; vertical-align: middle;' + background + transparency + '"></div>';
+/* Returns a string for a <div> tag that displays the given grandma icon.
+ * "stage == 0" forces the icon to be placed in the top left corner;
+ * "stage == 1" forces the icon to be placed in the top right corner;
+ * "stage == 2" forces the icon to be placed in the bottom left corner;
+ * "stage == 3" forces the icon to be placed in the bottom right corner.
+ */
+function makeGrandmaIcon(stage: number, transparent: boolean) {
+    let transparency = transparent ? 'opacity: 0.2;' : '';
+    let position = 'position:absolute;';
+    let background = `background-image:url(${Game.resPath}img/buildings.png); `;
+    if(stage == 0) { background += 'background-position: 0px -64px;';     position += 'top: 0px; left: 0px;';}
+    if(stage == 1) { background += 'background-position: 0px -128px;';    position += 'top: 0px; right: 0px;';}
+    if(stage == 2) { background += 'background-position: -64px -128px;';  position += 'bottom: 0px; left: 0px;';}
+    if(stage == 3) { background += 'background-position: -128px -128px;'; position += 'bottom: 0px; right: 0px;';}
+    return `<div style="width:64px; height:64px; display:inline-block; ${background} ${transparency} ${position}"></div>`;
+}
+
+function makeGrandmapocalypseIcons(grandmapocalypseStages: [boolean, boolean, boolean, boolean], note: '' | 'checkmark') {
+    function noteForStage(stage: number) { // Used only in the non-compact representation
+        let currentStage = Game.elderWrath;
+        let mark = (currentStage == stage && grandmapocalypseStages[stage]) ? 'checkmark' as const: '' as const;
+        return makeNote(mark);
+    }
+    if(preferences.display.compactGrandmapocalypseRepresentation) {
+        /* For the compact representation, we make use of the note.
+         * We make the div a little bit wider than 64px
+         * so that the note is not displayed on top of the top right picture
+         * (which is grandmapocalypse stage 1),
+         * which might seem to players to mean that
+         * the checkmark belongs to that specific grandmapocalypse stage
+         * rather than the "whole block".
+         */
+        return `<div style="position:relative; width:72px; height:64px">
+            <div style="width: 128px; height: 128px; transform:scale(0.5); transform-origin:top left;">
+                ${makeGrandmaIcon(0, !grandmapocalypseStages[0])}
+                ${makeGrandmaIcon(1, !grandmapocalypseStages[1])}
+                ${makeGrandmaIcon(2, !grandmapocalypseStages[2])}
+                ${makeGrandmaIcon(3, !grandmapocalypseStages[3])}
+            </div>
+            ${makeNote(note) /* Use single note in this case */}
+        </div>`;
+    } else {
+        // We ignore the report's note in this case and provide our own.
+        return `<div style="display:flex; width:256px; height:64px">
+            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(0, !grandmapocalypseStages[0])} ${noteForStage(0)}</div>
+            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(1, !grandmapocalypseStages[1])} ${noteForStage(1)}</div>
+            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(2, !grandmapocalypseStages[2])} ${noteForStage(2)}</div>
+            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(3, !grandmapocalypseStages[3])} ${noteForStage(3)}</div>
+        </div>`;
+    }
 }
 
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.
@@ -92,6 +132,23 @@ function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
     let gem = '<div class="icon" style="width:24px;height:24px; position:absolute; top: 36px; left: 12px;' + gem_background + '"></div>';
 
     return '<div style="height: 60px; position:relative; display:inline-block; vertical-align:middle;' + (slot=='none' ? 'opacity:0.2' : '') + '">' + rigidel + gem + makeNote(note) + '</div>';
+}
+
+export function makeConfigurationDiv(entry: PlannerReportEntry) {
+    let str = '<div style="display:flex; align-items:center">';
+    if(entry.grandmaCount === null) {
+        str += '&nbsp;&nbsp;&nbsp;'; // kludge
+    } else {
+        str += '<div style="width: 5ex; display:flex; justify-content:end; margin-right:5px;">' + entry.grandmaCount + 'x</div>';
+    }
+
+    str += makeGrandmapocalypseIcons(entry.grandmapocalypseStages, entry.grandmapocalypseNote);
+
+    for(let dragonAura of entry.dragonAuras) {
+        str += makeDragonAuraIcon(dragonAura);
+    }
+    str += makeRigidelIcon(entry.rigidelSlot, entry.rigidelNote);
+    return str + '</div>';
 }
 
 // Builds a string that displays the discrepancy and the current lump type.
@@ -173,30 +230,19 @@ export function discrepancyTooltip() {
 
 // Constructs a fancy table of predictions
 export function makeFullListReport(report: FullListPlannerReport) {
-    let configurations = report.flat(); // TODO: Print this prettier
+    let configurations = report.flat(); // TODO: alternate background colors and group equivalent
 
     // The +1 ensures we display the "no other predictions found" if the player scrolls too far
     capScrolledRows(configurations.length - preferences.display.rows + 1);
     let str = '';
     let i = scrolledRows, displayedRows = 0; // displayedRows == i + scrolledRows
-    for(; i < configurations.length && displayedRows < preferences.display.rows; i++, displayedRows++) {
-        str += makeLumpIcon(configurations[i].lumpType) + ':';
-        if(configurations[i].grandmaCount === null) {
-            str += '&nbsp;&nbsp;&nbsp;'; // kludge
-        } else {
-            str += '<div style="width: 5ex; display: inline-block; vertical-align:middle; text-align:right; margin-right:5px;">' + configurations[i].grandmaCount + 'x</div>';
-        }
+    str += '<div style="display:flex; flex-direction:column;">';
 
-        let grandmapocalypseStages = configurations[i].grandmapocalypseStages;
-        str += makeGrandmaIcon('appeased', !grandmapocalypseStages[0]);
-        str += makeGrandmaIcon('awoken', !grandmapocalypseStages[1]);
-        str += makeGrandmaIcon('displeased', !grandmapocalypseStages[2]);
-        str += makeGrandmaIcon('angered', !grandmapocalypseStages[3]);
-        for(let dragonAura of configurations[i].dragonAuras) {
-            str += makeDragonAuraIcon(dragonAura);
-        }
-        str += makeRigidelIcon(configurations[i].rigidelSlot, configurations[i].rigidelNote);
-        str += '<br />';
+    for(; i < configurations.length && displayedRows < preferences.display.rows; i++, displayedRows++) {
+        str += '<div style="display:flex; align-items:center;">';
+        str += makeLumpIcon(configurations[i].lumpType) + ':';
+        str += makeConfigurationDiv(configurations[i]);
+        str += '</div>';
     }
 
     if(displayedRows < preferences.display.rows) {
@@ -205,13 +251,16 @@ export function makeFullListReport(report: FullListPlannerReport) {
             str += '<br />Try displaying more lump types in the settings!';
         }
     }
+    str += '</div>';
     return str;
 }
 
 /* This function is pushed to CCSE's `Game.customLumpTooltip` on init by main.ts.
  */
 export function customLumpTooltip(str: string, _phase: number) {
-    str = str.replace('width:400px','width:500px'); // FIXME kludge; widens the tooltip box
+    if(!preferences.display.compactGrandmapocalypseRepresentation) {
+        str = str.replace('width:400px','width:500px'); // Kludge; widens the tooltip box
+    }
     str += '<div class="line"></div>';
 
     str += discrepancyTooltip();

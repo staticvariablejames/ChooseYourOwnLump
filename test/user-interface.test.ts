@@ -51,6 +51,10 @@ test('Changing preferences updates the CYOL.preferences object', async ({page}) 
     expectedPreferences.discrepancy = 3;
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
+    await page.getByText('Compact grandmapocalypse stages OFF').click();
+    expectedPreferences.display.compactGrandmapocalypseRepresentation = true;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
+
     await page.locator('#CYOL-slider-rowsToDisplay').fill('15');
     expectedPreferences.display.rows = 15;
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);

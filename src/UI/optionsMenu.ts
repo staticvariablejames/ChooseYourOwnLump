@@ -182,6 +182,20 @@ export function customOptionsMenu() {
     </div>`;
 
     menuStr += '<div class="listing">' +
+        makeButton({
+            id: 'compactGrandmapocalypseRepresentation',
+            getCurrentValue: () => {return preferences.display.compactGrandmapocalypseRepresentation},
+            updateValue: (newValue: boolean) => {
+                preferences.display.compactGrandmapocalypseRepresentation = newValue;
+            },
+            buttonText: 'Compact grandmapocalypse stages',
+        }) +
+        `<label>Whether to display the valid grandmapocalypse stages
+                as a large 1x4 row or as a compact 2x2 grid
+        </label>
+    </div>`;
+
+    menuStr += '<div class="listing">' +
         makeSlider({
             id: 'rowsToDisplay',
             updateValue: (newValue) => {preferences.display.rows = newValue},

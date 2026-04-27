@@ -10,6 +10,7 @@ import type { FilteringPreferences } from './planner/types';
 export type CYOLPreferences = {
     discrepancy: number;
     display: {
+        compactGrandmapocalypseRepresentation: boolean,
         reportType: 'filtered' | 'fullList';
         rows: number;
         showCheckmark: boolean,
@@ -21,6 +22,7 @@ export function getDefaultPreferences(): CYOLPreferences {
     return {
         discrepancy: 1,
         display: {
+            compactGrandmapocalypseRepresentation: false,
             rows: 10,
             reportType: 'fullList',
             showCheckmark: true,
