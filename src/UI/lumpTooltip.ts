@@ -140,10 +140,12 @@ function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
 
 export function makeConfigurationDiv(entry: PlannerReportEntry) {
     let str = '<div style="display:flex; align-items:center">';
-    if(entry.grandmaCount === null) {
-        str += '&nbsp;&nbsp;&nbsp;'; // kludge
-    } else {
-        str += '<div style="width: 5ex; display:flex; justify-content:end; margin-right:5px;">' + entry.grandmaCount + 'x</div>';
+    if(entry.grandmaCount !== null) {
+        str += `<div style="display:flex; flex-direction:column; align-items:center; width:40px; height:64px; position:relative">
+            <div style="background-image:url(${Game.resPath}img/grandma.png); background-position:bottom; width:40px; height:52px;"></div>
+            ${entry.grandmaCount == 600 ? '600+' : entry.grandmaCount}
+            ${makeNote(entry.grandmaCountNote)}
+        </div>`;
     }
 
     str += makeGrandmapocalypseIcons(entry.grandmapocalypseStages, entry.grandmapocalypseNote);
