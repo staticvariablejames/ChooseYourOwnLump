@@ -59,9 +59,6 @@ function loadSettingsFromLegacySave(legacyString: string) {
     if('preservePantheon' in settings)              newPrefs.filtering.conditions.preservePantheon              = settings.preservePantheon              ? 'require' : 'observe';
     if('rowsToDisplay' in settings) newPrefs.rowsToDisplay = Number(settings.rowsToDisplay);
 
-    // 'fullList' is the classical report format, so we keep it that way for old users
-    newPrefs.reportType = 'fullList';
-
     setPreferences(newPrefs);
 }
 

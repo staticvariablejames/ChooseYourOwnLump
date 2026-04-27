@@ -55,8 +55,8 @@ test('Changing preferences updates the CYOL.preferences object', async ({page}) 
     expectedPreferences.rowsToDisplay = 15;
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Filtered display ON').click();
-    expectedPreferences.reportType = 'fullList';
+    await page.getByText('Filtered display OFF').click();
+    expectedPreferences.reportType = 'filtered';
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
     await page.getByText('Display dragon auras in three').click();

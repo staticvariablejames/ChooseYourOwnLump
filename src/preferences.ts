@@ -18,7 +18,7 @@ export function getDefaultPreferences(): CYOLPreferences {
     return {
         discrepancy: 1,
         rowsToDisplay: 10,
-        reportType: 'filtered',
+        reportType: 'fullList',
         filtering: {
             threeColumnDragonAuras: false,
             conditions: {
