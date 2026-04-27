@@ -39,13 +39,13 @@ function makeNote(note: '' | 'checkmark' | 'warn') {
     if(preferences.display.showCheckmark) {
         if(note == 'checkmark') {
             noteCharacter = '✔';
-            noteColor = 'color:darkgreen';
+            noteColor = 'color:darkgreen;';
         }
         if(note == 'warn') {
             noteCharacter = '⚠️';
         }
     }
-    return `<div style="width:12px;height:12px; position:absolute; top: 0px; right: 0px; ${noteColor}">${noteCharacter}</div>`;
+    return `<div style="position:absolute; top:0px; right:0px; ${noteColor}">${noteCharacter}</div>`;
 }
 
 /* Returns a string for a <div> tag that displays the given dragon aura icon. */
@@ -61,7 +61,7 @@ function makeDragonAuraIcon(dragonAura: DragonAuraReportEntry) {
         case "Supreme Intellect": background = 'background-position: -1632px -1200px;'; break;
         case "none":              background = 'background-position:48px 48px;'; break;
     }
-    let dragonDiv = '<div class="icon" style="vertical-align: middle; margin: 0 -4px;' + background + transparency + '"></div>';
+    let dragonDiv = '<div class="icon" style="vertical-align: middle; margin:0 -2px;' + background + transparency + '"></div>';
 
     return '<div style="height: 48px; position:relative; display:inline-block; vertical-align:middle;">' + dragonDiv + makeNote(dragonAura.note) + '</div>';
 }
@@ -80,26 +80,27 @@ function makeGrandmaIcon(stage: number, transparent: boolean) {
     if(stage == 1) { background += 'background-position: 0px -128px;';    position += 'top: 0px; right: 0px;';}
     if(stage == 2) { background += 'background-position: -64px -128px;';  position += 'bottom: 0px; left: 0px;';}
     if(stage == 3) { background += 'background-position: -128px -128px;'; position += 'bottom: 0px; right: 0px;';}
-    return `<div style="width:64px; height:64px; display:inline-block; ${background} ${transparency} ${position}"></div>`;
+    // The grandma icons are 64x64 pixels, but the 6 rightmost pixel columns are mostly blank
+    return `<div style="width:58px; height:64px; display:inline-block; ${background} ${transparency} ${position}"></div>`;
 }
 
 function makeGrandmapocalypseIcons(grandmapocalypseStages: [boolean, boolean, boolean, boolean], note: '' | 'checkmark') {
     function noteForStage(stage: number) { // Used only in the non-compact representation
         let currentStage = Game.elderWrath;
         let mark = (currentStage == stage && grandmapocalypseStages[stage]) ? 'checkmark' as const: '' as const;
-        return makeNote(mark);
+        return makeNote(mark).replace('darkgreen', 'green'); // Checkmark needs to be slighly lighter
     }
     if(preferences.display.compactGrandmapocalypseRepresentation) {
         /* For the compact representation, we make use of the note.
-         * We make the div a little bit wider than 64px
+         * We make the div a little bit wider than 58px
          * so that the note is not displayed on top of the top right picture
          * (which is grandmapocalypse stage 1),
          * which might seem to players to mean that
          * the checkmark belongs to that specific grandmapocalypse stage
          * rather than the "whole block".
          */
-        return `<div style="position:relative; width:72px; height:64px">
-            <div style="width: 128px; height: 128px; transform:scale(0.5); transform-origin:top left;">
+        return `<div style="position:relative; width:66px; height:64px">
+            <div style="width: 116px; height: 128px; transform:scale(0.5); transform-origin:top left;">
                 ${makeGrandmaIcon(0, !grandmapocalypseStages[0])}
                 ${makeGrandmaIcon(1, !grandmapocalypseStages[1])}
                 ${makeGrandmaIcon(2, !grandmapocalypseStages[2])}
@@ -109,11 +110,11 @@ function makeGrandmapocalypseIcons(grandmapocalypseStages: [boolean, boolean, bo
         </div>`;
     } else {
         // We ignore the report's note in this case and provide our own.
-        return `<div style="display:flex; width:256px; height:64px">
-            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(0, !grandmapocalypseStages[0])} ${noteForStage(0)}</div>
-            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(1, !grandmapocalypseStages[1])} ${noteForStage(1)}</div>
-            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(2, !grandmapocalypseStages[2])} ${noteForStage(2)}</div>
-            <div style = "width:64px; height:64px; position:relative;">${makeGrandmaIcon(3, !grandmapocalypseStages[3])} ${noteForStage(3)}</div>
+        return `<div style="display:flex; width:232px; height:64px">
+            <div style = "width:58px; height:64px; position:relative;">${makeGrandmaIcon(0, !grandmapocalypseStages[0])} ${noteForStage(0)}</div>
+            <div style = "width:58px; height:64px; position:relative;">${makeGrandmaIcon(1, !grandmapocalypseStages[1])} ${noteForStage(1)}</div>
+            <div style = "width:58px; height:64px; position:relative;">${makeGrandmaIcon(2, !grandmapocalypseStages[2])} ${noteForStage(2)}</div>
+            <div style = "width:58px; height:64px; position:relative;">${makeGrandmaIcon(3, !grandmapocalypseStages[3])} ${noteForStage(3)}</div>
         </div>`;
     }
 }
@@ -121,7 +122,7 @@ function makeGrandmapocalypseIcons(grandmapocalypseStages: [boolean, boolean, bo
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.
  * slot === 0 means unslotted, slot === 1 means jade slot, 2 is ruby and 3 is diamond. */
 function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
-    let rigidel = '<div class="icon" style="background-position:-1056px -912px"></div>';
+    let rigidel = '<div class="icon" style="background-position:-1056px -912px; margin:0"></div>';
     let gem_background = '';
     switch(slot) {
         case 'diamond': gem_background = 'background-position: -1104px -720px;'; break;
