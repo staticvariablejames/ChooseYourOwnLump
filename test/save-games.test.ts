@@ -3,6 +3,7 @@ import { CCSave, openCookieClickerPage, setupCookieClickerPage } from 'cookie-co
 
 import { name, version } from '../src/modInfo';
 import { getDefaultPreferences } from '../src/preferences';
+import { getPreferencesFromObject } from '../src/saveDataManagement';
 import type { SaveData } from '../src/saveDataManagement';
 
 test.describe('Can load a legacy save game', () => {
@@ -114,6 +115,22 @@ test.describe('Can load a legacy save game', () => {
         expect(legacyId in save.modSaveData).toBeFalsy();
         expect(name in save.modSaveData).toBeTruthy();
     });
+});
+
+/* Ideally this should be tested within the browser, as part of CYOL.load,
+ * but I don't know how to assert that something has thrown an exception inside the web page.
+ */
+test('getPreferencesFromObject warnings', () => {
+    expect(() => {
+        getPreferencesFromObject({missingSetting: true});
+    }).toThrow(/missingSetting does not exist/);
+    expect(() => {
+        getPreferencesFromObject({discrepancy: 'yes'});
+    }).toThrow(/Mistyped property.*discrepancy/);
+    expect(() => {
+        getPreferencesFromObject({filtering: null});
+    }).toThrow(/filtering is null/);
+    expect(getPreferencesFromObject({})).toEqual(getDefaultPreferences());
 });
 
 test('Can write and read save games', async ({browser}) => {

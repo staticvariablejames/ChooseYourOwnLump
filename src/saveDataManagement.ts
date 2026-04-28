@@ -92,7 +92,7 @@ export function retrieveDataFromLegacySave() {
  * so problems should be signaled loudly as early as possible.
  */
 export function getPreferencesFromObject(source: unknown, version?: string): CYOLPreferences {
-    function onMistypedProperty(msg: string) {
+    function onError(msg: string) {
         if(version === undefined) {
             throw new Error(msg);
         } else {
@@ -101,24 +101,26 @@ export function getPreferencesFromObject(source: unknown, version?: string): CYO
     }
 
     // TODO actually add types to this
-    function assign(target: any, source: any) {
-        for(let key of Object.keys(target)) {
-            if(key in source) {
+    function assign(target: any, source: any, prefix: string) {
+        for(let key of Object.keys(source)) {
+            if(key in target) {
                 if(source[key] == null) {
-                    onMistypedProperty(`${key} is null`);
+                    onError(`CYOL.load: ${prefix}${key} is null`);
                 } else if(typeof target[key] != typeof source[key]) {
-                    onMistypedProperty(`CYOL: Mistyped property: ${key}`);
+                    onError(`CYOL.load: Mistyped property: ${prefix}${key}`);
                 } else if(typeof target[key] == 'object') {
-                    target[key] = assign(target[key], source[key]);
+                    target[key] = assign(target[key], source[key], prefix+key+'.');
                 } else {
                     target[key] = source[key];
                 }
+            } else {
+                onError(`CYOL.load: ${prefix}${key} does not exist`);
             }
         }
         return target;
     }
 
-    return assign(getDefaultPreferences(), source);
+    return assign(getDefaultPreferences(), source, 'CYOLPreferences.');
 }
 
 /* Resets any existing mod state to its default values.
