@@ -1,4 +1,4 @@
-import type { LumpType, PlannerReportEntry, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
+import type { LumpType, PlannerReportEntry, FilteredPlannerReport, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
 import { planner } from '../planner/planner';
 import { preferences } from '../preferences';
 import { scrolledRows, capScrolledRows } from './lumpIconScrolling';
@@ -246,6 +246,54 @@ export function discrepancyTooltip() {
     return str;
 }
 
+// Constructs the filtered report list
+export function makeFilteredReport(report: FilteredPlannerReport) {
+    let str = '';
+    let hasShownLumpType = false;
+    for(let lumpType of ['normal', 'bifurcated', 'golden', 'meaty', 'caramelized'] as LumpType[]) {
+        if(report[lumpType] === undefined) continue;
+        hasShownLumpType = true;
+
+        let anySelected = report[lumpType].some(x => x.selectedEntry);
+        str += `<div style="display:flex; align-items:center; margin:2px; padding:2px; border: solid 2px; border-color:${anySelected ? 'darkblue' : 'dimgray'}; border-radius: 5px;">`;
+
+        str += `<div style="display:flex; align-items:center; margin:1ex">
+            ${makeLumpIcon(lumpType, 0.5)}
+            <div style="width:12ex; margin:0.5ex;">${lumpType[0].toUpperCase() + lumpType.substring(1)}</div>
+        </div>`;
+
+        str += `<div style="display:flex; flex-direction:column;">`;
+        for(let configuration of report[lumpType]) {
+            str += `<div style="padding:2px; ${configuration.selectedEntry ? 'background-color:midnightblue' : ''}">
+                ${makeConfigurationDiv(configuration)}
+            </div>`;
+        }
+        if(report[lumpType].length == 0) {
+            if(Game.Has('Sugar aging process')) {
+                str += `<div>
+                    This seems to be an unlucky seed.
+                    Try making your requirements less strict in the options menu!
+                </div>`;
+            } else {
+                str += `<div>
+                    No matching predictions found.
+                    This report type is better suited
+                    for after you have purchased the heavenly upgrade "Sugar aging process".
+                </div>`;
+            }
+        }
+        str += '</div>';
+
+        str += '</div>';
+    }
+
+    if(!hasShownLumpType) {
+        str += 'No lump types were chosen, please select at least one lump type in the options menu.';
+    }
+
+    return str;
+}
+
 // Constructs a fancy table of predictions
 export function makeFullListReport(report: FullListPlannerReport) {
     let configurationCount = report.flat().length;
@@ -282,11 +330,11 @@ outerLoop:
             if(Game.Has('Sugar aging process')) {
                 str += `<br />
                     This seems to be an unlucky seed.
-                    Try making your requirements less strict in the settings!
+                    Try making your requirements less strict in the options menu!
                 `;
             } else {
                 str += `<br />
-                    Try showing more lump types and making your requirements less strict in the settings.
+                    Try showing more lump types and making your requirements less strict in the options menu.
                     Also, get the heavenly upgrade "Sugar aging process".
                 `;
             }
@@ -301,9 +349,32 @@ outerLoop:
 /* This function is pushed to CCSE's `Game.customLumpTooltip` on init by main.ts.
  */
 export function customLumpTooltip(str: string, _phase: number) {
-    if(!preferences.display.compactGrandmapocalypseRepresentation) {
-        str = str.replace('width:400px','width:500px'); // Kludge; widens the tooltip box
+    // TODO There has to be a better way of doing this
+    let calculatedWidth = 0;
+    calculatedWidth += 40; // Grandma icon
+    if(preferences.display.compactGrandmapocalypseRepresentation) {
+        calculatedWidth += 58;
+    } else {
+        calculatedWidth += 58 * 4;
     }
+    if(preferences.filtering.threeColumnDragonAuras) {
+        calculatedWidth += 44 * 3;
+    } else {
+        calculatedWidth += 44 * 2;
+    }
+    calculatedWidth += 48; // Rigidel icon
+
+    if(preferences.display.reportType == 'filtered') {
+        calculatedWidth += 120; // Approximate
+    } else {
+        calculatedWidth += 54;
+    }
+    calculatedWidth += 20; // Some extra leeway
+
+    if(calculatedWidth > 400) {
+        str = str.replace('width:400px',`width:${calculatedWidth}px`); // Kludge; widens the tooltip box
+    }
+
     str += '<div class="line"></div>';
 
     str += discrepancyTooltip();
@@ -325,10 +396,15 @@ export function customLumpTooltip(str: string, _phase: number) {
     </div>`;
 
     let reportStr = '';
-    // TODO: if(preferences.reportType == 'filtered') ...
-    let report;
-    ({ report, isCurrent } = planner.getAndUpdateFullListReport());
-    reportStr = makeFullListReport(report);
+    if(preferences.display.reportType == 'filtered') {
+        let report;
+        ({ report, isCurrent } = planner.getAndUpdateFilteredReport());
+        reportStr = makeFilteredReport(report);
+    } else {
+        let report;
+        ({ report, isCurrent } = planner.getAndUpdateFullListReport());
+        reportStr = makeFullListReport(report);
+    }
 
     str += `<div style="display:flex; justify-content:center; margin-bottom:4px;">
         <div style="padding-right:0.5ex">Other configurations:</div>
