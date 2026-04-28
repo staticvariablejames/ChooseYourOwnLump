@@ -15,8 +15,9 @@ function currentLumpType(): LumpType | 'unknown' {
     }
 }
 
-function makeLumpIcon(lumpType: LumpType) {
+function makeLumpIcon(lumpType: LumpType, scale?:number) {
     let background = '';
+    let scaling = scale !== undefined ? `scale:${scale}; transform-origin:top left;` : '';
     switch(lumpType) {
         case 'normal':      background = 'background-position: -1392px -672px;'; break;
         case 'bifurcated':  background = 'background-position: -1392px -720px;'; break;
@@ -28,7 +29,15 @@ function makeLumpIcon(lumpType: LumpType) {
         case 'meaty':       background = 'background-position: -1392px -816px;'; break;
         case 'caramelized': background = 'background-position: -1392px -1296px;'; break;
     }
-    return `<div class="icon" style="vertical-align: middle; margin: 0 -4px; ${background}"></div>`;
+    let str = `<div class="icon" style="vertical-align: middle; margin:0; ${background} ${scaling}"></div>`;
+    if(scale === undefined) {
+        return str;
+    } else {
+        // Need to wrap the icon in another div, because scale:0.5 does not change width/height
+        return `<div style="width:${Math.round(48*scale)}px; height:${Math.round(48*scale)}px">
+            ${str}
+        </div>`;
+    }
 }
 
 /* Returns a <div> displaying either a checkmark, a warning sign, or nothing.
@@ -236,27 +245,52 @@ export function discrepancyTooltip() {
 
 // Constructs a fancy table of predictions
 export function makeFullListReport(report: FullListPlannerReport) {
-    let configurations = report.flat(); // TODO: alternate background colors and group equivalent
+    let configurationCount = report.flat().length;
 
-    // The +1 ensures we display the "no other predictions found" if the player scrolls too far
-    capScrolledRows(configurations.length - preferences.display.rows + 1);
+    // The +1 ensures we display the "no other predictions found" text if the player scrolls too far
+    capScrolledRows(configurationCount - preferences.display.rows + 1);
+    let displayedRows = 0;
+    let iteratedRows = 0;
     let str = '';
-    let i = scrolledRows, displayedRows = 0; // displayedRows == i + scrolledRows
     str += '<div style="display:flex; flex-direction:column;">';
 
-    for(; i < configurations.length && displayedRows < preferences.display.rows; i++, displayedRows++) {
-        str += '<div style="display:flex; align-items:center;">';
-        str += makeLumpIcon(configurations[i].lumpType) + ':';
-        str += makeConfigurationDiv(configurations[i]);
-        str += '</div>';
+outerLoop:
+    for(let i = 0; i < report.length; i++) {
+        for(let j = 0; j < report[i].length; j++) {
+            iteratedRows++;
+            if(iteratedRows <= scrolledRows) continue;
+            let background = i % 2 ? '' : 'background-color: black;';
+            if(report[i][j].selectedEntry) background = 'background-color: midnightblue;';
+            str += `<div style="display:flex; align-items:center; justify-content:center; padding:2px; ${background}">`;
+            str += makeLumpIcon(report[i][j].lumpType);
+            str += '<div style="margin-right:1.5ex">:</div>';
+            str += makeConfigurationDiv(report[i][j]);
+            str += '</div>';
+            displayedRows++;
+            if(displayedRows >= preferences.display.rows) {
+                break outerLoop;
+            }
+        }
     }
 
     if(displayedRows < preferences.display.rows) {
-        str += 'No other matching predictions found.';
+        str += '<div padding=2px; margin=5px; align-text: right;">No other matching predictions found.';
         if(displayedRows == 0) {
-            str += '<br />Try displaying more lump types in the settings!';
+            if(Game.Has('Sugar aging process')) {
+                str += `<br />
+                    This seems to be an unlucky seed.
+                    Try making your requirements less strict in the settings!
+                `;
+            } else {
+                str += `<br />
+                    Try showing more lump types and making your requirements less strict in the settings.
+                    Also, get the heavenly upgrade "Sugar aging process".
+                `;
+            }
         }
+        str += '</div>';
     }
+
     str += '</div>';
     return str;
 }
@@ -275,23 +309,29 @@ export function customLumpTooltip(str: string, _phase: number) {
     // Next lump type
     let prediction, isCurrent;
     ({ prediction, isCurrent } = planner.getAndUpdateLumpTypePrediction());
-    str += 'Predicted next lump type: ' + makeLumpIcon(prediction) + ' ' + prediction + '.';
-    if(Game.hasGod && Game.BuildingsOwned%10!==0 && Game.hasGod('order')) {
-        str += ' Rigidel not active!';
-    }
-    if(!isCurrent) {
-        str += ' (recalculating...)';
-    }
-    str += '<br />';
+    /* "recalculating" div having zero width ensures the alignment does not change by its presence.
+     * "padding-right" then needs to be on the previous div,
+     * as padding/margin on the "recalculating" div would make it not zero-width anymore.
+     * (Note that flexbox ignores spaces, so adding a leading space to "(recalculating...)" does not work.)
+     */
+    str += `<div style="display:flex; justify-content:center; align-items:center;">
+        <div>The next lump type is predicted to be</div>
+        ${makeLumpIcon(prediction, 0.5)}
+        <div style="padding-right:0.5ex">${prediction}.</div>
+        ${isCurrent? '' : '<div style="width: 0px;">(recalculating...)</div>'}
+    </div>`;
 
+    let reportStr = '';
     // TODO: if(preferences.reportType == 'filtered') ...
     let report;
     ({ report, isCurrent } = planner.getAndUpdateFullListReport());
-    if(isCurrent) {
-        str += 'Predictions: <br />';
-    } else {
-        str += 'Predictions (recalculating...): <br />';
-    }
-    str += makeFullListReport(report);
+    reportStr = makeFullListReport(report);
+
+    str += `<div style="display:flex; justify-content:center; margin-bottom:4px;">
+        <div style="padding-right:0.5ex">Other configurations:</div>
+        ${isCurrent? '' : '<div style="width: 0px;">(recalculating...)</div>'}
+    </div>`;
+    str += reportStr;
+
     return str;
 }
