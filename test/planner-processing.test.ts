@@ -872,4 +872,17 @@ test.describe('Edge cases', () => {
         expect(processor.getFullListPlannerReport(state).length).toBeGreaterThan(0);
         expect(processor.getFilteredPlannerReport(state).golden!.length).toBeGreaterThan(0);
     });
+
+    test('no golden lumps', () => {
+        // adversarially-constructed-states.ts: grandmaful-goldenless
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'glump';
+        state.gameState.hasSugarAgingProcess = true;
+        state.gameState.currentLumpT = 1600000165533;
+        state.preferences.includeType.caramelized = false;
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        // Essentially, the following should not crash
+        expect(processor.getFullListPlannerReport(state).length).toEqual(0);
+        expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
+    });
 });

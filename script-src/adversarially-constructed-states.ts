@@ -22,6 +22,28 @@ let commands: Record<string, () => void> = {
         }
         console.log(core.currentLumpT);
     },
+
+    'grandmaful-goldenless': () => {
+        let core = new PlannerCore({
+            seed: 'glump',
+            hasSugarAgingProcess: true,
+        });
+        let found = false;
+        while(!found) {
+            core.currentLumpT++;
+            found = true;
+        middleLoop:
+            for(let configuration of makeConfigurationsIterator(core)) {
+                for(let type of core.lumpTypePredictionSet(configuration)) {
+                    if(type == 'golden') {
+                        found = false;
+                        break middleLoop;
+                    }
+                }
+            }
+        }
+        console.log(core.currentLumpT); // 1600000165533
+    },
 };
 
 let command = process.argv[2];
