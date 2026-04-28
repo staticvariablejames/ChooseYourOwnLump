@@ -129,7 +129,9 @@ function makeGrandmapocalypseIcons(grandmapocalypseStages: [boolean, boolean, bo
 }
 
 /* Similar as above, but builds a Rigidel with a pantheon icon instead.
- * slot === 0 means unslotted, slot === 1 means jade slot, 2 is ruby and 3 is diamond. */
+ * If the slot is 'none', Rigidel will be faded and the div will have height of 48px.
+ * Otherwise, the div has height of 60px.
+ */
 function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
     let rigidel = '<div class="icon" style="background-position:-1056px -912px; margin:0"></div>';
     let gem_background = '';
@@ -137,11 +139,12 @@ function makeRigidelIcon(slot: PantheonSlot, note: 'checkmark' | 'warn' | '') {
         case 'diamond': gem_background = 'background-position: -1104px -720px;'; break;
         case 'ruby':    gem_background = 'background-position: -1128px -720px;'; break;
         case 'jade':    gem_background = 'background-position: -1104px -744px;'; break;
-        case 'none':    gem_background = 'background-position: -1128px -744px;'; // No background
     }
     let gem = '<div class="icon" style="width:24px; height:24px; position:absolute; top:36px; left:12px; margin:0;' + gem_background + '"></div>';
+    if(slot == 'none') gem = '';
 
-    return `<div style="height:60px; width:48px; position:relative">
+    let height = slot == 'none' ? 'height:48px;' : 'height:60px';
+    return `<div style="${height} width:48px; position:relative">
         <div style="${slot == 'none' ? 'opacity:0.2' : ''}">${rigidel}${gem}</div>
         ${makeNote(note)}
     </div>`;
