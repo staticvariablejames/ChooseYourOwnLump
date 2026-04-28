@@ -341,11 +341,18 @@ export function makeIntersectionFilter(...filters: ConfigurationFilter[]): Confi
     }
 }
 
+/* Returns the list of requirements and goals specified by the filtering preferences.
+ * The "goals" array always contains at least the always-accepting filter.
+ *
+ * Additionally, if both preserveDragon and preservePantheon are 'observe',
+ * also adds a goal preserving both at the same time.
+ */
 export function makeFilterCollection(fullState: FullGameState):
     {requirements: ConfigurationFilter[], goals: ConfigurationFilter[]}
 {
     let requirements = [] as ConfigurationFilter[];
     let goals = [] as ConfigurationFilter[];
+    goals.push(makeTrivialConfigurationFilter());
     let conditions = fullState.preferences.conditions;
     let dragonPreserver = makeDragonPreservingConfigurationFilter(fullState.gameState);
     let pantheonPreserver = makePantheonPreservingConfigurationFilter(fullState.gameState);
@@ -378,9 +385,7 @@ export function makeFilterCollection(fullState: FullGameState):
         goals.push(budgetRespecter);
     }
 
-    /* Additionally, add condition to try to preserve both
-     * TODO: document this somewhere
-     */
+    // Special condition
     if(conditions.preserveDragon == 'observe' && conditions.preservePantheon == 'observe') {
         goals.push(makeIntersectionFilter(dragonPreserver, pantheonPreserver));
     }

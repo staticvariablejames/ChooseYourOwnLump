@@ -17,6 +17,33 @@ import {
     CachedConfigurationsProcessor,
 } from '../src/planner/processing';
 
+// Default state for the tests in this file
+let defaultState: FullGameState = {
+    gameState: {
+        discrepancy: 0,
+        hasSteviaCaelestis: false,
+        hasSucralosiaInutilis: false,
+        hasSugarAgingProcess: false,
+        seed: 'aaaaa',
+        currentLumpT: 1.6e12,
+        currentRigidelSlot: 'none',
+        currentGrandmaCount: 0,
+        currentGrandmapocalypseStage: 0,
+        currentHasDragonsCurve: false,
+        currentHasRealityBending: false,
+        currentHasSupremeIntellect: false,
+    },
+    preferences: getDefaultPreferences().filtering,
+    budget: {
+        maxGrandmas: 600,
+        unlockedPantheon: true,
+        unlockedDragonsCurve: true,
+        unlockedRealityBending: true,
+        unlockedSupremeIntellect: true,
+        unlockedSecondAura: true,
+    },
+};
+
 test('mergeIterators', () => {
     function* yieldsOnce() {
         yield 17;
@@ -747,32 +774,6 @@ test.describe('CachedConfigurationsProcessor', () => {
 });
 
 test.describe('CachedConfigurationsProcessor reports', () => {
-    let defaultState: FullGameState = {
-        gameState: {
-            discrepancy: 0,
-            hasSteviaCaelestis: false,
-            hasSucralosiaInutilis: false,
-            hasSugarAgingProcess: false,
-            seed: 'aaaaa',
-            currentLumpT: 1.6e12,
-            currentRigidelSlot: 'none',
-            currentGrandmaCount: 0,
-            currentGrandmapocalypseStage: 0,
-            currentHasDragonsCurve: false,
-            currentHasRealityBending: false,
-            currentHasSupremeIntellect: false,
-        },
-        preferences: getDefaultPreferences().filtering,
-        budget: {
-            maxGrandmas: 600,
-            unlockedPantheon: true,
-            unlockedDragonsCurve: true,
-            unlockedRealityBending: true,
-            unlockedSupremeIntellect: true,
-            unlockedSecondAura: true,
-        },
-    };
-
     test('a correct fullListReport', () => {
         // adversarially-constructed-states.ts: grandmaless-sad-seed-search
         let state = structuredClone(defaultState);
@@ -844,5 +845,31 @@ test.describe('CachedConfigurationsProcessor reports', () => {
             [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 85988059.7014, rigidelSlot: 'none',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: 'checkmark', style: 'normal'}, {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
             [{selectedEntry: false, autoharvestTimestamp: 1.6e12+57 + 86400000,      rigidelSlot: 'none',    rigidelNote: '',          dragonAuras: [{aura: "Reality Bending",   note: 'warn',      style: 'faded'},  {aura: "Dragon's Curve",    note: 'checkmark', style: 'faded'}]}],
         ]);
+    });
+});
+
+test.describe('Edge cases', () => {
+    test('no selected condition', () => {
+        let state = structuredClone(defaultState);
+        state.preferences.conditions.preserveDragon = 'ignore';
+        state.preferences.conditions.preservePantheon = 'ignore';
+        state.preferences.conditions.preserveGrandmapocalypseStage = 'ignore';
+        state.preferences.conditions.respectBudget = 'ignore';
+        state.gameState.hasSugarAgingProcess = true;
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        expect(processor.getFullListPlannerReport(state).length).toBeGreaterThan(0);
+        expect(processor.getFilteredPlannerReport(state).golden!.length).toBeGreaterThan(0);
+    });
+
+    test('all selected conditions', () => {
+        let state = structuredClone(defaultState);
+        state.preferences.conditions.preserveDragon = 'require';
+        state.preferences.conditions.preservePantheon = 'require';
+        state.preferences.conditions.preserveGrandmapocalypseStage = 'require';
+        state.preferences.conditions.respectBudget = 'require';
+        state.gameState.hasSugarAgingProcess = true;
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        expect(processor.getFullListPlannerReport(state).length).toBeGreaterThan(0);
+        expect(processor.getFilteredPlannerReport(state).golden!.length).toBeGreaterThan(0);
     });
 });
