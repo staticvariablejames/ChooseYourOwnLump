@@ -71,6 +71,7 @@ test.describe('Can load a legacy save game', () => {
         await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
         await page.evaluate(save => Game.LoadSave(save), CCSave.toNativeSave(saveWithLegacyData));
 
+        expect(await page.evaluate(() => window.CYOL.preferences)).toMatchObject(actualSettings);
         expect(await page.evaluate((id) => id in Game.modSaveData, legacyId)).toBeFalsy();
         let save = CCSave.fromNativeSave(await page.evaluate(() => Game.WriteSave(1)));
         expect(legacyId in save.modSaveData).toBeFalsy();
@@ -83,6 +84,7 @@ test.describe('Can load a legacy save game', () => {
         await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
         await page.evaluate(save => Game.LoadSave(save), CCSave.toNativeSave(saveWithLegacyData));
 
+        expect(await page.evaluate(() => window.CYOL.preferences)).toMatchObject(actualSettings);
         expect(await page.evaluate((id) => id in Game.modSaveData, legacyId)).toBeFalsy();
         let save = CCSave.fromNativeSave(await page.evaluate(() => Game.WriteSave(1)));
         expect(legacyId in save.modSaveData).toBeFalsy();
@@ -110,6 +112,7 @@ test.describe('Can load a legacy save game', () => {
 
         // Load legacy save and test it
         await page.evaluate(save => Game.LoadSave(save), CCSave.toNativeSave(saveWithLegacyData));
+        expect(await page.evaluate(() => window.CYOL.preferences)).toMatchObject(actualSettings);
         expect(await page.evaluate((id) => id in Game.modSaveData, legacyId)).toBeFalsy();
         let save = CCSave.fromNativeSave(await page.evaluate(() => Game.WriteSave(1)));
         expect(legacyId in save.modSaveData).toBeFalsy();

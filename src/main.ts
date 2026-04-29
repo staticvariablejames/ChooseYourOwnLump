@@ -117,9 +117,9 @@ let CYOL = {
      * to run this function even if `Game.modSaveData[name]` does not exist.
      */
     load: function(str?: string) {
-        retrieveDataFromLegacySave();
         if(str === undefined) {
             clearModState();
+            retrieveDataFromLegacySave();
         } else {
             loadSaveData(str);
         }
