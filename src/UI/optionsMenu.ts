@@ -27,6 +27,7 @@ function makeSlider(options: {
     getDisplayText: (newValue: number) => string,
     currentValue: number,
     sliderTitle: string,
+    minValue: number,
     maxValue: number,
 }) {
     sliderUpdaters[options.id] = {
@@ -41,7 +42,7 @@ function makeSlider(options: {
         </div>
         <input class="slider" id="CYOL-slider-${options.id}"
                style="clear:both;"
-               type="range" min="0" max="${options.maxValue}" step="1"
+               type="range" min="${options.minValue}" max="${options.maxValue}" step="1"
                value="${options.currentValue}"
                onchange="CYOL.UI.onSliderUpdate('${options.id}')"
                oninput="CYOL.UI.onSliderUpdate('${options.id}')"
@@ -75,6 +76,7 @@ function makeConditionsSlider(options: {
         getDisplayText,
         currentValue,
         sliderTitle: options.sliderTitle,
+        minValue: 0,
         maxValue: 2,
     });
 }
@@ -148,7 +150,8 @@ export function customOptionsMenu() {
             getDisplayText: (newValue) => String(newValue) + 'ms',
             currentValue: preferences.discrepancy,
             sliderTitle: "Discrepancy",
-            maxValue: 100,
+            minValue: 0,
+            maxValue: 20,
         }) +
     '</div>';
 
@@ -202,7 +205,8 @@ export function customOptionsMenu() {
             getDisplayText: (newValue) => String(newValue),
             currentValue: preferences.display.rows,
             sliderTitle: "Rows of predictions to display",
-            maxValue: 100,
+            minValue: 1,
+            maxValue: 30,
         }) +
         `<label>Number of rows to be displayed, if showing the full list of predictions</label>` +
     '</div>';
