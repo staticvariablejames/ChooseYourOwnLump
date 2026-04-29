@@ -74,7 +74,10 @@ export function canonicalIndex(configuration: DistilledPlannerConfiguration) {
 }
 
 export type PartialConfiguration = {
-    grandmaCount: number;
+    /* grandmaCount == null if and only if Sugar aging process was not bought.
+     * Equivalent to 0 grandmas for autoharvestTimestamp calculation purposes.
+     */
+    grandmaCount: number | null;
     hasDragonsCurve: boolean;
     hasRealityBending: boolean;
     hasSupremeIntellect: boolean;
@@ -94,16 +97,16 @@ export const precomputedPartialConfigurations: PartialConfiguration[][] =
     function distill(configuration: PartialConfiguration): DistilledPlannerConfiguration {
         let myRigidelPower = rigidelPower(configuration.rigidelSlot, configuration.hasSupremeIntellect);
         return {
-            effectiveGrandmaCount: myRigidelPower + Math.min(600, configuration.grandmaCount),
+            effectiveGrandmaCount: myRigidelPower + Math.min(600, configuration.grandmaCount ?? 0),
             hasDragonsCurve: configuration.hasDragonsCurve,
             hasRealityBending: configuration.hasRealityBending,
         };
     }
 
     let partialConfigurations: PartialConfiguration[][]
-        // Why don't Array.map works with undefined values? :(
         = Array(canonicalIndicesCount).fill([]).map(() => []);
-    for(let grandmaCount = 0; grandmaCount <= 600; grandmaCount++) {
+    let validGrandmaCounts = [null as null | number].concat(Array(601).fill(0).map((_, i) => i));
+    for(let grandmaCount of validGrandmaCounts) {
         for(let rigidelSlot of ['none', 'jade', 'ruby', 'diamond'] as PantheonSlot[]) {
             for(let hasDragonsCurve of [false, true]) {
                 for(let hasRealityBending of [false, true]) {
@@ -141,7 +144,10 @@ export function makeReportEntry(options: {
     function check(condition: boolean): 'checkmark' | '' {
         return condition ? 'checkmark' : '';
     }
-    let selectedEntry = configuration.grandmaCount == plannerCore.currentGrandmaCount
+    // TODO here is probably not the best place to handle nullable grandma counts
+    let plannerCoreEquivalentGrandmaCount = plannerCore.hasSugarAgingProcess ? plannerCore.currentGrandmaCount : null;
+
+    let selectedEntry = configuration.grandmaCount == plannerCoreEquivalentGrandmaCount
         && configuration.hasDragonsCurve == plannerCore.currentHasDragonsCurve
         && configuration.hasRealityBending == plannerCore.currentHasRealityBending
         && configuration.hasSupremeIntellect == plannerCore.currentHasSupremeIntellect
@@ -154,21 +160,20 @@ export function makeReportEntry(options: {
     let rigidelSlot = configuration.rigidelSlot;
     let rigidelNote = check(configuration.rigidelSlot == plannerCore.currentRigidelSlot);
 
-    let grandmaCount: number | null;
+    let grandmaCount = configuration.grandmaCount;
     let grandmaCountNote: 'checkmark' | 'warn' | '';
-    if(plannerCore.hasSugarAgingProcess) {
-        grandmaCount = configuration.grandmaCount;
-        grandmaCountNote = check(configuration.grandmaCount == plannerCore.currentGrandmaCount);
-    } else if(configuration.grandmaCount == 0) {
-        grandmaCount = null;
-        grandmaCountNote = '';
-    } else {
-        grandmaCount = configuration.grandmaCount;
+    if(grandmaCount == null && plannerCore.hasSugarAgingProcess) {
+        grandmaCountNote = 'warn';
+    } else if(grandmaCount != null && !plannerCore.hasSugarAgingProcess) {
         grandmaCountNote = 'warn';
         /* NOTE: Currently,
-         * CachedConfigurationsProcessor.prototype.cacheNextPredictionSet() filters those out,
-         * so this case should never happen.
+         * CachedConfigurationsProcessor.prototype.cacheNextPredictionSet() filters these two cases out,
+         * so grandmaCountNote should never be 'warn' in any report produced by CachedConfigurationsProcessor.
          */
+    } else if(grandmaCount == null && !plannerCore.hasSugarAgingProcess) {
+        grandmaCountNote = 'checkmark'; // Grandmas are not displayed by lumpTooltip.ts in this case
+    } else {
+        grandmaCountNote = grandmaCount == plannerCore.currentGrandmaCount ? 'checkmark' : '';
     }
 
     let dragonAuras: DragonAuraReportEntry[] = [];
@@ -320,7 +325,7 @@ export function makeGrandmapocalypseStagePreservingFilter(gameState: PlannerRele
 
 export function makeBudgetConsciousFilter(budget: BudgetInfo): ConfigurationFilter {
     return (configuration: PlannerConfiguration) => {
-        if(configuration.grandmaCount > budget.maxGrandmas) return false;
+        if(configuration.grandmaCount != null && configuration.grandmaCount > budget.maxGrandmas) return false;
         if(!budget.unlockedPantheon && configuration.rigidelSlot != 'none') return false;
         if(!budget.unlockedDragonsCurve && configuration.hasDragonsCurve) return false;
         if(!budget.unlockedRealityBending && configuration.hasRealityBending) return false;
@@ -489,15 +494,27 @@ export class CachedConfigurationsProcessor {
         for(let lumpType of new Set(predictionSet)) {
             let matchingGrandmapocalypseStages = predictionSet.map(type => type == lumpType);
             let configurations = precomputedPartialConfigurations[canonicalIndex(next.value)]
-                .filter((partialConfiguration:PartialConfiguration) => {
-                    if(hasSugarAgingProcess) return true;
-                    else return partialConfiguration.grandmaCount == 0;
-                }).map((partialConfiguration:PartialConfiguration): PlannerConfiguration => ({
+                .map((partialConfiguration:PartialConfiguration): PlannerConfiguration | null => {
+                    // We filter out nulls at the end
+                    if(!hasSugarAgingProcess && partialConfiguration.grandmaCount != null) return null;
+                    if( hasSugarAgingProcess && partialConfiguration.grandmaCount == null) return null;
+
+                    let grandmapocalypseStages = matchingGrandmapocalypseStages as [boolean, boolean, boolean, boolean];
+                    if(hasSugarAgingProcess && partialConfiguration.grandmaCount == 0) {
+                        // Cannot have grandmapocalypse if there are no grandmas
+                        if(!grandmapocalypseStages[0]) {
+                            return null;
+                        } else {
+                            grandmapocalypseStages = [grandmapocalypseStages[0], false, false, false];
+                        }
+                    }
+                    return {
                         ...partialConfiguration,
                         lumpType,
                         autoharvestTimestamp,
-                        grandmapocalypseStages: matchingGrandmapocalypseStages as [boolean, boolean, boolean, boolean],
-                }));
+                        grandmapocalypseStages,
+                    };
+                }).filter(c => c != null);
             this.cache[lumpType].push(configurations);
         }
         return true;

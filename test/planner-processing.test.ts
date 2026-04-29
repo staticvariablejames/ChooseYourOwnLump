@@ -160,7 +160,7 @@ test.describe('precomputedPartialConfigurations is correctly initialized', () =>
     test('with the right number of configurations', () => {
         let totalPrecomputedPartialConfigurations =
             precomputedPartialConfigurations.map(l => l.length).reduce((x, y) => x+y);
-        expect(totalPrecomputedPartialConfigurations).toEqual(601*7*4);
+        expect(totalPrecomputedPartialConfigurations).toEqual(602*7*4);
     });
 
     let distilledConfiguration: DistilledPlannerConfiguration;
@@ -788,7 +788,7 @@ test.describe('CachedConfigurationsProcessor reports', () => {
         report = processor.getFullListPlannerReport(state);
         expect(new Set(report.flat().map(c => c.lumpType))).toEqual(new Set(['normal']));
         expect(new Set(report.flat().map(c => c.grandmaCount))).toEqual(new Set([null]));
-        expect(new Set(report.flat().map(c => c.grandmaCountNote))).toEqual(new Set(['']));
+        expect(new Set(report.flat().map(c => c.grandmaCountNote))).toEqual(new Set(['checkmark']));
         expect(new Set(report.flat().map(c => c.grandmapocalypseStages).flat())).toEqual(new Set([true]));
         expect(new Set(report.flat().map(c => c.grandmapocalypseNote))).toEqual(new Set(['checkmark']));
         expect(report).toMatchObject([
@@ -823,7 +823,7 @@ test.describe('CachedConfigurationsProcessor reports', () => {
         let report = processor.getFullListPlannerReport(state);
         expect(new Set(report.flat().map(c => c.lumpType))).toEqual(new Set(['normal']));
         expect(new Set(report.flat().map(c => c.grandmaCount))).toEqual(new Set([null]));
-        expect(new Set(report.flat().map(c => c.grandmaCountNote))).toEqual(new Set(['']));
+        expect(new Set(report.flat().map(c => c.grandmaCountNote))).toEqual(new Set(['checkmark']));
         expect(new Set(report.flat().map(c => c.grandmapocalypseStages).flat())).toEqual(new Set([true]));
         expect(new Set(report.flat().map(c => c.grandmapocalypseNote))).toEqual(new Set(['checkmark']));
         expect(report).toMatchObject([
@@ -884,5 +884,45 @@ test.describe('Edge cases', () => {
         // Essentially, the following should not crash
         expect(processor.getFullListPlannerReport(state).length).toEqual(0);
         expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
+    });
+
+    test.describe("don't sell all grandmas and expect to remain in the grandmapocalypse", () => {
+        // adversarially-constructed-states.ts: single-golden-but-cant-sell-grandmas
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'james';
+        state.gameState.hasSugarAgingProcess = true;
+        state.gameState.hasSucralosiaInutilis = true;
+        state.gameState.currentLumpT = 1600010834339;
+        state.gameState.currentGrandmapocalypseStage = 3;
+        state.gameState.currentRigidelSlot = 'diamond'; // bait
+        state.preferences.includeType.caramelized = false;
+
+        /* This seed+lumpT has a single way of getting a golden lump:
+         * with 600 grandmas and Reality Bending,
+         * during the last two stages of the grandmapocalypse.
+         * Or 400 grandmas and jade-slotted Rigidel, or 200 grandmas and ruby-slotted Rigidel.
+         * But 0 grandmas and diamond-slotted rigidel is not a valid solution,
+         * because that puts us outside of the grandmapocalypse.
+         * Hence this solution is not valid.
+         *
+         * Setting currentRigidelSlot = 'diamond' then "tempts" the pantheon-preserving filter
+         * into returning a solution with rigidel slotted but no grandmas.
+         * This is what we test against.
+         */
+        test('in a full-list report', () => {
+            let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+            let report = processor.getFullListPlannerReport(state);
+            expect(report.length).toEqual(1);
+            expect(report[0][0].autoharvestTimestamp).toEqual(1600093240309.1492);
+            expect(report[0].some(e => e.grandmaCount == 0)).toBeFalsy();
+        });
+
+        test('in a filtered report', () => {
+            let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+            let report = processor.getFilteredPlannerReport(state);
+            expect(report.golden!.length).toEqual(1);
+            expect(report.golden!.every(e => e.autoharvestTimestamp == 1600093240309.1492)).toBeTruthy();
+            expect(report.golden!.some(e => e.grandmaCount == 0)).toBeFalsy();
+        });
     });
 });
