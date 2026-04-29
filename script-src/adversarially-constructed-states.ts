@@ -26,29 +26,27 @@ let commands: Record<string, () => void> = {
     'grandmaful-goldenless': () => {
         let core = new PlannerCore({
             seed: 'glump',
+            hasSteviaCaelestis: true,
             hasSugarAgingProcess: true,
         });
-        let found = false;
-        while(!found) {
+    outerLoop:
+        while(true) {
             core.currentLumpT++;
-            found = true;
-        middleLoop:
             for(let configuration of makeConfigurationsIterator(core)) {
-                for(let type of core.lumpTypePredictionSet(configuration)) {
-                    if(type == 'golden') {
-                        found = false;
-                        break middleLoop;
-                    }
+                if(core.lumpTypePredictionSet(configuration).some(t => t == 'golden')) {
+                    continue outerLoop;
                 }
             }
+            break;
         }
-        console.log(core.currentLumpT); // 1600000165533
+        console.log(core.currentLumpT); // 1600000130706 (1600000165533 without Stevia Caelestis)
     },
 
     'single-golden-but-cant-sell-grandmas': () => {
         let core = new PlannerCore({
             seed: 'james',
             hasSugarAgingProcess: true,
+            hasSteviaCaelestis: true,
             hasSucralosiaInutilis: true,
         });
         let hasGolden = false;
@@ -99,7 +97,112 @@ let commands: Record<string, () => void> = {
             }
             break;
         }
-        console.log(core.currentLumpT); // 1600010834339
+        console.log(core.currentLumpT); // 1600054366361 (1600010834339 without Stevia Caelestis)
+    },
+
+    'single-golden-almost-as-fast-as-possible': () => {
+        let core = new PlannerCore({
+            seed: 'james',
+            hasSugarAgingProcess: true,
+            hasSucralosiaInutilis: true,
+            hasSteviaCaelestis: true,
+        });
+
+    outerLoop:
+        while(true) {
+            core.currentLumpT++;
+
+            let predictionsAlmostFastestConfiguration = core.lumpTypePredictionSet({
+                effectiveGrandmaCount: 1200, hasDragonsCurve: true, hasRealityBending: false,
+            });
+            if(!predictionsAlmostFastestConfiguration.some(l => l == 'golden')) {
+                continue;
+            }
+
+            for(let configuration of makeConfigurationsIterator(core)) {
+                if(configuration.effectiveGrandmaCount == 1200 &&
+                   configuration.hasDragonsCurve && !configuration.hasRealityBending)
+                {
+                    continue;
+                }
+
+                if(core.lumpTypePredictionSet(configuration).some(type => type == 'golden')) {
+                    continue outerLoop;
+                }
+            }
+            break;
+        }
+        console.log(core.currentLumpT); // 1600049146690
+    },
+
+    'single-golden-as-fast-as-possible': () => {
+        let core = new PlannerCore({
+            seed: 'james',
+            hasSugarAgingProcess: true,
+            hasSucralosiaInutilis: true,
+            hasSteviaCaelestis: true,
+        });
+
+    outerLoop:
+        while(true) {
+            core.currentLumpT++;
+
+            let predictionsFastestConfiguration = core.lumpTypePredictionSet({
+                effectiveGrandmaCount: 1200, hasDragonsCurve: true, hasRealityBending: true
+            });
+            if(!predictionsFastestConfiguration.some(l => l == 'golden')) {
+                continue;
+            }
+
+            let goldenCount = 0;
+            for(let configuration of makeConfigurationsIterator(core)) {
+                if(core.lumpTypePredictionSet(configuration).some(type => type == 'golden')) {
+                    goldenCount++;
+                }
+                if(goldenCount >= 2) {
+                    // goldenCount will quickly become 1 because of the guaranteed golden above
+                    continue outerLoop;
+                }
+            }
+            break;
+        }
+        console.log(core.currentLumpT); // 1600051862902 (1600028071294 without Stevia Caelestis)
+    },
+
+    'sugar-aging-process-stole-my-gold': () => {
+        let core = new PlannerCore({
+            seed: 'james',
+            hasSugarAgingProcess: true,
+            hasSteviaCaelestis: true,
+        });
+    outerLoop:
+        while(true) {
+            core.currentLumpT++;
+            let foundGoodSetup = false;
+            for(let hasDragonsCurve of [false, true])
+            for(let hasRealityBending of [false, true]) {
+                let predictionSetNoGrandmas = core.lumpTypePredictionSet({effectiveGrandmaCount: 0, hasDragonsCurve, hasRealityBending});
+                if(predictionSetNoGrandmas[0] == 'golden') {
+                    continue outerLoop;
+                }
+                if(predictionSetNoGrandmas.some(t => t == 'golden')) {
+                    foundGoodSetup = true;
+                }
+            }
+            if(!foundGoodSetup) continue outerLoop;
+
+            // Now there shall be no other golden lumps
+            for(let configuration of makeConfigurationsIterator(core)) {
+                let predictionSet = core.lumpTypePredictionSet(configuration);
+                if(configuration.effectiveGrandmaCount != 0) {
+                    if(predictionSet.some(t => t == 'golden')) {
+                        continue outerLoop;
+                    }
+                }
+            }
+            break;
+        }
+        console.log(core.currentLumpT); // 1600089387378 (1600109561973 without Stevia Caelestis)
     },
 };
 

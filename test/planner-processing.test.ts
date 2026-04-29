@@ -886,19 +886,54 @@ test.describe('Edge cases', () => {
         expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
     });
 
+    test('no golden lumps, even with Stevia Caelestis', () => {
+        // adversarially-constructed-states.ts: grandmaful-goldenless
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'glump';
+        state.gameState.hasSugarAgingProcess = true;
+        state.gameState.hasSteviaCaelestis = true;
+        state.gameState.currentLumpT = 1600000130706;
+        state.preferences.includeType.caramelized = false;
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        expect(processor.getFullListPlannerReport(state).length).toEqual(0);
+        expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
+    });
+
+    test('do not report states in the grandmapocalypse but without grandmas', () => {
+        // adversarially-constructed-states.ts: sugar-aging-process-stole-my-gold
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'james';
+        state.gameState.hasSugarAgingProcess = true;
+        state.gameState.hasSteviaCaelestis = true;
+        state.gameState.currentLumpT = 1600089387378;
+        state.preferences.includeType.caramelized = false;
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        expect(processor.getFullListPlannerReport(state).length).toEqual(0);
+        expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
+
+        // Check indeed Sugar aging process stole my gold
+        let core = new PlannerCore(state.gameState);
+        core.hasSugarAgingProcess = false;
+        let predictionsWithoutGrandmas = core.lumpTypePredictionSet({
+            effectiveGrandmaCount: 0, hasDragonsCurve: true, hasRealityBending: true,
+        });
+        expect(predictionsWithoutGrandmas.some(t => t == 'golden')).toBeTruthy();
+    });
+
     test.describe("don't sell all grandmas and expect to remain in the grandmapocalypse", () => {
         // adversarially-constructed-states.ts: single-golden-but-cant-sell-grandmas
         let state = structuredClone(defaultState);
         state.gameState.seed = 'james';
         state.gameState.hasSugarAgingProcess = true;
+        state.gameState.hasSteviaCaelestis = true;
         state.gameState.hasSucralosiaInutilis = true;
-        state.gameState.currentLumpT = 1600010834339;
+        state.gameState.currentLumpT = 1600054366361;
         state.gameState.currentGrandmapocalypseStage = 3;
         state.gameState.currentRigidelSlot = 'diamond'; // bait
         state.preferences.includeType.caramelized = false;
 
         /* This seed+lumpT has a single way of getting a golden lump:
-         * with 600 grandmas and Reality Bending,
+         * with 600 grandmas, unslotted Rigidel, and Reality Bending,
          * during the last two stages of the grandmapocalypse.
          * Or 400 grandmas and jade-slotted Rigidel, or 200 grandmas and ruby-slotted Rigidel.
          * But 0 grandmas and diamond-slotted rigidel is not a valid solution,
@@ -913,7 +948,7 @@ test.describe('Edge cases', () => {
             let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
             let report = processor.getFullListPlannerReport(state);
             expect(report.length).toEqual(1);
-            expect(report[0][0].autoharvestTimestamp).toEqual(1600093240309.1492);
+            expect(report[0][0].autoharvestTimestamp).toEqual(state.gameState.currentLumpT + 75258767.77251185);
             expect(report[0].some(e => e.grandmaCount == 0)).toBeFalsy();
         });
 
@@ -921,8 +956,41 @@ test.describe('Edge cases', () => {
             let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
             let report = processor.getFilteredPlannerReport(state);
             expect(report.golden!.length).toEqual(1);
-            expect(report.golden!.every(e => e.autoharvestTimestamp == 1600093240309.1492)).toBeTruthy();
+            expect(new Set(report.golden!.map(e => e.autoharvestTimestamp))).toEqual(new Set([state.gameState.currentLumpT + 75258767.77251185]));
             expect(report.golden!.some(e => e.grandmaCount == 0)).toBeFalsy();
         });
+    });
+
+    test('Rigidel can be upgraded with Supreme Intellect', () => {
+        // adversarially-constructed-states.ts: single-golden-almost-as-fast-as-possible
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'james';
+        state.gameState.hasSugarAgingProcess = true;
+        state.gameState.hasSteviaCaelestis = true;
+        state.gameState.hasSucralosiaInutilis = true;
+        state.gameState.currentLumpT = 1600049146690;
+        state.gameState.currentRigidelSlot = 'ruby';
+        state.preferences.includeType.caramelized = false;
+        state.preferences.conditions.preservePantheon = 'require';
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        expect(processor.getFullListPlannerReport(state)).toMatchObject([[
+            {grandmaCount: 600, rigidelSlot: 'ruby', dragonAuras: [{aura: "Dragon's Curve", style: 'normal'}, {aura: "Supreme Intellect", style: 'normal'}]}
+        ]]);
+    });
+
+    test("Rigidel can't be upgraded if both dragon aura slots are used", () => {
+        // adversarially-constructed-states.ts: single-golden-as-fast-as-possible
+        let state = structuredClone(defaultState);
+        state.gameState.seed = 'james';
+        state.gameState.hasSugarAgingProcess = true;
+        state.gameState.hasSteviaCaelestis = true;
+        state.gameState.hasSucralosiaInutilis = true;
+        state.gameState.currentLumpT = 1600051862902;
+        state.gameState.currentRigidelSlot = 'ruby'; // bait
+        state.preferences.includeType.caramelized = false;
+        state.preferences.conditions.preservePantheon = 'require';
+        let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
+        // Cannot upgrade Rigidel because other two dragon auras must be used for this lumpT
+        expect(processor.getFullListPlannerReport(state)).toEqual([]);
     });
 });
