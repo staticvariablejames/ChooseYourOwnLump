@@ -20,6 +20,7 @@
  * used by Game.registerMod.
  */
 import { name, version, GameVersion } from './modInfo';
+import { discrepancyInfo, discrepancyInfoRetrievalFallback } from './discrepancyInfo';
 import { planner } from './planner/planner';
 import { preferences } from './preferences';
 import {
@@ -27,6 +28,7 @@ import {
     serializeSaveData,
     retrieveDataFromLegacySave,
     clearModState,
+    clearModData,
 } from './saveDataManagement';
 import { registerLumpIconWheelEventListener } from './UI/lumpIconScrolling';
 import { customLumpTooltip } from './UI/lumpTooltip';
@@ -40,9 +42,25 @@ let CYOL = {
     version: version,
     isLoaded: false,
 
+    /* Internal data;
+     * true if CYOL.load is being run together with init, false if "alone" after a Game.LoadSave.
+     * This bit of data is required by the tools in discrepancyInfo.ts
+     * (and informed to them through loadSaveData below).
+     *
+     * The value below is actually a dummy value.
+     * CYOL.init() is called by Game.registerMod, which then calls CYOL.load() immediately afterwards
+     * but only if Game.modSaveData[name] exists.
+     * This is the only time that CYOL.load is executed outside of Game.loadModData.
+     * So we set CYOL.isInitialLoad to false if Game.modSaveData[name] does not exist,
+     * because in this case every call to CYOL.load happens inside Game.loadModData.
+     * CYOL.load then sets this to false so we know future calls to CYOL.load() are not initial.
+     */
+    isInitialLoad: true,
+
     // Global variables, not really part of the public API but useful for testing
     preferences, // See preferences.ts
     planner,
+    discrepancyInfo,
 
     /* UI callbacks.
      * These need to be here for the buttons in the options menu to work,
@@ -73,12 +91,24 @@ let CYOL = {
     // The following attributes are used by Game.registerMod
     id: name, // Overwritten by Game.registerMod anyway, but here for documentation
     init: function() {
+        // Vanilla hooks
+        Game.modHooks['reset'].push((hard?: boolean) => {
+            if(hard) {
+                clearModState();
+            }
+        });
+
+        // CCSE hooks
         Game.customLumpTooltip.push(customLumpTooltip);
         Game.customOptionsMenu.push(customOptionsMenu);
         Game.customStatsMenu.push(function() {
             CCSE.AppendStatsVersionNumber(name, version);
         });
 
+        // Other hooks
+        registerLumpIconWheelEventListener();
+
+        // Code injections
         rewriteCode(
             'Game.loadLumps',
             "Game.computeLumpTimes();",
@@ -95,14 +125,11 @@ let CYOL = {
             `{\nif(!("${name}" in Game.modSaveData)) CYOL.load(); // Injected by Choose Your Own Lump\n`
         );
 
-        Game.modHooks['reset'].push((hard?: boolean) => {
-            if(hard) {
-                clearModState();
-            }
-        });
-
+        // Save Data loading
+        clearModData();
         retrieveDataFromLegacySave();
-        registerLumpIconWheelEventListener();
+
+        CYOL.isInitialLoad = name in Game.modSaveData; // See isInitialLoad's documentation above
 
         CYOL.isLoaded = true;
         Game.Notify('Choose Your Own Lump loaded!', '', undefined, 1, true);
@@ -112,17 +139,19 @@ let CYOL = {
         return serializeSaveData();
     },
 
-    /* Cookie Clicker always calls this method passing a string,
-     * the "undefined" is injected by us,
-     * to run this function even if `Game.modSaveData[name]` does not exist.
+    /* Cookie Clicker always calls this method passing a string.
+     * We also inject code to `Game.loadModData` to call `CYOL.load()` (without arguments)
+     * if `Game.modSaveData[name]` does not exist.
      */
     load: function(str?: string) {
         if(str === undefined) {
-            clearModState();
+            clearModData();
             retrieveDataFromLegacySave();
+            discrepancyInfoRetrievalFallback(CYOL.preferences, CYOL.isInitialLoad);
         } else {
-            loadSaveData(str);
+            loadSaveData(str, CYOL.isInitialLoad);
         }
+        CYOL.isInitialLoad = false;
     },
 };
 

@@ -6,11 +6,14 @@
 
 import type { CYOLPreferences } from './preferences';
 import { preferences, setPreferences, getDefaultPreferences } from './preferences';
+import type { StoredDiscrepancyInfo } from './discrepancyInfo';
+import { loadDiscrepancyInfo, clearDiscrepancyInfo, discrepancyInfoRetrievalFallback, getDiscrepancyInfoForStorage } from './discrepancyInfo';
 import { version } from './modInfo';
 
 export type SaveData = {
     version: string, // Version used to create the save data
     preferences: CYOLPreferences,
+    storedDiscrepancyInfo: StoredDiscrepancyInfo,
 };
 
 // @ts-expect-error "no unused locals"; this type is here for documentation
@@ -124,9 +127,17 @@ export function getPreferencesFromObject(source: unknown, version?: string): CYO
 }
 
 /* Resets any existing mod state to its default values.
+ * Most notably, preferences are not considered "mod state" and thus not reset by this function.
  */
 export function clearModState() {
+    clearDiscrepancyInfo();
+}
+
+/* Resets any existing mod data (including preferences) to its default values.
+ */
+export function clearModData() {
     setPreferences(getDefaultPreferences());
+    clearDiscrepancyInfo();
 }
 
 /* Parses the save data from the string
@@ -135,7 +146,7 @@ export function clearModState() {
  *
  * This function calls clearModState on its own beforehand.
  */
-export function loadSaveData(saveData: string) {
+export function loadSaveData(saveData: string, isInitialLoad: boolean) {
     clearModState();
 
     let saveDataAsObject = JSON.parse(saveData) as unknown;
@@ -164,12 +175,23 @@ export function loadSaveData(saveData: string) {
         let parsedPreferences = getPreferencesFromObject(saveDataAsObject.preferences, version);
         setPreferences(parsedPreferences);
     }
+
+    if(!('storedDiscrepancyInfo' in saveDataAsObject)) {
+        console.log('CYOL: no stored discrepancy information, attempting to reconstruct from save data');
+        discrepancyInfoRetrievalFallback(preferences, isInitialLoad);
+    } else if(!saveDataAsObject.storedDiscrepancyInfo || typeof saveDataAsObject.storedDiscrepancyInfo != 'object') {
+        console.warn('CYOL: corrupted stored discrepancy information');
+        discrepancyInfoRetrievalFallback(preferences, isInitialLoad);
+    } else {
+        loadDiscrepancyInfo(saveDataAsObject.storedDiscrepancyInfo, preferences, isInitialLoad);
+    }
 }
 
 export function serializeSaveData(): string {
     let saveData: SaveData = {
         version,
         preferences,
+        storedDiscrepancyInfo: getDiscrepancyInfoForStorage(),
     };
     return JSON.stringify(saveData);
 }

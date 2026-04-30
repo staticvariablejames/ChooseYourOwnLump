@@ -5,6 +5,8 @@
 - Added: the ability to scroll the list of predictions.
     (Scrolling is janky but it should work.)
 - Changed: The changelog now lives in its own file, rather than in `README.md`.
+- Changed: The method of calculating the discrepancy (to show in the tooltip) was changed,
+    and should be more reliable now.
 - **Removed**: legacy support for loading CYOL saves from versions 1.2.7 and earlier.
     (CYOL 1.3.2 has been around for 4.5 years,
     nobody should be using any other version.)

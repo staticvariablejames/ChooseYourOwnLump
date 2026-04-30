@@ -1,3 +1,4 @@
+import { Page } from 'playwright';
 import { test, expect } from '@playwright/test';
 import { CCSave, openCookieClickerPage, setupCookieClickerPage } from 'cookie-connoisseur';
 
@@ -144,7 +145,17 @@ test('Can write and read save games', async ({browser}) => {
     let expectedSaveData: SaveData = {
         version,
         preferences: getDefaultPreferences(),
+        storedDiscrepancyInfo: {
+            lumpT: 1.6e12 + 123,
+            lumpOverripeAge: 86400 * 1000,
+        },
     };
+
+    await page.evaluate(() => {
+        Game.Earn(1e9); // Unlock lumps
+        Game.lumps = Game.lumpsTotal = 0;
+        Game.lumpT = 1.6e12+123;
+    });
 
     let save1 = await page.evaluate(() => Game.WriteSave(1));
     let save1modSaveData = CCSave.fromNativeSave(save1).modSaveData;
@@ -180,12 +191,16 @@ test('Can write and read save games', async ({browser}) => {
     await page.close();
 });
 
-test('Data is erased on reset', async ({browser}) => {
+test('Mod state is erased on reset, but not preferences', async ({browser}) => {
     let page = await openCookieClickerPage(browser, { saveGame: {
         modSaveData: {
             [name]: {
                 preferences: {
                     discrepancy: 2,
+                },
+                storedDiscrepancyInfo: {
+                    lumpT: 1.6e12,
+                    lumpOverripeAge: 86400 * 1000,
                 },
             },
         },
@@ -193,12 +208,169 @@ test('Data is erased on reset', async ({browser}) => {
     await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
     await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
+    await page.waitForFunction(() => window.CYOL.discrepancyInfo.available);
+
     // Wipe save
     await page.getByText('Options', { exact: true }).click();
     await page.getByText('Wipe save').click();
     await page.getByText('Yes!').click();
     await page.getByText('Do it!').click();
 
-    expect(await page.evaluate(() => window.CYOL.preferences.discrepancy)).toEqual(1);
+    expect(await page.evaluate(() => window.CYOL.preferences.discrepancy)).toEqual(2);
+    expect(await page.evaluate(() => window.CYOL.discrepancyInfo.available)).toBeFalsy();
     await page.close();
+});
+
+test.describe('Discrepancy information', () => {
+    let defaultSaveGame = {
+        lumps: 1,
+        lumpT: 1.6e12,
+        achievements: 'all',
+        modSaveData: {
+            [name]: {
+                storedDiscrepancyInfo: {
+                    lumpT: 1.6e12,
+                    lumpOverripeAge: 86400 * 1000,
+                },
+            },
+        },
+    };
+
+    // Destroy any existing CYOL.discrepancyInfo
+    async function destroyDiscrepancyInfo(page: Page) {
+        await page.evaluate(() => {
+            window.CYOL.discrepancyInfo.available = false;
+            window.CYOL.discrepancyInfo.previous = {lumpT: 0, lumpOverripeAge: 0};
+            window.CYOL.discrepancyInfo.current = {lumpT: 0, lumpOverripeAge: 0};
+            window.CYOL.discrepancyInfo.expectedDiscrepancy = 42;
+        });
+    }
+
+    test('Is not available on localStorage loads if not present in the save game', async ({browser}) => {
+        let page = await openCookieClickerPage(browser);
+        await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
+        await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+        await page.waitForFunction(() => { // Basically we wait for all possible setTimeouts to process
+            setTimeout(() => (window as any).waitedLongEnough = true);
+            return Boolean((window as any).waitedLongEnough);
+        });
+        expect(await page.evaluate(() => window.CYOL.discrepancyInfo.available)).toBeFalsy();
+        await page.close();
+    });
+
+    for(let discrepancy of [0, 1, 617])
+    test.describe('Is accurate when the discrepancy is ' + discrepancy, () => {
+        let expectedDiscrepancyInfo = {
+            available: true,
+            previous: {
+                lumpT: 1.6e12,
+                lumpOverripeAge: 86400 * 1000,
+            },
+            current: {
+                lumpT: 1.6e12 + 86400 * 1000 + discrepancy,
+                lumpOverripeAge: 86400 * 1000,
+            },
+            expectedDiscrepancy: 1,
+        };
+
+        test('when loading from localStorage', async ({browser}) => {
+            let page = await openCookieClickerPage(browser, {
+                mockedDate: 1.6e12 + 86400 * 1000 + 1000,
+                forceDiscrepancy: discrepancy,
+                saveGame: defaultSaveGame,
+            });
+            await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
+            await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+
+            expect(await page.evaluate(() => window.CYOL.discrepancyInfo)).toMatchObject(expectedDiscrepancyInfo);
+            await page.close();
+        });
+
+        test('when loading from save data with storedDiscrepancyInfo', async ({browser}) => {
+            let page = await openCookieClickerPage(browser, {
+                mockedDate: 1.6e12 + 86400 * 1000 + 1000,
+            });
+            await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
+            await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+
+            let save = CCSave.toNativeSave(CCSave.fromObject(defaultSaveGame));
+            await destroyDiscrepancyInfo(page);
+            await page.evaluate(({save, discrepancy}) => {debugger; CConnoisseur.setupDiscrepancy(discrepancy); Game.LoadSave(save)}, {save, discrepancy});
+            await page.waitForFunction(() => window.CYOL.discrepancyInfo.available);
+            expect(await page.evaluate(() => window.CYOL.discrepancyInfo)).toMatchObject(expectedDiscrepancyInfo);
+
+            // Do it again, this time over a page with an existing save
+            await destroyDiscrepancyInfo(page);
+            await page.evaluate(({save, discrepancy}) => {CConnoisseur.setupDiscrepancy(discrepancy); Game.LoadSave(save)}, {save, discrepancy});
+            await page.waitForFunction(() => window.CYOL.discrepancyInfo.available);
+            expect(await page.evaluate(() => window.CYOL.discrepancyInfo)).toMatchObject(expectedDiscrepancyInfo);
+
+            await page.close();
+        });
+
+        test('when loading from save data without storedDiscrepancyInfo', async ({browser}) => {
+            let page = await openCookieClickerPage(browser, {
+                mockedDate: 1.6e12 + 86400 * 1000 + 1000,
+            });
+            await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
+            await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+
+            let modifiedSaveGame: Partial<typeof defaultSaveGame> = structuredClone(defaultSaveGame);
+            delete modifiedSaveGame.modSaveData;
+            let save = CCSave.toNativeSave(CCSave.fromObject(modifiedSaveGame));
+            await destroyDiscrepancyInfo(page);
+            await page.evaluate(({save, discrepancy}) => {CConnoisseur.setupDiscrepancy(discrepancy); Game.LoadSave(save)}, {save, discrepancy});
+            await page.waitForFunction(() => window.CYOL.discrepancyInfo.available);
+            expect(await page.evaluate(() => window.CYOL.discrepancyInfo)).toMatchObject(expectedDiscrepancyInfo);
+
+            // Do it again, this time over a page with an existing save
+            await destroyDiscrepancyInfo(page);
+            await page.evaluate(({save, discrepancy}) => {CConnoisseur.setupDiscrepancy(discrepancy); Game.LoadSave(save)}, {save, discrepancy});
+            await page.waitForFunction(() => window.CYOL.discrepancyInfo.available);
+            expect(await page.evaluate(() => window.CYOL.discrepancyInfo)).toMatchObject(expectedDiscrepancyInfo);
+
+            await page.close();
+        });
+    });
+
+    test('Is present even if no lump was harvested', async ({browser}) => {
+        let page = await openCookieClickerPage(browser, {
+            mockedDate: 1.6e12,
+            forceDiscrepancy: 17, // Should not matter
+            saveGame: defaultSaveGame,
+        });
+        await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
+        await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+
+        expect(await page.evaluate(() => window.CYOL.discrepancyInfo)).toMatchObject({
+            available: true,
+            previous: {
+                lumpT: 1.6e12,
+                lumpOverripeAge: 86400 * 1000,
+            },
+            current: {
+                lumpT: 1.6e12,
+                lumpOverripeAge: 86400 * 1000,
+            },
+            expectedDiscrepancy: 1,
+        });
+        await page.close();
+    });
+
+    test('Is wiped on reset', async ({browser}) => {
+        let page = await openCookieClickerPage(browser, {saveGame: defaultSaveGame});
+        await page.evaluate(() => Game.LoadMod('https://staticvariablejames.github.io/ChooseYourOwnLump/ChooseYourOwnLump.js'));
+        await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
+
+        expect(await page.evaluate(() => window.CYOL.discrepancyInfo.available)).toBeTruthy();
+
+        // Wipe save
+        await page.getByText('Options', { exact: true }).click();
+        await page.getByText('Wipe save').click();
+        await page.getByText('Yes!').click();
+        await page.getByText('Do it!').click();
+
+        expect(await page.evaluate(() => window.CYOL.discrepancyInfo.available)).toBeFalsy();
+        await page.close();
+    });
 });
