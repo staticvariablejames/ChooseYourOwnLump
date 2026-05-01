@@ -33,7 +33,7 @@ import {
 import { registerLumpIconWheelEventListener } from './UI/lumpIconScrolling';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu, onSliderUpdate, onButtonClick } from './UI/optionsMenu';
-import { rewriteCode } from './util';
+import { rewriteCode } from './rewriteCode';
 
 let CYOL = {
     // Basic information about the mod
@@ -107,13 +107,12 @@ let CYOL = {
         registerLumpIconWheelEventListener();
 
         // Code injections
-        rewriteCode(
-            'Game.LoadSave',
+        rewriteCode('LoadSave',
             '{', // Opening brace
             '{\nCYOL.preload(); // Injected by Choose Your Own Lump\n'
         );
-        rewriteCode(
-            'Game.loadModData',
+        // @ts-ignore TODO: update @types/cookieclicker to include Game.loadModData
+        rewriteCode('loadModData',
             '{', // Opening brace
             `{\nif(!("${name}" in Game.modSaveData)) CYOL.load(); // Injected by Choose Your Own Lump\n`
         );
