@@ -34,7 +34,6 @@ import { registerLumpIconWheelEventListener } from './UI/lumpIconScrolling';
 import { customLumpTooltip } from './UI/lumpTooltip';
 import { customOptionsMenu, onSliderUpdate, onButtonClick } from './UI/optionsMenu';
 import { rewriteCode } from './util';
-import { sneakySaveDataRetrieval } from './UI/preAutoharvestDataRetrieval';
 
 let CYOL = {
     // Basic information about the mod
@@ -67,7 +66,6 @@ let CYOL = {
      * but are not part of the public API.
      */
     UI: {
-        sneakySaveDataRetrieval,
         onSliderUpdate,
         onButtonClick,
     },
@@ -109,11 +107,6 @@ let CYOL = {
         registerLumpIconWheelEventListener();
 
         // Code injections
-        rewriteCode(
-            'Game.loadLumps',
-            "Game.computeLumpTimes();",
-            "$& CYOL.UI.sneakySaveDataRetrieval();"
-        );
         rewriteCode(
             'Game.LoadSave',
             '{', // Opening brace

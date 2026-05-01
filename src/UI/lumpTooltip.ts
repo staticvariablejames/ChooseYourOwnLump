@@ -1,8 +1,8 @@
 import type { LumpType, PlannerReportEntry, FilteredPlannerReport, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
 import { planner } from '../planner/planner';
 import { preferences } from '../preferences';
+import { discrepancyInfo } from '../discrepancyInfo';
 import { scrolledRows, capScrolledRows } from './lumpIconScrolling';
-import { previousAutoharvestTime, previousLumpT, warnPantheonNotLoaded } from './preAutoharvestDataRetrieval';
 
 function currentLumpType(): LumpType | 'unknown' {
     switch(Game.lumpCurrentType) {
@@ -38,6 +38,124 @@ function makeLumpIcon(lumpType: LumpType, scale?:number) {
             ${str}
         </div>`;
     }
+}
+
+// Builds a string that displays the discrepancy and the current lump type.
+export function discrepancyTooltip() {
+    /* The bunch of if-elses here is trying to remind the user about the peculiarities of the mod.
+     * and guide them about what to do.
+     */
+    let str = '';
+    let lumpType = currentLumpType();
+
+    if(lumpType == 'unknown') {
+        str += `<div>The mod Choose Your Own Lump does not know about this lump type.
+            You might be in a future version of Cookie Clicker that adds lump types,
+            or using a mod which adds lump types,
+            or something is wrong with your save file.
+        </div>`;
+    } else {
+        str += `<div style="display:flex; justify-content:center; align-items:center;">
+            <div>The sugar lump that is growing now is</div>
+            ${makeLumpIcon(lumpType, 0.5)}
+            <div>${lumpType}.</div>
+        </div>`;
+    }
+
+    let genericInstructions = `
+        Adjust your game state according to one of the predictions below,
+        export your save file,
+        <mark style="all:unset; color:white">wait for the lump to fall offline</mark>
+        (i.e. be harvested automatically while the game is closed),
+        and then load the save file.
+    `;
+
+    if(!discrepancyInfo.available) {
+        str += `<div style="color:gray">
+            No discrepancy information to show. ${genericInstructions}
+        </div>`;
+        return str;
+    }
+
+    if(discrepancyInfo.current.lumpT == discrepancyInfo.previous.lumpT) {
+        str += `<div style="color:gray">
+            No lump was harvested offline since this save file was created. ${genericInstructions}
+        </div>`;
+        return str;
+    }
+
+    let theoreticalLumpT = discrepancyInfo.previous.lumpT + discrepancyInfo.previous.lumpOverripeAge;
+    let discrepancy = discrepancyInfo.current.lumpT - theoreticalLumpT;
+
+    if(discrepancy == discrepancyInfo.expectedDiscrepancy) {
+        str += `<div style="display:flex; justify-content:center">
+            <div>
+                The discrepancy was <mark style="all:unset; color:green">${discrepancy}ms</mark>,
+                exactly what we expected!
+            </div>
+        </div>`;
+        return str;
+    }
+
+    let errorMessage = `
+        The discrepancy was <mark style="all:unset; color:red">${discrepancy}ms</mark>,
+        which differs from the expected ${discrepancyInfo.expectedDiscrepancy}ms.
+    `;
+
+    if(discrepancy >= 0 && discrepancy <= 1000) {
+        // Hopefully a reasonable range of "naturally occuring discrepancies"
+        str += `<div>${errorMessage}
+            Try loading the save again if the lump does not have the desired type.
+        </div>
+        <div style="font-size:smaller">
+            (If the discrepancy is frequently ${discrepancy}ms,
+            you can try changing the "discrepancy" setting in the options menu to ${discrepancy}ms.
+            In future predictions,
+            Choose Your Own Lump will assume that this is the discrepancy that will take place.)
+        </div>`;
+        return str;
+    }
+
+    let discrepancyMinutes = discrepancy / (60 * 1000);
+    if(discrepancyMinutes > 10 && discrepancyMinutes < 70) {
+        str += `<div>${errorMessage}</div>
+            <div>This most likely happened because the pantheon
+                (the Temples minigame)
+                has had not finished loading when the lump times were computed,
+                so Rigidel did not have an effect on lump maturation times. `;
+        if(Game.hasGod) {
+            str += `Try importing your save file again, now that the pantheon has loaded.`;
+        } else {
+            str += `
+                Unlock the pantheon by spending a sugar lump in the temples,
+                and import your save file again.
+            `;
+        }
+        str += '</div>';
+        return str;
+    }
+
+    if(discrepancy > 0.99 * discrepancyInfo.previous.lumpOverripeAge) {
+        str += `<div>${errorMessage}</div>
+            <div>
+                More than one lump was autoharvested since this save file was created.
+                Other than the first,
+                all lumps autoharvested offline are normal,
+                so there is nothing we can do.
+            </div>
+            <div>${genericInstructions}</div>
+        `;
+        // The generic message here is to help players that may have been returning after a while
+        return str;
+    }
+
+    str += `<div>${errorMessage}
+        <mark style="all:unset; color:red">Something went wrong.</mark>
+        Try loading your save again and without other mods.
+        If the problem persists,
+        please contact the developers of Choose Your Own Lump.
+    </div>`
+    return str;
 }
 
 /* Returns a <div> displaying either a checkmark, a warning sign, or nothing.
@@ -167,83 +285,6 @@ export function makeConfigurationDiv(entry: PlannerReportEntry) {
     }
     str += makeRigidelIcon(entry.rigidelSlot, entry.rigidelNote);
     return str + '</div>';
-}
-
-// Builds a string that displays the discrepancy and the current lump type.
-export function discrepancyTooltip() {
-    /* The bunch of if-elses here is trying to remind the user about the peculiarities of the mod.
-     * For example,
-     * if previousLumpT === Game.lumpT,
-     * no lumps were harvested between saving and loading the game,
-     * so this function tries to remind the user to load the save game
-     * only after a lump is autoharvested.
-     *
-     * Another example: if the actual discrepancy differs from the expected discrepancy,
-     * then the lump type is probably not what the user wanted,
-     * so there is a reminder to try to reload the game again.
-     * (This is also the reason why the current lump type is shown here.)
-     */
-    let str = '<div>Expected discrepancy: ' + preferences.discrepancy + 'ms.</div>';
-    let lumpType = currentLumpType();
-    if(lumpType == 'unknown') {
-        str += `<div>CYOL does not know about this lump type.
-            You might be in a future version of Cookie Clicker that adds more lump types,
-            or using a mod which adds lump types,
-            or something is wrong with your save data.
-        </div>`;
-    } else {
-        str += `<div>Current lump type: ${makeLumpIcon(lumpType)} ${lumpType}.</div>`;
-    }
-
-    if(Game.hasGod && warnPantheonNotLoaded) {
-        str += '<div style="color:red">' +
-            'The Pantheon was still loading when the current lump type was computed,' +
-            ' so Rigidel may have had no effect.' +
-            ' Try reloading your save game again if the lump type is not the expected type.' +
-            '</div>';
-    }
-
-    if(previousAutoharvestTime != null) {
-        let discrepancy = Game.lumpT - previousAutoharvestTime;
-        if(Game.lumpT === previousLumpT) {
-            str += '<div style="color:gray">' +
-                'No discrepancy information to show.' +
-                ' This is likely because no sugar lumps were harvested while the game was closed.' +
-                ' Try exporting your save game and reloading after a lump is auto-harvested!' +
-                '</div>';
-        } else if(discrepancy < 0 || discrepancy > 100) {
-            str += '<div>' +
-                'The actual discrepancy is ' + discrepancy + ', which seems wrong...';
-            if(discrepancy < 0) {
-                str += ' Maybe no lump was harvested when the save game was loaded?';
-            } else {
-                str += ' Maybe more than one lump was harvested when the save game was loaded?';
-            }
-            str += '</div>';
-            // The threshold is 100 because it is the highest the slider can go in the options menu
-        } else {
-            str += "<div>The actual discrepancy was ";
-            if(discrepancy === preferences.discrepancy) {
-                str += '<div style="display:inline; color:green">' + discrepancy + ' milliseconds</div>,';
-                str += ' precisely what we expected!<br />';
-            } else {
-                str += '<div style="display:inline; color:red">' + discrepancy + ' milliseconds</div>,';
-                if(discrepancy < preferences.discrepancy)
-                    str += ' less than what we expected.';
-                else
-                    str += ' more than what we expected.';
-            }
-            if(discrepancy !== preferences.discrepancy)
-                str += ' Try reloading the save if the lump has the wrong type.';
-            str += '</div>';
-        }
-    } else {
-        str += '<div style="color:gray">No discrepancy information to show.' +
-            ' Try loading your game after CYOL finishes launching!' +
-            '</div>';
-    }
-
-    return str;
 }
 
 // Constructs the filtered report list
