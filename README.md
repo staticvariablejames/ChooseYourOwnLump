@@ -252,15 +252,6 @@ or create a bookmarklet with the code
 ```
 
 
-Known Bugs/Limitations
-======================
-
-The performance is abysmal:
-it takes roughly 5 seconds on my machine to scan through all possibilities.
-This is particularly bad when savescumming,
-because the mod may try to re-scan all possibilities every time the save game is reloaded.
-
-
 License
 =======
 
