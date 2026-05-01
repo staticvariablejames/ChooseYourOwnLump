@@ -1,7 +1,8 @@
 # Changelog
 
 ## Unreleased
-- Changed: Update to Cookie Clicker 2.058, CCSE 2.035.
+- **Breaking change**: Update to Cookie Clicker 2.058, CCSE 2.036.
+
 - Added: the ability to scroll the list of predictions.
     (Scrolling is janky but it should work.)
 - Changed: The changelog now lives in its own file, rather than in `README.md`.
