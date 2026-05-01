@@ -6,43 +6,45 @@
 
 import { preferences } from '../preferences';
 
-export let scrolledRows = 0; // How many rows of predictions were scrolled down
+export let scrolledRows = 0; // How many rows of predictions were scrolled down; always an integer
 export function capScrolledRows(cap: number) {
     if(scrolledRows > cap) scrolledRows = cap;
     if(scrolledRows < 0) scrolledRows = 0;
 }
 
-let scrolledPixels = 0;
-let scrolledLines = 0;
-let scrolledPages = 0; // Can this be fractional? I don't know, assuming yes
+let percentageOfCurrentRowScrolled = 0; // fractional number between -1 and 1
 
 // Called by main.js
 export function registerLumpIconWheelEventListener() {
     document.getElementById('lumps')!.addEventListener('wheel', ev => {
         /* The following three values are wild guesses,
-         * I hope they're good enough for most players
+         * I hope they're good enough for most players.
+         *
+         * (How do I even test ev.deltaMode?
+         * It seems that Chromium reliably produces DOM_DELTA_PIXEL,
+         * and Firefox does so for touchpad, and produces DOM_DELTA_LINE for mice,
+         * but I couldn't find any documentation about this.)
          */
-        const pixelsPerRow = 64;
-        const linesPerRow = 3;
+        const pixelsPerRow = 120;
+        const linesPerRow = 6;
         const rowsPerPage = preferences.display.rows;
+
+        let newScroll = 0;
         switch(ev.deltaMode) {
             case WheelEvent.DOM_DELTA_PIXEL:
-                scrolledPixels += ev.deltaY;
-                scrolledRows += Math.floor(scrolledPixels / pixelsPerRow);
-                scrolledPixels = Math.max(scrolledPixels % pixelsPerRow, 0);
+                newScroll = ev.deltaY / pixelsPerRow;
                 break;
-            // The following two are basically untested, I hope they're not too bad
             case WheelEvent.DOM_DELTA_LINE:
-                scrolledLines += ev.deltaY;
-                scrolledRows += Math.floor(scrolledLines / linesPerRow);
-                scrolledLines = Math.max(scrolledLines % linesPerRow, 0);
+                newScroll = ev.deltaY / linesPerRow;
                 break;
             case WheelEvent.DOM_DELTA_PAGE:
-                scrolledPages += ev.deltaY;
-                scrolledRows += Math.floor(scrolledPages * rowsPerPage);
-                scrolledPages = Math.max(scrolledPages % 1, 0);
+                newScroll = ev.deltaY * rowsPerPage;
                 break;
         }
-        scrolledRows = Math.max(scrolledRows, 0);
+
+        let totalScroll = scrolledRows + percentageOfCurrentRowScrolled + newScroll;
+        percentageOfCurrentRowScrolled = totalScroll % 1;
+        scrolledRows = totalScroll - percentageOfCurrentRowScrolled;
+        scrolledRows = Math.round(scrolledRows); // Is this rounding step needed?
     });
 }
