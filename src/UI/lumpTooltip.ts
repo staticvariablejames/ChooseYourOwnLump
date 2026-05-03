@@ -1,4 +1,4 @@
-import type { LumpType, PlannerReportEntry, FilteredPlannerReport, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
+import type { LumpType, PlannerReportEntry, SummaryPlannerReport, FullListPlannerReport, PantheonSlot, DragonAuraReportEntry } from '../planner/types';
 import { planner } from '../planner/planner';
 import { preferences } from '../preferences';
 import { discrepancyInfo } from '../discrepancyInfo';
@@ -287,8 +287,8 @@ export function makeConfigurationDiv(entry: PlannerReportEntry) {
     return str + '</div>';
 }
 
-// Constructs the filtered report list
-export function makeFilteredReport(report: FilteredPlannerReport) {
+// Constructs the summary report list
+export function makeSummaryReport(report: SummaryPlannerReport) {
     let str = '';
     let hasShownLumpType = false;
     for(let lumpType of ['normal', 'bifurcated', 'golden', 'meaty', 'caramelized'] as LumpType[]) {
@@ -405,7 +405,7 @@ export function customLumpTooltip(str: string, _phase: number) {
     }
     calculatedWidth += 48; // Rigidel icon
 
-    if(preferences.display.reportType == 'filtered') {
+    if(preferences.display.reportType == 'summary') {
         calculatedWidth += 120; // Approximate
     } else {
         calculatedWidth += 54;
@@ -437,10 +437,10 @@ export function customLumpTooltip(str: string, _phase: number) {
     </div>`;
 
     let reportStr = '';
-    if(preferences.display.reportType == 'filtered') {
+    if(preferences.display.reportType == 'summary') {
         let report;
-        ({ report, isCurrent } = planner.getAndUpdateFilteredReport());
-        reportStr = makeFilteredReport(report);
+        ({ report, isCurrent } = planner.getAndUpdateSummaryReport());
+        reportStr = makeSummaryReport(report);
     } else {
         let report;
         ({ report, isCurrent } = planner.getAndUpdateFullListReport());

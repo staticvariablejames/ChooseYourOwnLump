@@ -6,12 +6,12 @@
 import {
     LumpType,
     FullGameState,
-    FilteredPlannerReport,
+    SummaryPlannerReport,
     FullListPlannerReport
 } from './types';
 
 export type PlannerComputationID = number;
-export type RequestType = 'lumpType' | 'filteredReport' | 'fullListReport';
+export type RequestType = 'lumpType' | 'summaryReport' | 'fullListReport';
 
 export type MessageToTheWorker = {
     request: RequestType;
@@ -29,9 +29,9 @@ type LumpTypeResponse = ResponseBase & {
     request: 'lumpType';
 }
 
-type FilteredReportResponse = ResponseBase & {
-    request: 'filteredReport';
-    report: FilteredPlannerReport;
+type SummaryReportResponse = ResponseBase & {
+    request: 'summaryReport';
+    report: SummaryPlannerReport;
 }
 
 type FullListReportResponse = ResponseBase & {
@@ -41,5 +41,5 @@ type FullListReportResponse = ResponseBase & {
 
 export type ResponseFromTheWorker =
     LumpTypeResponse |
-    FilteredReportResponse |
+    SummaryReportResponse |
     FullListReportResponse;

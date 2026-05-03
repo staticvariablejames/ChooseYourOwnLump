@@ -9,7 +9,7 @@ import {
     PlannerRelevantState,
     DragonAuraReportEntry,
     PlannerReportEntry,
-    FilteredPlannerReport,
+    SummaryPlannerReport,
     FullListPlannerReport,
     FullGameState,
 } from './types';
@@ -577,11 +577,11 @@ export class CachedConfigurationsProcessor {
         return {successes, failures: goals};
     }
 
-    public getFilteredPlannerReport(fullGameState: FullGameState): FilteredPlannerReport {
+    public getSummaryPlannerReport(fullGameState: FullGameState): SummaryPlannerReport {
         if(!this.isCacheCompatible(fullGameState.gameState)) {
             throw new Error('fullGameState.gameState is not compatible with this.plannerCore');
         }
-        let report: FilteredPlannerReport = {};
+        let report: SummaryPlannerReport = {};
         let { requirements, goals } = makeFilterCollection(fullGameState);
         let lumpType: LumpType;
         for(lumpType in fullGameState.preferences.includeType) {

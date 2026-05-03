@@ -858,7 +858,7 @@ test.describe('Edge cases', () => {
         state.gameState.hasSugarAgingProcess = true;
         let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
         expect(processor.getFullListPlannerReport(state).length).toBeGreaterThan(0);
-        expect(processor.getFilteredPlannerReport(state).golden!.length).toBeGreaterThan(0);
+        expect(processor.getSummaryPlannerReport(state).golden!.length).toBeGreaterThan(0);
     });
 
     test('all selected conditions', () => {
@@ -870,7 +870,7 @@ test.describe('Edge cases', () => {
         state.gameState.hasSugarAgingProcess = true;
         let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
         expect(processor.getFullListPlannerReport(state).length).toBeGreaterThan(0);
-        expect(processor.getFilteredPlannerReport(state).golden!.length).toBeGreaterThan(0);
+        expect(processor.getSummaryPlannerReport(state).golden!.length).toBeGreaterThan(0);
     });
 
     test('no golden lumps', () => {
@@ -883,7 +883,7 @@ test.describe('Edge cases', () => {
         let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
         // Essentially, the following should not crash
         expect(processor.getFullListPlannerReport(state).length).toEqual(0);
-        expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
+        expect(processor.getSummaryPlannerReport(state).golden!.length).toEqual(0);
     });
 
     test('no golden lumps, even with Stevia Caelestis', () => {
@@ -896,7 +896,7 @@ test.describe('Edge cases', () => {
         state.preferences.includeType.caramelized = false;
         let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
         expect(processor.getFullListPlannerReport(state).length).toEqual(0);
-        expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
+        expect(processor.getSummaryPlannerReport(state).golden!.length).toEqual(0);
     });
 
     test('do not report states in the grandmapocalypse but without grandmas', () => {
@@ -909,7 +909,7 @@ test.describe('Edge cases', () => {
         state.preferences.includeType.caramelized = false;
         let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
         expect(processor.getFullListPlannerReport(state).length).toEqual(0);
-        expect(processor.getFilteredPlannerReport(state).golden!.length).toEqual(0);
+        expect(processor.getSummaryPlannerReport(state).golden!.length).toEqual(0);
 
         // Check indeed Sugar aging process stole my gold
         let core = new PlannerCore(state.gameState);
@@ -952,9 +952,9 @@ test.describe('Edge cases', () => {
             expect(report[0].some(e => e.grandmaCount == 0)).toBeFalsy();
         });
 
-        test('in a filtered report', () => {
+        test('in a summary report', () => {
             let processor = new CachedConfigurationsProcessor(new PlannerCore(state.gameState));
-            let report = processor.getFilteredPlannerReport(state);
+            let report = processor.getSummaryPlannerReport(state);
             expect(report.golden!.length).toEqual(1);
             expect(new Set(report.golden!.map(e => e.autoharvestTimestamp))).toEqual(new Set([state.gameState.currentLumpT + 75258767.77251185]));
             expect(report.golden!.some(e => e.grandmaCount == 0)).toBeFalsy();

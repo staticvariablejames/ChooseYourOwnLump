@@ -93,7 +93,7 @@ export type PlannerReportEntry = {
     rigidelNote: 'checkmark' | '';
 };
 
-/* Report returned by CachedConfigurationsProcessor.prototype.getFilteredPlannerReport.
+/* Report returned by CachedConfigurationsProcessor.prototype.getSummaryPlannerReport.
  * For each included lump type, contains a list of "the best" configurations.
  *
  * "The best" configurations all satisfy the 'required' FilteringPreferences.conditions,
@@ -104,7 +104,7 @@ export type PlannerReportEntry = {
  *
  * The included lump types are chosen by the given FilteringPreferences.includeType.
  */
-export type FilteredPlannerReport = {
+export type SummaryPlannerReport = {
     [lumpType in LumpType]?: PlannerReportEntry[];
 };
 

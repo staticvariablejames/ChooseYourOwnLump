@@ -59,8 +59,8 @@ test('Changing preferences updates the CYOL.preferences object', async ({page}) 
     expectedPreferences.display.rows = 15;
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
-    await page.getByText('Filtered display OFF').click();
-    expectedPreferences.display.reportType = 'filtered';
+    await page.getByText('Summary display OFF').click();
+    expectedPreferences.display.reportType = 'summary';
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
     await page.getByText('Show checkmark ON').click();

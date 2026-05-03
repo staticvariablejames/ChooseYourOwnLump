@@ -11,7 +11,7 @@ export type CYOLPreferences = {
     discrepancy: number;
     display: {
         compactGrandmapocalypseRepresentation: boolean,
-        reportType: 'filtered' | 'fullList';
+        reportType: 'summary' | 'fullList';
         rows: number;
         showCheckmark: boolean,
     },

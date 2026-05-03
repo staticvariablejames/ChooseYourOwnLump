@@ -21,7 +21,7 @@
  * which I believe makes for a better user experience.
  */
 
-import { FullGameState, LumpType, FilteredPlannerReport, FullListPlannerReport } from './types';
+import { FullGameState, LumpType, SummaryPlannerReport, FullListPlannerReport } from './types';
 import { getCurrentFullGameState } from './util';
 import { MessageToTheWorker, PlannerComputationID, ResponseFromTheWorker, RequestType } from './workerMessages';
 
@@ -49,7 +49,7 @@ export class CoalescingLumpsPlanner {
         gameState: null,
         ongoingComputation: false,
     };
-    public filteredReport: CachedItem<FilteredPlannerReport> = {
+    public summaryReport: CachedItem<SummaryPlannerReport> = {
         value: {},
         computationId: 0,
         gameState: null,
@@ -91,11 +91,11 @@ export class CoalescingLumpsPlanner {
             case 'lumpType':
                 updateLumpType();
                 break;
-            case 'filteredReport':
-                if(this.filteredReport.computationId == response.computationId) {
-                    this.filteredReport.ongoingComputation = false;
+            case 'summaryReport':
+                if(this.summaryReport.computationId == response.computationId) {
+                    this.summaryReport.ongoingComputation = false;
                 }
-                this.filteredReport.value = response.report;
+                this.summaryReport.value = response.report;
                 updateLumpType();
                 break;
             case 'fullListReport':
@@ -118,15 +118,15 @@ export class CoalescingLumpsPlanner {
         return { prediction: this.lumpTypePrediction.value, isCurrent };
     }
 
-    /* Immediately returns the currently cached filtered report and whether it is valid or not.
+    /* Immediately returns the currently cached summary report and whether it is valid or not.
      * Furthermore,
      * if the cached lump type is not valid,
      * also issues a recalculation request (that will later complete asynchronously).
      */
-    public getAndUpdateFilteredReport() {
-        let isCurrent = this.getStatusAndUpdateCache('filteredReport',
-                                                     [this.lumpTypePrediction, this.filteredReport]);
-        return { report: this.filteredReport.value, isCurrent };
+    public getAndUpdateSummaryReport() {
+        let isCurrent = this.getStatusAndUpdateCache('summaryReport',
+                                                     [this.lumpTypePrediction, this.summaryReport]);
+        return { report: this.summaryReport.value, isCurrent };
     }
 
     /* Immediately returns the currently cached full list report and whether it is valid or not.

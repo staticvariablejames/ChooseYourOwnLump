@@ -54,9 +54,9 @@ self.onmessage = (ev: MessageEvent<MessageToTheWorker>) => {
         case 'lumpType':
             response = { request, computationId, lumpType };
             break;
-        case 'filteredReport':
+        case 'summaryReport':
             response = { request, computationId, lumpType,
-                report: processor.getFilteredPlannerReport(fullGameState),
+                report: processor.getSummaryPlannerReport(fullGameState),
             };
             break;
         case 'fullListReport':

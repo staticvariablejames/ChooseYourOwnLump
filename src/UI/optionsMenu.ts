@@ -171,13 +171,13 @@ export function customOptionsMenu() {
 
     menuStr += '<div class="listing">' +
         makeButton({
-            id: 'filteredReport',
-            getCurrentValue: () => {return preferences.display.reportType == 'filtered'},
+            id: 'summaryReport',
+            getCurrentValue: () => {return preferences.display.reportType == 'summary'},
             updateValue: (newValue: boolean) => {
-                if(newValue) preferences.display.reportType = 'filtered';
+                if(newValue) preferences.display.reportType = 'summary';
                 else preferences.display.reportType = 'fullList';
             },
-            buttonText: 'Filtered display',
+            buttonText: 'Summary display',
         }) +
         `<label>If on, shows only the "best configuration",
                 otherwise show the full list of predictions.
@@ -246,7 +246,7 @@ export function customOptionsMenu() {
             },
         }) +
         `<label>Whether to list only predictions that match the current grandmapocalypse stage ("require"),
-                to include those predictions in the filtered report but not require this condition ("observe"),
+                to include those predictions in the summary report but not require this condition ("observe"),
                 or to not worry about this requirement at all ("ignore").
         </label>` +
     '</div>';
@@ -277,7 +277,7 @@ export function customOptionsMenu() {
         }) +
         `<label>Similar, but for the dragon auras.
                 Additionally, if both "preserve pantheon" and "preserve dragon" are set to "observe",
-                the filtered report also includes a row observing both conditions at the same time.
+                the summary report also includes a row observing both conditions at the same time.
         </label>` +
     '</div>';
 
