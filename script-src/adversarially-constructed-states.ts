@@ -1,5 +1,48 @@
+import { FullGameState } from '../src/planner/types';
 import { PlannerCore } from '../src/planner/core';
+import { CachedConfigurationsProcessor } from '../src/planner/processing';
 import { makeConfigurationsIterator } from '../src/planner/processing';
+
+let defaultFullGameState: FullGameState = {
+    gameState: {
+        discrepancy: 1,
+        hasSteviaCaelestis: false,
+        hasSucralosiaInutilis: false,
+        hasSugarAgingProcess: false,
+        seed: 'james',
+        currentLumpT: 1.6e12,
+        currentRigidelSlot: 'none',
+        currentGrandmaCount: 0,
+        currentGrandmapocalypseStage: 1,
+        currentHasDragonsCurve: false,
+        currentHasRealityBending: false,
+        currentHasSupremeIntellect: false,
+    },
+    preferences: {
+        threeColumnDragonAuras: true,
+        conditions: {
+            preserveDragon: 'observe',
+            preservePantheon: 'observe',
+            preserveGrandmapocalypseStage: 'observe',
+            respectBudget: 'observe',
+        },
+        includeType: {
+            normal: false,
+            bifurcated: false,
+            golden: true,
+            meaty: false,
+            caramelized: true,
+        },
+    },
+    budget: {
+        maxGrandmas: 600,
+        unlockedPantheon: true,
+        unlockedDragonsCurve: true,
+        unlockedRealityBending: true,
+        unlockedSupremeIntellect: true,
+        unlockedSecondAura: true,
+    },
+};
 
 let commands: Record<string, () => void> = {
     'grandmaless-sad-seed-search': () => {
@@ -203,6 +246,97 @@ let commands: Record<string, () => void> = {
             break;
         }
         console.log(core.currentLumpT); // 1600089387378 (1600109561973 without Stevia Caelestis)
+    },
+
+    'fancy-tooltip-with-grandmas': () => {
+        let fullGameState = structuredClone(defaultFullGameState);
+        fullGameState.gameState.hasSugarAgingProcess = true;
+        fullGameState.gameState.currentHasRealityBending = true;
+        fullGameState.gameState.currentHasDragonsCurve = true;
+        fullGameState.gameState.currentGrandmaCount = 598;
+        fullGameState.gameState.currentRigidelSlot = 'diamond';
+        fullGameState.preferences.includeType = {normal: true, bifurcated: true, golden: true, meaty: true, caramelized: true};
+        while(true) {
+            fullGameState.gameState.currentLumpT++;
+            let core = new PlannerCore(fullGameState.gameState);
+            if(core.currentPrediction() != 'golden') continue;
+            // Not quite the first five predictions but close enough
+            let firstFivePredictionSets = Array.from(makeConfigurationsIterator(core).take(5).map(v => core.lumpTypePredictionSet(v)));
+            if(new Set(firstFivePredictionSets.flat()).size < 5) continue;
+
+            let hasMiddleStageOnlyPrediction = false;
+            for(let set of firstFivePredictionSets) {
+                if(set[1] != set[0] && set[1] != set[3]) hasMiddleStageOnlyPrediction = true;
+                if(set[2] != set[0] && set[2] != set[3]) hasMiddleStageOnlyPrediction = true;
+            }
+            if(!hasMiddleStageOnlyPrediction) continue;
+
+            let processor = new CachedConfigurationsProcessor(core);
+            let report = processor.getFullListPlannerReport(fullGameState);
+
+            if(report[1][0].grandmaCount != 600) continue;
+            if(report.slice(0, 10).flat().length != 10) continue;
+            if(report[9][0].grandmaCount! < 595) continue;
+            break;
+        }
+        console.log(fullGameState.gameState.currentLumpT); // 1600002099695
+    },
+
+    'fancy-summary-tooltip-with-grandmas': () => {
+        let fullGameState = structuredClone(defaultFullGameState);
+        fullGameState.gameState.hasSugarAgingProcess = true;
+        fullGameState.budget.maxGrandmas = 100;
+        fullGameState.gameState.currentGrandmaCount = 100;
+        fullGameState.gameState.currentGrandmapocalypseStage = 2;
+        while(true) {
+            fullGameState.gameState.currentLumpT++;
+            let core = new PlannerCore(fullGameState.gameState);
+            let processor = new CachedConfigurationsProcessor(core);
+            let report = processor.getSummaryPlannerReport(fullGameState);
+            if(report.caramelized!.length != 6) continue;
+            if(report.golden!.length >= 4) continue;
+            break;
+        }
+        console.log(fullGameState.gameState.currentLumpT); // 1600000000015; this was lucky
+    },
+
+    'fancy-tooltip-without-grandmas': () => {
+        let fullGameState = structuredClone(defaultFullGameState);
+        fullGameState.gameState.currentHasRealityBending = true;
+        fullGameState.gameState.currentRigidelSlot = 'jade';
+        fullGameState.preferences.threeColumnDragonAuras = false;
+        fullGameState.gameState.currentGrandmapocalypseStage = 3;
+        while(true) {
+            fullGameState.gameState.currentLumpT++;
+            let core = new PlannerCore(fullGameState.gameState);
+            if(core.currentPrediction() != 'meaty') continue;
+            let processor = new CachedConfigurationsProcessor(core);
+            let report = processor.getFullListPlannerReport(fullGameState);
+
+            if(report.length != 3) continue;
+            if(report[0].length != 1) continue;
+            if(report[1].length != 2) continue;
+            if(report[2].length != 1) continue;
+            if(report[0][0].lumpType != 'caramelized') continue;
+            if(report[1][0].lumpType != 'golden') continue;
+            if(report[2][0].lumpType != 'caramelized') continue;
+            let hasWarning = report.some(
+                predictionsSet => predictionsSet.some(
+                    configuration => configuration.dragonAuras.some(
+                        aura => aura.note == 'warn'
+                    )
+                )
+            );
+            if(!hasWarning) continue;
+            let activeAurasSet = report.flat().map(e => e.dragonAuras).flat().
+                filter(aura => aura.style == 'normal').map(aura => aura.aura);
+            if(new Set(activeAurasSet).size != 3) continue;
+            let grandmapocalypseStages = report.flat().map(e => e.grandmapocalypseStages).flat();
+            if(grandmapocalypseStages.filter(v => v).length > 12) continue;
+
+            break;
+        }
+        console.log(fullGameState.gameState.currentLumpT); // 1600000101424
     },
 };
 
