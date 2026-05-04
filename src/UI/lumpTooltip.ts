@@ -98,8 +98,8 @@ export function discrepancyTooltip() {
     }
 
     let errorMessage = `
-        The discrepancy was <mark style="all:unset; color:red">${discrepancy}ms</mark>,
-        which differs from the expected ${discrepancyInfo.expectedDiscrepancy}ms.
+        The actual discrepancy was <mark style="all:unset; color:red">${discrepancy}ms</mark>,
+        which differs from the expected discrepancy of ${discrepancyInfo.expectedDiscrepancy}ms.
     `;
 
     if(discrepancy >= 0 && discrepancy <= 1000) {
@@ -108,8 +108,8 @@ export function discrepancyTooltip() {
             Try loading the save again if the lump does not have the desired type.
         </div>
         <div style="font-size:smaller">
-            (If the discrepancy is frequently ${discrepancy}ms,
-            you can try changing the "discrepancy" setting in the options menu to ${discrepancy}ms.
+            (If the actual discrepancy is frequently ${discrepancy}ms,
+            you can try changing the "expected discrepancy" setting in the options menu to ${discrepancy}ms.
             In future predictions,
             Choose Your Own Lump will assume that this is the discrepancy that will take place.)
         </div>`;

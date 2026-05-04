@@ -110,7 +110,7 @@ test.describe('Discrepancy information', () => {
         await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
         await page.locator('#lumps').hover();
-        await expect(page.locator('#tooltip')).toContainText("The discrepancy was 317ms, which differs from the expected 617ms");
+        await expect(page.locator('#tooltip')).toContainText("The actual discrepancy was 317ms, which differs from the expected discrepancy of 617ms");
         await page.close();
     });
 
@@ -155,7 +155,7 @@ test.describe('Discrepancy information', () => {
         await page.waitForFunction(() => typeof window.CYOL == "object" && window.CYOL.isLoaded);
 
         await page.locator('#lumps').hover();
-        await expect(page.locator('#tooltip')).toContainText("which differs from the expected 617ms");
+        await expect(page.locator('#tooltip')).toContainText("which differs from the expected discrepancy of 617ms");
         await expect(page.locator('#tooltip')).toContainText("Rigidel did not have an effect on lump maturation times");
         await page.close();
     });

@@ -149,7 +149,7 @@ export function customOptionsMenu() {
             updateValue: (newValue) => {preferences.discrepancy = newValue},
             getDisplayText: (newValue) => String(newValue) + 'ms',
             currentValue: preferences.discrepancy,
-            sliderTitle: "Discrepancy",
+            sliderTitle: "Expected discrepancy",
             minValue: 0,
             maxValue: 20,
         }) +
