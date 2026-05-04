@@ -66,6 +66,7 @@ export class PlannerCore implements PlannerRelevantState {
      */
 
     public currentLumpT: number = 1.6e12;
+    // TODO: add information about whether Rigidel is active or not, for the PlannerReportEntry
     public currentRigidelSlot: PantheonSlot = 'none';
     public currentGrandmaCount: number = 0;
     public currentGrandmapocalypseStage: number = 0;

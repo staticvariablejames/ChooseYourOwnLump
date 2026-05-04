@@ -18,6 +18,9 @@
  *
  * These functions turn the CYOL object compatible with the Mod interface,
  * used by Game.registerMod.
+ *
+ * TODO: this file, saveDataManagement.ts, and discrepancyInfo.ts are very tightly coupled,
+ * and they cannot be reasoned about in isolation.
  */
 import { name, version, GameVersion } from './modInfo';
 import { discrepancyInfo, discrepancyInfoRetrievalFallback } from './discrepancyInfo';

@@ -22,6 +22,7 @@ export function getCurrentGameState(): PlannerRelevantState {
         if(slots[2] == rigidelId) currentRigidelSlot = 'jade';
     }
     if(Game.BuildingsOwned % 10 != 0) {
+        // TODO: remove this if isRigidelActive gets added to currentGameState
         currentRigidelSlot = 'none';
     }
 
@@ -62,6 +63,7 @@ export function getCurrentBudget(): BudgetInfo {
          * to dynamic fluctuations of building price buffs (e.g. the "Everything must go" effect).
          */
     }
+    // TODO also check if e.g. Reality Bending is already unlocked
     return {
         maxGrandmas: maximumPurchases(Game.Objects['Grandma'], 600),
         unlockedPantheon: Game.Objects['Temple'].level > 0,

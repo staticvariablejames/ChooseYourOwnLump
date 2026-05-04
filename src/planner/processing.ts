@@ -1,5 +1,13 @@
 /* Tools for iterating through all configurations defined in 'core.ts'
  * and filtering the "good" configurations.
+ *
+ * TODO I'm not really happy with how the code looks like.
+ * It feels that the CachedConfigurationsProcessor is lying to the users,
+ * because it sometimes use the info from the nested plannerCore,
+ * and sometimes from the given FullGameState.
+ * Perhaps I should split between CachedState and UncachedState, or something analogous
+ * (kinda like the old PersistentState and TransientState).
+ * And I really hope updateCoreIfCompatible does not invalidate the suspended iterator.
  */
 
 import {
