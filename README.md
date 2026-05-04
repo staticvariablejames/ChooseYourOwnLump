@@ -255,70 +255,54 @@ in <https://github.com/staticvariablejames/cookie-connoisseur/blob/master/doc/di
 Practice
 ========
 
-This mod looks at every combination of "transient states"
-(number of grandmas, dragon auras, Rigidel slot, grandmapocalypse stage),
+The Lump Tooltip
+----------------
+
+This mod looks at every configuration
+of grandmas, grandmapocalypse stage, dragon auras, and Rigidel slot,
 filters the predictions to the lump types of your choice,
 and displays them in the lump tooltip
 (the box that appears when you hover the mouse over the sugar lump).
 The tooltip looks like this:
 
-![Modified lump tooltip](test/user-interface.test.ts-snapshots/tooltipWithoutGrandmas-firefox-linux.png "Modified lump tooltip")
+![Modified lump tooltip](test/lump-tooltip.test.ts-snapshots/tooltipWithGrandmas-firefox-linux.png "Modified lump tooltip")
 
-The "Predicted next lump type" line says that,
-if the player makes no changes to its save game,
+Each row of the report contains a configuration,
+plus the outcome of that configuration (in the first column).
+For example,
+the second row in the picture above says that,
+if:
+- we have 600 or more grandmas;
+- we are in stages 0 or 1 of the grandmapocalypse (i.e. before Communal brainsweep);
+- both Dragon's Curve and Reality Bending are selected as the dragon auras; and
+- Rigidel is active and being worshipped in the diamond slot,
 then the next lump type will be caramelized.
+So if this is our target lump,
+we adjust the game according to these conditions,
+export the save,
+and when we load the save again after the lump has had fallen,
+the lump type will be caramelized.
 
-The first line says that,
-if the player is in stages 1, 2 or 3 of the grandmapocalypse
-(awakened, displeased, or angered grandmas),
-Rigidel active in the jade slot,
-and the dragon has only Reality Bending as the active aura,
-then the next sugar lump type will be meaty.
-
-The second line says that,
-regardless of the stage of the grandmapocalypse,
-if Rigidel is inactive
-and the dragon has neither Dragon's Curve nor Reality Bending as active auras,
-then the sugar lump will be caramelized.
-
-For the first line,
-only one of the two relevant auras (Dragon's Curve and Reality Bending) is needed,
-so this configuration works with a partially-trained dragon.
-If the dragon is fully trained,
-then the other aura must be set to something _other_ than Dragon's Curve.
-
-**All of this assumes, of course,
+**This assumes, of course,
 that the discrepancy that happens when loading the save game
 matches the one assumed during the calculations.**
-Thus some savescumming may be needed to guarantee that the discrepancy matches the assumed value.
-This value can be adjusted in the settings,
-but I believe most users will want that value to be 1.
+Thus some savescumming may be needed to guarantee that the discrepancy matches the expected value.
+The block of text immediately above the predictions table always displays the lump type
+and will give guidance regarding discrepancy.
+This value of the expected discrepancy can be adjusted in the settings,
+but I believe most players will want that value to be 1ms.
 
-In the screen above,
-the current lump type is bifurcated,
-as can be seen in the second line of the paragraph above the predictions.
-This line will always say the type of the lump regardless of the growth stage.
+The list of predictions is sorted according to auto-harvest time;
+configurations whose lumps auto-harvest earlier show up first in the table.
 
-Only the predictions whose lump types were selected by the user are shown.
-The predictions which result in shortest lump growth time are shown first in the tooltip.
+The heavenly upgrade "Sugar aging process",
+which shortens lump auto-harvesting times by 6 seconds per grandma,
+is limited to 600 grandmas.
+In this case the row will simply say "600+".
 
-If the heavenly upgrade "Sugar Aging Process" is purchased,
-then the number of grandmas matter for the sugar lump growth time.
-The required number is displayed right after the colon:
-
-![Modified lump tooltip](test/user-interface.test.ts-snapshots/tooltipWithGrandmas-firefox-linux.png "When the number of grandmas matter")
-
-Sometimes,
-the predicted configuration will limit how far (or how early)
-in the grandmapocalypse the game can be;
-for example, in the first line of the tooltip above,
-only the first two stages of the grandmapocalypse
-(and Dragon's Curve active, and Rigidel in the diamond slot)
-yield the golden lump type.
-If you are past that stage,
-the only way of going back is to stop the grandmapocalypse
-either through Elder Pledge or Elder Covenant.
-
+Often the prediction will only work in certain grandmapocalypse stages.
+If you have already progressed all the way through the grandmapocalypse and are on stage 3,
+you can purchase the Elder pledge or the Elder covenant to return to stage 0.
 You can check the grandmapocalypse stage on the Status menu,
 or by looking at the picture of the grandmas in your buildings list;
 they will match the ones displayed in the tooltip.
@@ -326,24 +310,119 @@ they will match the ones displayed in the tooltip.
 In some rare cases,
 the required stages are on "the middle".
 For example,
-in the fifth line above,
-only stage 1 (awoken grandmas) work.
+in the fourth line above,
+only stage 1 works.
 If you are past this stage,
-the only way of still getting the golden lump is to use the Elder Covenant
+the only way of still getting the desired lump is to use the Elder covenant
 to get out of the grandmapocalypse,
-then revoking the elder covenant to start the grandmapocalypse again,
+then revoking the Elder covenant to start the grandmapocalypse again,
 and exporting the save and quitting the game before the grandmapocalypse progresses to stage 2.
 This will "freeze" the grandmapocalypse until the game is reopened,
 allowing the lump to be harvested under stage 1.
 
-Increasing the number of grandmas by 200 is equivalent to raising Rigidel one slot
-(unslotted to Jade, Jade to Ruby, or Ruby to Diamond).
+The predictions table includes checkmarks for each individual component
+(the checkmark for the grandmapocalypse stage only appears over the current stage).
+The checkmarks can be hidden in the options menu.
+The line with all components matching is also highlighted.
+
+The screenshot above shows 8 rows of predictions.
+This number can be changed in the options menu
+(the default is 10).
+You can scroll this list of predictions by scrolling while hovering the lump;
+the result is a bit janky but it works.
+
+The screenshot above shows all five lump types.
+You can choose to filter this table to only show specific lump types.
+**By default,
+only predictions resulting in golden and caramelized lumps are shown**.
+
+Summary Display
+---------------
+
+In the options menu,
+you can also turn on the "summary display",
+which shows only a selection of the "best" configurations.
+
+![The predictions summary](test/lump-tooltip.test.ts-snapshots/tooltipSummaryWithGrandmas-firefox-linux.png "The predictions summary")
+
+The mod separates the predictions according to the outcome.
+Each row shown is the fastest configuration which also satisfies some additional condition.
+- The globally fastest configuration yielding the given lump type (this one is always shown).
+- The fastest configuration which stays in the same grandmapocalypse scale.
+- The fastest configuration which does not require a change to the pantheon.
+  - Note that Rigidel can be "unslotted" by making the number of buildings not a multiple of 10.
+- The fastest configuration which does not require changing the dragon auras.
+- The fastest configuration which requires neither changing the pantheon nor the dragon auras.
+- The fastest configuration "within budget";
+  i.e. where the individual components (grandmas and dragon auras)
+  can be purchased using at most 1% of the bank.
+
+Each of these conditions can be tweaked in the options menu.
+- By default, they are set to "observe",
+  meaning that a row satisfying those conditions will show up in the summary.
+- Setting them to "ignore" simply means the corresponding row will not be listed.
+- You may also set them to "require".
+  In this case, all predictions will be filtered to match this condition.
+  For example, setting the grandmapocalypse condition to "require"
+  will make the budget-respecting condition (and all other conditions)
+  to also preserve the grandmapocalypse stage.
+
+Setting all conditions to "observe" will usually show six configurations.
+However sometimes fewer rows will show up,
+either because the conditions overlap,
+or because the condition could not be satisfied.
+For example, in the screenshot above,
+the globally fastest configuration yielding a golden lump also preserves the grandmapocalypse stage,
+so only one row is displayed.
+And there was no golden-lump-yielding configuration found within budget,
+or which would keep the same dragon auras.
+
+Do note that often there are several equivalent configurations.
 For example,
-in the image above,
-the second line is equivalent to using 337 grandmas instead of 537,
-but worshipping Rigidel in the Diamond slot.
-They have exactly the same results,
-so the mod only displays the one with the most grandmas.
+the first configuration yielding a golden lump
+is also equivalent to not using Supreme Intellect and slotting Rigidel on the diamond slot;
+and having 200 extra grandmas allows one to worship Rigidel one slot lower.
+Choose Your Own Lump will usually show only one of the equivalent conditions.
+
+Without Sugar aging process
+---------------------------
+
+The number of grandmas only affects lump maturation times
+if you have the heavenly upgrade "Sugar aging process".
+You can also use this mod before purchasing this upgrade,
+in which case the grandma count will not be shown.
+Note that,
+naturally,
+you will have much fewer possible configurations,
+so if you are only looking for golden and caramelized lumps,
+you will frequently have no configurations resulting in those lumps.
+
+![Lump tooltip without Sugar aging process](test/lump-tooltip.test.ts-snapshots/tooltipWithoutGrandmas-firefox-linux.png "Lump tooltip without Sugar aging process")
+
+The tooltip above highlights a few other options of Choose Your Own Lump:
+- The display of the grandmapocalypse stages.
+  By default the mod shows them in a single row with large icons.
+  You can choose to show them in a compact 2x2 grid instead.
+- The display of the dragon auras.
+  By default the mod shows the auras in three separate columns
+  (one column per aura).
+  You can choose to show them in just two columns instead;
+  Choose Your Own Lump will do its best to convey all relevant information
+  using only two columns.
+- The golden lump sprite.
+  By default,
+  the golden lump icon is the second-to-most-mature one,
+  rather than the most-mature one;
+  this makes it more visually distinct than the other lump types
+  (in the same way that the caramelized lump has its two spikes).
+  You may choose to display the most-mature sprite.
+- Normally only one equivalent configuration is shown.
+  But in this case,
+  two configurations yielding the golden lump (which are equivalent) are shown.
+  This is because the first configuration can be achieved without changing the pantheon,
+  and the second configuration can be achieved without changing dragon auras;
+  since these two conditions were marked as "observed" in the options menu for this screenshot,
+  both configurations are shown.
 
 
 Using the mod
