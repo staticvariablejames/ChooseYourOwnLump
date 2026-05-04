@@ -83,7 +83,7 @@ export function clearDiscrepancyInfo() {
 // Returns just the bits of LiveDiscrepancyInfo that are stored in the save data
 export function getDiscrepancyInfoForStorage() {
     let info: StoredDiscrepancyInfo = {
-        lumpT: Game.lumpT,
+        lumpT: Math.floor(Game.lumpT), // Game.lumpT gets truncated before being stored to the save file
         lumpOverripeAge: Game.lumpOverripeAge,
     };
     return info;

@@ -31,7 +31,10 @@ export function getCurrentGameState(): PlannerRelevantState {
         hasSucralosiaInutilis: Boolean(Game.Has('Sucralosia Inutilis')),
         hasSugarAgingProcess: Boolean(Game.Has('Sugar aging process')),
         seed: Game.seed,
-        currentLumpT: Game.lumpT,
+        /* Game.lumpT gets Math.floor'd before being stored,
+         * and it is this truncated value that is used for lump times computation.
+         */
+        currentLumpT: Math.floor(Game.lumpT),
         currentRigidelSlot,
         currentGrandmaCount: Game.Objects['Grandma'].amount,
         currentGrandmapocalypseStage: Game.elderWrath,
