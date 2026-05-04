@@ -21,11 +21,13 @@ function makeLumpIcon(lumpType: LumpType, scale?:number) {
     switch(lumpType) {
         case 'normal':      background = 'background-position: -1392px -672px;'; break;
         case 'bifurcated':  background = 'background-position: -1392px -720px;'; break;
-        /* The golden lump's position is the almost-mature icon.
-         * This is intentional;
-         * it makes the golden lump a bit more visually distinct from the others.
-         * It also looks better than the fully-matured one. */
-        case 'golden':      background = 'background-position: -1344px -768px;'; break;
+        case 'golden':
+            if(preferences.display.useMatureGoldenLumpSprite) {
+                background = 'background-position: -1392px -768px;';
+            } else {
+                background = 'background-position: -1344px -768px;';
+            }
+            break;
         case 'meaty':       background = 'background-position: -1392px -816px;'; break;
         case 'caramelized': background = 'background-position: -1392px -1296px;'; break;
     }

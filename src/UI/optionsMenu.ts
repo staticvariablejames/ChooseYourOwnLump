@@ -225,6 +225,20 @@ export function customOptionsMenu() {
         </label>
     </div>`;
 
+    menuStr += '<div class="listing">' +
+        makeButton({
+            id: 'useMatureGoldenLumpSprite',
+            getCurrentValue: () => {return preferences.display.useMatureGoldenLumpSprite},
+            updateValue: (newValue: boolean) => {
+                preferences.display.useMatureGoldenLumpSprite = newValue;
+            },
+            buttonText: 'Use mature golden lump sprite',
+        }) +
+        `<label>Whether to use the fully mature golden lump sprite,
+                or the almost-mature one.
+        </label>
+    </div>`;
+
     // Copy CSS styles from the info menu
     menuStr += '<div class="update small"><div class="title">Lump Types</div></div>';
 

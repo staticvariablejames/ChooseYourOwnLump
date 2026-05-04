@@ -14,6 +14,7 @@ export type CYOLPreferences = {
         reportType: 'summary' | 'fullList';
         rows: number;
         showCheckmark: boolean,
+        useMatureGoldenLumpSprite: boolean,
     },
     filtering: FilteringPreferences;
 };
@@ -26,6 +27,7 @@ export function getDefaultPreferences(): CYOLPreferences {
             rows: 10,
             reportType: 'fullList',
             showCheckmark: true,
+            useMatureGoldenLumpSprite: false,
         },
         filtering: {
             threeColumnDragonAuras: false,

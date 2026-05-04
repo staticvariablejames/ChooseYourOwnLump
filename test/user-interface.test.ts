@@ -67,6 +67,10 @@ test('Changing preferences updates the CYOL.preferences object', async ({page}) 
     expectedPreferences.display.showCheckmark = false;
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
 
+    await page.getByText('Use mature golden lump sprite OFF').click();
+    expectedPreferences.display.useMatureGoldenLumpSprite = true;
+    expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
+
     await page.getByText('Display dragon auras in three columns OFF').click();
     expectedPreferences.filtering.threeColumnDragonAuras = true;
     expect(await page.evaluate(() => window.CYOL.preferences)).toEqual(expectedPreferences);
