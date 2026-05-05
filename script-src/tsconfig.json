@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "node16",
     "lib": ["esnext", "dom"],
     "types": [
         "vite/client",
         "cookieclicker"
     ],
 
-    "moduleResolution": "bundler",
+    "moduleResolution": "node16",
     "noEmit": true,
     "resolveJsonModule": true,
 
@@ -19,6 +19,6 @@
     "esModuleInterop": true
   },
   "include": [
-      "./src"
+      "./"
   ]
 }

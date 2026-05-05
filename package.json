@@ -1,13 +1,15 @@
 {
   "name": "choose-your-own-lump",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Cookie Clicker mod to aid choosing specific sugar lump types",
   "main": "ChooseYourOwnLump.js",
   "directories": {
     "doc": "doc"
   },
   "scripts": {
-    "build": "npx rollup -c",
+    "build-mod": "tsc --project ./tsconfig.json && vite build --config vite.mod.config.js",
+    "build-bin": "tsc --project ./script-src/tsconfig.json && vite build --config vite.bin.config.js",
+    "build": "npm run build-mod && npm run build-bin",
     "test": "npx playwright test"
   },
   "repository": {
@@ -21,17 +23,17 @@
   },
   "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme",
   "devDependencies": {
-    "@playwright/test": "^1.14.1",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-typescript": "^8.2.3",
-    "@types/cookieclicker": "^2.31.4",
-    "@types/js-beautify": "^1.13.2",
+    "@playwright/test": "1.57",
+    "@types/cookieclicker": "^2.52.5",
+    "@types/node": "^25.5.0",
+    "@types/seedrandom": "^3.0.8",
     "ccse-ts": "github:staticvariablejames/CCSE-ts#semver:^0.1.1",
-    "cookie-connoisseur": "0.1.2",
-    "js-beautify": "^1.14.0",
-    "playwright": "^1.14.1",
-    "rollup": "^2.53.3",
-    "tslib": "^2.3.0",
-    "typescript": "^4.2.3"
+    "cookie-connoisseur": "^0.4.1",
+    "playwright": "1.57",
+    "typescript": "5.9",
+    "vite": "^8.0.8"
+  },
+  "dependencies": {
+    "seedrandom": "^3.0.5"
   }
 }
