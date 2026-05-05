@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 1.4.0 - 2026-05-04
 - **Breaking change**: Update to Cookie Clicker 2.058, CCSE 2.036.
 
 - Added: Performance.
