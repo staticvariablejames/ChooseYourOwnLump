@@ -9,14 +9,25 @@
     and all lump-related computation is done on a separate thread.
 - Added: the ability to scroll the list of predictions.
     (Scrolling is janky but it should work.)
+- Added: summary report type,
+    partially inspired by the lump planner of [Just Natural Expansion](https://github.com/dfsw/Just-Natural-Expansion).
+- Added: other graphical niceties
+    (compact grandmapocalypse repsentation,
+    grandma icon above the grandma count,
+    checkmarks)
+    fully inspired by the lump planner of [Just Natural Expansion](https://github.com/dfsw/Just-Natural-Expansion).
 - Changed: The changelog now lives in its own file, rather than in `README.md`.
 - Changed: The method of calculating the discrepancy (to show in the tooltip) was changed,
     and should be more reliable now.
+- Fixed: CYOL now accounts for Supreme Intellect.
+- Fixed: In some rare cases,
+    CYOL would report a configuration with an active grandmapocalypse stage but with no grandmas.
 - **Removed**: legacy support for loading CYOL saves from versions 1.2.7 and earlier.
     (CYOL 1.3.2 has been around for 4.5 years,
     nobody should be using any other version.)
 - **Removed**: compatibility with Spiced Cookies.
     It will be re-added in a future update.
+- (internal) Added: scripts in `script-src/` to generate hard test cases.
 - (internal) Changed: the mod ID to "Choose Your Own Lump" (with capital letters).
     The mod retrieves data from the old ID "Choose your own lump",
     so players should not notice this change.
