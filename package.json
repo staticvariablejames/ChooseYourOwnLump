@@ -24,7 +24,7 @@
   "homepage": "https://github.com/staticvariablejames/ChooseYourOwnLump#readme",
   "devDependencies": {
     "@playwright/test": "1.57",
-    "@types/cookieclicker": "^2.52.5",
+    "@types/cookieclicker": "^2.58.1",
     "@types/node": "^25.5.0",
     "@types/seedrandom": "^3.0.8",
     "ccse-ts": "github:staticvariablejames/CCSE-ts#semver:^0.1.1",

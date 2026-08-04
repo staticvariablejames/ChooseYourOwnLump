@@ -79,7 +79,6 @@ export function retrieveDataFromLegacySave() {
     let legacyId = "Choose your own lump";
     if(legacyId in Game.modSaveData) {
         loadSettingsFromLegacySave(Game.modSaveData[legacyId]);
-        // @ts-ignore TODO: update @types/cookieclicker
         Game.deleteModData(legacyId);
     }
 }

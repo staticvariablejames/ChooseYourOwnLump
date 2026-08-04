@@ -114,7 +114,6 @@ let CYOL = {
             '{', // Opening brace
             '{\nCYOL.preload(); // Injected by Choose Your Own Lump\n'
         );
-        // @ts-ignore TODO: update @types/cookieclicker to include Game.loadModData
         rewriteCode('loadModData',
             '{', // Opening brace
             `{\nif(!("${name}" in Game.modSaveData)) CYOL.load(); // Injected by Choose Your Own Lump\n`
