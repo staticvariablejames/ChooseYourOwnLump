@@ -6,7 +6,7 @@ Choose Your Own Lump!
 | [Practice](#practice)
 | [Using the mod](#using-the-mod)**
 
-This mod for [Cookie Clicker](https://orteil.dashnet.org/cookieclicker/).
+This mod for [Cookie Clicker](https://orteil.dashnet.org/cookieclicker/)
 is a lump planner.
 It tells you how to set up your game
 so that the next sugar lump has the type of your choice.
@@ -15,13 +15,16 @@ so that the next sugar lump has the type of your choice.
 Getting Started (aka TL;DR)
 ===========================
 
-1.  The number of grandmas,
-    the stage of the grandmapocalypse,
-    the slot that Rigidel is being worshipped,
-    and the auras of the dragon
-    can all be used to indirectly manipulate the type of the next coalescing sugar lump.
+1.  The type of the lump is chosen when the lump starts growing.
+    The type looks random,
+    but it is completely determined by the exact millisecond that the lump started growing
+    (together with the game seed, the stage of the grandmapocalypse,
+    and whether you have Dragon's Curve, Reality Bending, and Sucralosia Inutilis).
+    The idea is to manipulate this exact millisecond to choose the type of the next lump.
 
-2.  This mod tries all possibilities and tells you which ones give the desired lump types.
+2.  The number of grandmas, the dragon auras, and Rigidel
+    all affect the exact millisecond that the next lump will start growing.
+    This mod tries all possibilities and tells you which ones give the desired lump types.
     Look at the pictures below and try to understand what the mod is telling you;
     this information is available in the lump tooltip.
 
@@ -32,7 +35,7 @@ Getting Started (aka TL;DR)
     and then load your save game again.
     If everything went alright the type of your next lump is the one you choose!
 
-4.  The most common issue is the discrepancy.
+4.  The most common issue is the **discrepancy**.
     This is a bug that makes the game miss the auto-harvest time,
     typically by one or two milliseconds.
     Reload your save game until the actual discrepancy matches the expected discrepancy;
@@ -72,7 +75,7 @@ The initial state is the **seed** of the PRNG.
 Whenever we ask a new number from the PRNG,
 it generates one number according to its internal state,
 hands it to us,
-and update its internal state.
+and updates its internal state.
 The key point is that both the generation and the update are completely deterministic:
 if we know the algorithm and the internal state,
 we can calculate the exact sequence of numbers produced by the PRNG.
@@ -176,7 +179,8 @@ and wait for it to fall (and be auto-harvested) offline.
 
 Note that letting it fall and be auto-harvest whilst online is not viable.
 Online auto-harvesting is handled by the function `Game.doLumps`,
-which is triggered once every 33ms (as part of `Game.Loop()`).
+which is triggered once every 33ms (as part of `Game.Loop()`),
+so it is likely that it will miss the exact autoharvest time.
 
 Manipulating the Next Lump Type
 -------------------------------
@@ -280,14 +284,14 @@ then the next lump type will be caramelized.
 So if this is our target lump,
 we adjust the game according to these conditions,
 export the save,
-and when we load the save again after the lump has had fallen,
+and when we load the save again after the lump has fallen,
 the lump type will be caramelized.
 
 **This assumes, of course,
 that the discrepancy that happens when loading the save game
 matches the one assumed during the calculations.**
 Thus some savescumming may be needed to guarantee that the discrepancy matches the expected value.
-The block of text immediately above the predictions table always displays the lump type
+The block of text above the table of predictions always displays the lump type
 and will give guidance regarding discrepancy.
 This value of the expected discrepancy can be adjusted in the settings,
 but I believe most players will want that value to be 1ms.
@@ -310,7 +314,7 @@ they will match the ones displayed in the tooltip.
 In some rare cases,
 the required stages are on "the middle".
 For example,
-in the fourth line above,
+in the fourth row of the table above,
 only stage 1 works.
 If you are past this stage,
 the only way of still getting the desired lump is to use the Elder covenant
@@ -329,7 +333,7 @@ The screenshot above shows 8 rows of predictions.
 This number can be changed in the options menu
 (the default is 10).
 You can scroll this list of predictions by scrolling while hovering the lump;
-the result is a bit janky but it works.
+scrolling is a bit janky but it works.
 
 The screenshot above shows all five lump types.
 You can choose to filter this table to only show specific lump types.
